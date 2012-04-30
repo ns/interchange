@@ -5,6 +5,8 @@ import java.util.ArrayList;
 public class Way {
     public ArrayList<String> nd = new ArrayList<String>();
     public ArrayList<Tag> tags = new ArrayList<Tag>();
+    public int lanes;
+    public boolean oneway;
     
     public void addNode(String nodeId){
     	nd.add(nodeId);
@@ -28,6 +30,14 @@ public class Way {
           return true;
       }
       return false;
+    }
+    
+    public String getTag(String k) {
+      for (Tag t : tags) {
+        if (t.k.equals(k))
+          return t.v;
+      }
+      return null;
     }
     
     public boolean hasTag(String k) {

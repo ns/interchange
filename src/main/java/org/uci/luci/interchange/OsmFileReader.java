@@ -53,7 +53,8 @@ public class OsmFileReader {
       xmlreader.setErrorHandler(osmErrorHandler);
 
       // xmlInputStream = context.getResources().openRawResource(R.raw.milano);
-      xmlInputStream = new FileInputStream("lib/paris_small.osm.xml");
+      xmlInputStream = new FileInputStream("lib/uci.osm.xml");
+      // xmlInputStream = new FileInputStream("lib/paris_small.osm.xml");
 
       xmlreader.parse(new InputSource(xmlInputStream));
       osmHandler.isLoaded=true;

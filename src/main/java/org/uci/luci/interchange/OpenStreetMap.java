@@ -108,9 +108,7 @@ public class OpenStreetMap {
 		return coordinates;
 		
 	}
-	public String generateTagString(){
-		
-		
+	public String generateTagString() {
 		String deepContent = "";
 		Way w;
 		Node n;
@@ -150,10 +148,13 @@ public class OpenStreetMap {
 		        "ways : " + ways.size() + "( way 1 : rel " + ways.get(1).getNdSize()+ ", tag " + ways.get(1).getTagsSize()+")"
 		);
 	}
+	
 	public void addNode(Node n){
+	  System.out.println(n.id);
 	  nodeHash.put(n.id, n);
     // nodes().add(n);
 	}
+	
 	public void addRelation(){
 		relations++;
 	}
@@ -184,7 +185,44 @@ public class OpenStreetMap {
     //       }
     //   return;
     // }
-	  
+    
+    // System.out.println("\toneway=" + _way.getTag("oneway"));
+    // System.out.println("\tmaxspeed=" + _way.getTag("maxspeed"));
+    // System.out.println("\tlanes=" + _way.getTag("lanes"));
+    // System.out.println("\thighway=" + _way.getTag("highway"));
+    
+    if (w.hasTag("lanes")) {
+      w.lanes = Integer.parseInt(w.getTag("lanes"));
+    }
+    else {
+      String highway = w.getTag("highway");
+      if (highway.equals("primary") || highway.equals("primary_link")) {
+        w.lanes = 2;
+      }
+      else if (highway.equals("residential")) {
+        w.lanes = 1;
+      }
+      else if (highway.equals("secondary") || highway.equals("tertiary")) {
+        w.lanes = 1;
+      }
+      else if (highway.equals("motorway_link")) {
+        w.lanes = 1;
+      }
+      else if (highway.equals("living_street")) {
+        w.lanes = 1;
+      }
+      else {
+        w.lanes = 1;
+        System.out.println("\thighway=" + w.getTag("highway"));
+      }
+    }
+    
+    if (w.hasTag("oneway")) {
+      w.oneway = Boolean.parseBoolean(w.getTag("oneway"));
+    }
+    else {
+      w.oneway = false;
+    }
 	  
     // connect all these nodes together
     for (int i = 0; i < w.nd.size(); i++) {

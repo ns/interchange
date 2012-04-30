@@ -3,34 +3,100 @@ package org.uci.luci.interchange;
 import javax.vecmath.Vector2d;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Map;
+import java.util.List;
 
 public class Vehicle {
+  int vin;
+  
   double lat, lon;
   Vector2d velocity;
-  String lastPassedNodeId;
-  Way _way;
-  OpenStreetMap openStreetMap;
+  private String originNodeId, destinationNodeId;
   
-  public Vehicle(float lat, float lon) {
-    this.lat = lat;
-    this.lon = lon;
+  String state = "";
+  
+  private void setOriginNodeId(String nodeId) {
+    if (originNodeId != null)
+      Oracle.deregisterVehicleOrigin(vin, originNodeId);
+    originNodeId = nodeId;
+    Oracle.registerVehicleOrigin(vin, originNodeId);
   }
   
-  private String nextNodeOnWay(Way w, String nId, boolean forward) {
-    int nIdIndex = w.nd.indexOf(nId);
+  public Vehicle(float lat, float lon, String anOriginNodeId, String aDestinationNodeId) {
+    VehicleRegistry.registerVehicle(this);
     
-    if (forward) {
-      if (nIdIndex >= w.nd.size() - 1)
-        return null;
-      else
-        return w.nd.get(nIdIndex + 1);
-    }
-    else {
-      nIdIndex = w.nd.size();
-      if (nIdIndex == 0)
-        return null;
-      else
-        return w.nd.get(nIdIndex - 1);
+    this.lat = lat;
+    this.lon = lon;
+    setOriginNodeId(anOriginNodeId);
+    destinationNodeId = aDestinationNodeId;
+  }
+  
+  public boolean isAtDestinationNode() {
+    return distanceToDestinationNode() < 0.0000005;
+  }
+  
+  public double distanceToDestinationNode() {
+    Node nextNode = getDestinationNode();
+    double d = Math.sqrt(Math.pow(lat - Double.valueOf(nextNode.lat),2)+Math.pow(lon - Double.valueOf(nextNode.lon),2));
+    return d;
+  }
+  public double distanceFromOriginNode() {
+    Node lastNode = getOriginNode();
+    double d = Math.sqrt(Math.pow(lat - Double.valueOf(lastNode.lat),2)+Math.pow(lon - Double.valueOf(lastNode.lon),2));
+    return d;
+  }
+  
+  public Node getOriginNode() {
+    return Global.openStreetMap.getNode(originNodeId);
+  }
+  
+  public Node getDestinationNode() {
+    return Global.openStreetMap.getNode(destinationNodeId);
+  }
+  
+  // we're lying, the vehicle does some magic internally
+  // to handle going from node to node. this is only
+  // for node-to-node movements that aren't actual
+  // transporation infrastructure (intersections, stop signs, etc)
+  // for those situations the vehicle does nothing. the driver
+  // must figure out where he wants to take the car
+  // *this should only be called by the driver*
+  public void tick() {
+    Node lastNode = getOriginNode();
+    Node nextNode = getDestinationNode();
+    
+    if (isAtDestinationNode()) {
+      if (nextNode.connectedNodes.size() == 2) {
+        // pretty obvious where the car goes..
+        int i = nextNode.connectedNodes.indexOf(lastNode);
+        setOriginNodeId(nextNode.id);
+        if (i == 0) {
+          destinationNodeId = nextNode.connectedNodes.get(1).id;
+        }
+        else {
+          destinationNodeId = nextNode.connectedNodes.get(0).id;
+        }
+        state = "";
+      }
+      else if (nextNode.connectedNodes.size() == 1) {
+        // we make the car go back down the path it came from
+        // this happens when the car hits a dead end,
+        // potentially remove this and make the driver handle it
+        String _originNodeId = originNodeId;
+        setOriginNodeId(destinationNodeId);
+        destinationNodeId = _originNodeId;
+        state = "";
+      }
+      else {
+        // // make the driver handle this, it's an intersection
+        // // we assume that this is an intersection
+        // // pick a random way to go.
+        int i = nextNode.connectedNodes.indexOf(lastNode);
+        // originNodeId = nextNode.id;
+        setOriginNodeId(nextNode.id);
+        destinationNodeId = randomConnectedNode(nextNode, lastNode).id;
+        // state = "reached_intersection";
+      }
     }
   }
   
@@ -47,105 +113,160 @@ public class Vehicle {
     return n.connectedNodes.get(nodeIndex);
   }
   
-  double speed = 0.000001;
-  String originNodeId, destinationNodeId;
-  public void navTick() {
-    if (originNodeId == null) {
-      // establish the origin node from our lat/lon
-      originNodeId = nextNodeOnWay(_way, null, true);
-    }
+  // the vehicle doesn't actuate anything,
+  // it simply knows the state of the vehicle
+  // in the simulator. also, it provides a convenience
+  // methods to calculate the car in front and behind this vehicle.
+  
+  // double speed = 0.000001;
+  double minSpeed = 0;
+  double maxSpeed = 0.000002;
+  int direction = 0; // 0 or 1
+  int lane = 0;
+  
+  Vehicle vehicleBehind, vehicleInFront;
+  private void calculateVehicleBehind() {
+    Vehicle vehicle = null;
     
-    if (destinationNodeId == null) {
-      destinationNodeId = nextNodeOnWay(_way, originNodeId, true);
-    }
-    
-    Node lastNode = openStreetMap.getNode(originNodeId);
-    Node nextNode = openStreetMap.getNode(destinationNodeId);
-    
-    double d = Math.sqrt(Math.pow(lat - Double.valueOf(nextNode.lat),2)+Math.pow(lon - Double.valueOf(nextNode.lon),2));
-    
-    if (lastNode.connectedNodes.size()==0) {
-      System.out.println("no connected nodes!!!");
-    }
-    
-    if (d < 0.0000005) {
-      if (nextNode.connectedNodes.size() == 2) {
-        // pretty obvious where the car goes..
-        int i = nextNode.connectedNodes.indexOf(lastNode);
-        originNodeId = nextNode.id;
-        if (i == 0) {
-          destinationNodeId = nextNode.connectedNodes.get(1).id;
-        }
-        else {
-          destinationNodeId = nextNode.connectedNodes.get(0).id;
+    for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
+      // Vehicle v = entry.getValue();
+      
+      if (this == v)
+        continue;
+      
+      if (v.originNodeId.equals(originNodeId) && v.destinationNodeId.equals(destinationNodeId)) {
+        // at least on the same way, the way we can check if this vehicle is
+        // in behind us is by checking how far both vehicles are from their
+        // destinationNode
+        if (distanceToDestinationNode() < v.distanceToDestinationNode()) {
+          vehicle = v;
         }
       }
-      else if (nextNode.connectedNodes.size() == 1) {
-        String _originNodeId = originNodeId;
-        originNodeId = destinationNodeId;
-        destinationNodeId = _originNodeId;
-      }
-      else {
-        // we assume that this is an intersection
-        // pick a random way to go.
-        int i = nextNode.connectedNodes.indexOf(lastNode);
-        originNodeId = nextNode.id;
-        destinationNodeId = randomConnectedNode(nextNode, lastNode).id;
-      }
     }
     
-    
-    // System.out.println("Tag Data:");
-    // for (int i = 0; i < lastNode.way.tags.size(); i++) {
-    //   Tag t = lastNode.way.tags.get(i);
-    //   System.out.println("\t"+t.k + " = " + t.v);
+    vehicleBehind = vehicle;
+  }
+  
+  public Intersection getNextIntersection() {
+    Node destNode = Global.openStreetMap.getNode(destinationNodeId);
+    // this is an intersection
+    if (destNode.connectedNodes.size() > 2) {
+      return IntersectionRegistry.getIntersectionAtNode(destNode);
+    }
+    // this is a simple node
+    else if (destNode.connectedNodes.size() == 2) {
+      return null;
+    }
+    // this is the end of the road
+    else if (destNode.connectedNodes.size() == 1) {
+      return null;
+    }
+    System.out.println("this also shouldn't happen...");
+    return null;
+  }
+  
+  public double getDistanceToNextIntersection() {
+    Node destNode = Global.openStreetMap.getNode(destinationNodeId);
+    // this is an intersection
+    if (destNode.connectedNodes.size() > 2) {
+      return distanceToDestinationNode();
+    }
+    // this is a simple node
+    else if (destNode.connectedNodes.size() == 2) {
+      return Integer.MAX_VALUE;
+    }
+    // this is the end of the road
+    else if (destNode.connectedNodes.size() == 1) {
+      return -1;
+    }
+    // what??
+    // else if (destNode.connectedNodes.size() == 0) {
+      System.out.println("this also shouldn't happen");
+    //   return -1;
     // }
+    return -1;
+  }
+  
+  public double getDistanceToVehicleInFront() {
+    calculateVehicleInFront();
+    if (vehicleInFront == null) {
+      return -1;
+    }
+    else {
+      double d = Math.sqrt(Math.pow(lat - vehicleInFront.lat,2)+Math.pow(lon - vehicleInFront.lon,2));
+      return d;
+    }
+  }
+  
+  private void calculateVehicleInFront() {
+    Vehicle vehicle = null;
+    
+    List<Integer> vehicles = Oracle.vehiclesWithNodeAsOrigin(originNodeId);
+    for (int vin : vehicles) {
+      Vehicle v = VehicleRegistry.getVehicle(vin);
+      if (v == this || !v.destinationNodeId.equals(destinationNodeId))
+        continue;
+      
+      if (distanceToDestinationNode() > v.distanceToDestinationNode()) {
+        if (vehicle == null || v.distanceToDestinationNode() > vehicle.distanceToDestinationNode())
+          vehicle = v;
+      }
+    }
+    
+    // check one node ahead
+    if (vehicle == null) {
+      Node destNode = Global.openStreetMap.getNode(destinationNodeId);
+      if (destNode.connectedNodes.size() == 2) {
+        if (destNode.connectedNodes.get(0).id.equals(originNodeId))
+          vehicle = findVehicleClosestToOriginNode(destNode.id, destNode.connectedNodes.get(1).id);
+        else
+          vehicle = findVehicleClosestToOriginNode(destNode.id, destNode.connectedNodes.get(0).id);
+      }
+    }
+    
+    vehicleInFront = vehicle;
+  }
+  
+  private Vehicle findVehicleClosestToOriginNode(String originNodeId, String destinationNodeId) {
+    List<Integer> vehicles = Oracle.vehiclesWithNodeAsOrigin(originNodeId);
+    
+    if (vehicles == null || vehicles.isEmpty()) {
+      return null;
+    }
+    else {
+      Vehicle vehicle = null;
+      for (Integer vin : vehicles) {
+        Vehicle v = VehicleRegistry.getVehicle(vin);
+        if (!v.getDestinationNode().id.equals(destinationNodeId))
+          continue;
+        if (vehicle == null || v.distanceFromOriginNode() < vehicle.distanceFromOriginNode())
+          vehicle = v;
+      }
+      return vehicle;
+    }
   }
   
   private double angleOfTravel() {
-    Node lastNode = openStreetMap.getNode(originNodeId);
-    Node nextNode = openStreetMap.getNode(destinationNodeId);
-    // double angle = Math.abs(Math.atan((Double.valueOf(nextNode.lat) - Double.valueOf(lastNode.lat)) / (Double.valueOf(nextNode.lon) - Double.valueOf(lastNode.lon))));
-    // double angle = -Math.atan2((Double.valueOf(nextNode.lon) - Double.valueOf(lastNode.lon)), (Double.valueOf(nextNode.lat) - Double.valueOf(lastNode.lat)));
+    Node lastNode = getOriginNode();
+    Node nextNode = getDestinationNode();
     double angle = -Math.atan2((Double.valueOf(nextNode.lat) - Double.valueOf(lastNode.lat)), (Double.valueOf(nextNode.lon) - Double.valueOf(lastNode.lon)));
     angle = Math.toDegrees(angle);
-    // System.out.println("--> " + angle);
     if (angle < 0)
       angle = 360 + angle;
     return Math.toRadians(angle);
   }
   
-  private double distanceToNextNode() {
-    Node lastNode = openStreetMap.getNode(originNodeId);
-    Node nextNode = openStreetMap.getNode(destinationNodeId);
-    double d = Math.sqrt(Math.pow(lat - Double.valueOf(nextNode.lat),2)+Math.pow(lon - Double.valueOf(nextNode.lon),2));
-    return d;
-  }
-  
-  public void tick() {
-    // on every tick the vehicle does the following
-    // (1) figures out it's distance to the next node (based last node and next node)
-    // (2) figures out the angle for the vector it must traverse to reach the next node
-    // (3) figures out the speed (magnitude) of the vector it must traverse
-    // (4) sets it's velocity vector based on these calculations
+  // move by velocity in the right direction
+  public void setVelocity(double speed) {
+    Node lastNode = getOriginNode();
+    Node nextNode = getDestinationNode();
     
-    navTick();
-    
-    // double speed = 0.000002;
-    
-    // move by velocity in the right direction
-    Node lastNode = openStreetMap.getNode(originNodeId);
-    Node nextNode = openStreetMap.getNode(destinationNodeId);
+    double oldC = distanceFromOriginNode();// Math.sqrt(Math.pow(lat - Double.valueOf(lastNode.lat),2)+Math.pow(lon - Double.valueOf(lastNode.lon),2));
+    double newC = (oldC + speed);
     
     double angle = angleOfTravel();
-    
-    double oldC = Math.sqrt(Math.pow(lat - Double.valueOf(lastNode.lat),2)+Math.pow(lon - Double.valueOf(lastNode.lon),2));
-    double newC = (oldC + speed);
     double deltaLat = Math.sin(angle)*newC;
     double deltaLon = Math.cos(angle)*newC;
-    
-    
-    // System.out.println("rad = " + angle + " deg = " + Math.toDegrees(angle));
     
     // based on this we can negate deltaLat or deltaLon to the correct sign
     if (Math.toDegrees(angle) < 0) {
@@ -159,114 +280,11 @@ public class Vehicle {
     else {
       deltaLat*=-1;
       deltaLon*=1;
-      // System.out.println("???");
     }
     
     double newLat = Double.valueOf(lastNode.lat) + deltaLat;
     double newLon = Double.valueOf(lastNode.lon) + deltaLon;
     
     velocity = new Vector2d(newLat-lat, newLon-lon);
-    // velocity = new Vector2d(0,0);
-    
-    // v.lat = (float)newLat;
-    // v.lon = (float)newLon;
-    
-    // // move by velocity in the right direction
-    // String lastNodeId = lastPassedNodeId;
-    // if (lastNodeId == null)
-    //   lastNodeId = lastPassedNodeId = _way.nd.get(0);
-    // Node lastNode = openStreetMap.getNode(lastNodeId);
-    // 
-    // String nextNodeId = _way.nd.get(_way.nd.indexOf(lastNodeId) + 1);
-    // Node nextNode = openStreetMap.getNode(nextNodeId);
-    // 
-    // double d = Math.sqrt(Math.pow(lat - Double.valueOf(nextNode.lat),2)+Math.pow(lon - Double.valueOf(nextNode.lon),2));
-    // 
-    // // System.out.println(d);
-    // if (d < 0.00005) {
-    //   if (_way.nd.size() - 2 == _way.nd.indexOf(lastNodeId)) {
-    //     
-    //     // if (nextNode.connectedNodes().get(0).)
-    //     // here we have to figure out if we can jump onto another way
-    //     // by looking at nextNode.connectedNodes and figuring out a node
-    //     // we'd like to hop onto. we have to make sure it's not lastNode
-    //     // and then we need to figure out which way that node belongs to and set
-    //     // that as _way and figure out what lastPassedNodeId will be and what
-    //     // nextNode will be. since we wont be able to find lastPassedNodeId based
-    //     // on our current _way =/
-    //     
-    //     System.out.println("I don't know where to go!");
-    //     velocity = new Vector2d(0,0);
-    //     
-    //     
-    //     Node nodeOnNextWay = null;
-    //     
-    //     for (int i = 0; i < nextNode.connectedNodes.size(); i++) {
-    //       Node conNode = nextNode.connectedNodes.get(i);
-    //       System.out.println("-> " + conNode);
-    //       
-    //       if (nodeOnNextWay != conNode) {
-    //         nodeOnNextWay = conNode;
-    //       }
-    //     }
-    //     
-    //     if (nodeOnNextWay == null) {
-    //       System.out.println("oh no, we have no where to go!");
-    //       return;
-    //     }
-    //     else {
-    //       _way = nodeOnNextWay.way;
-    //       lastPassedNodeId = nodeOnNextWay.way.nd.get(nodeOnNextWay.way.nd.size()-1);//nodeOnNextWay.id;
-    //       return;
-    //       // lastNode = nextNode;
-    //       // nextNode = nodeOnNextWay;
-    //     }
-    //     
-    //     // return;
-    //   }
-    //   else {
-    //     lastNodeId = lastPassedNodeId = _way.nd.get(_way.nd.indexOf(lastNodeId) + 1);
-    //     lastNode = openStreetMap.getNode(lastNodeId);
-    //     nextNodeId = _way.nd.get(_way.nd.indexOf(lastNodeId) + 1);
-    //     nextNode = openStreetMap.getNode(nextNodeId);
-    //     // System.out.println("next node");
-    //   }
-    // }
-    // 
-    // double angle = Math.abs(Math.atan((Double.valueOf(nextNode.lat) - Double.valueOf(lastNode.lat)) / (Double.valueOf(nextNode.lon) - Double.valueOf(lastNode.lon))));
-    // 
-    // double oldC = Math.sqrt(Math.pow(lat - Double.valueOf(lastNode.lat),2)+Math.pow(lon - Double.valueOf(lastNode.lon),2));
-    // 
-    // double newC = (oldC + speed); //velocity;
-    // 
-    // double deltaLat = Math.sin(angle)*newC;
-    // double deltaLon = Math.cos(angle)*newC;
-    // 
-    // // System.out.println("angle = " + Math.toDegrees(angle) + " oldC = " + oldC + " newC="+newC);
-    // 
-    // // based on this we can negate deltaLat or deltaLon to the correct sign
-    // if (Math.toDegrees(angle) > 45) {
-    //   deltaLat*=-1;
-    //   deltaLon*=1;
-    // }
-    // else {
-    //   deltaLat*=-1;
-    //   deltaLon*=1;
-    //   // System.out.println("???");
-    // }
-    // 
-    // // double newLat = Double.valueOf(lastNode.lat) + deltaLat;
-    // // double newLon = Double.valueOf(lastNode.lon) + deltaLon;
-    // 
-    // // System.out.println("deltaLat = " + deltaLat + " deltaLon = " + deltaLat);
-    // // System.out.println("newC = " + newC + " old ("+v.lat+","+v.lon+") new ("+newLat+","+newLon+")");
-    // 
-    // double newLat = Double.valueOf(lastNode.lat) + deltaLat;
-    // double newLon = Double.valueOf(lastNode.lon) + deltaLon;
-    // 
-    // velocity = new Vector2d(newLat-lat, newLon-lon);
-    // 
-    // // v.lat = (float)newLat;
-    // // v.lon = (float)newLon;
   }
 }

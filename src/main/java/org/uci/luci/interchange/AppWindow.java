@@ -26,19 +26,15 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class AppWindow {
-  OpenStreetMap openStreetMap;
   JFrame f;
   MyPanel myPanel;
-	HashMap<String, Vehicle> vehicleHash = new HashMap<String, Vehicle>();
 	ArrayList<String> spawnPoints = new ArrayList<String>();
   
-    public AppWindow(OpenStreetMap openStreetMap) throws InterruptedException {
-      this.openStreetMap = openStreetMap;
+    public AppWindow() throws InterruptedException {
+      Global.openStreetMap.purgeUnconnectedNodes();
+      IntersectionRegistry.generateIntersections();
       
-      
-      openStreetMap.purgeUnconnectedNodes();
-      
-      myPanel = new MyPanel(openStreetMap);
+      myPanel = new MyPanel();
       
       f = new JFrame("Interchange");
       f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,109 +47,55 @@ public class AppWindow {
     }
     
     public void simulate() throws InterruptedException {
-      Random generator = new Random();
-      Object[] values = openStreetMap.nodeHash.keySet().toArray();
-      
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      spawnPoints.add((String)values[generator.nextInt(values.length)]);
-      System.out.println(spawnPoints.get(0));
-      
-      int vin = 0;
       int tick = 0;
       int cars=0;
       while (true) {
         tick++;
         cars=0;
         
-        // System.out.println("vehicles: spawn");
-        for (String spawnPoint : spawnPoints) {
-          if (!(tick%100==1)) {
-            break;
-          }
-          Node node = openStreetMap.getNode(openStreetMap.getNode(spawnPoint).way.nd.get(0));
-          // spawn a vehicle if there is room
-          Vehicle newV = new Vehicle(
-            Float.valueOf(node.lat),
-            Float.valueOf(node.lon)
-          );
-          newV._way = openStreetMap.getNode(spawnPoint).way;
-          newV.openStreetMap = openStreetMap;
-          node.way.vehiclesTraversing.add(newV);
-          vehicleHash.put(vin+"", newV);
-          vin++;
+        if (tick%100==1) {
+          Vehicle v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122633613"));
+          // Vehicle v = VehicleFactory.createVehicleAtRandomPoint();
+          VehicleDriver d = VehicleDriverFactory.createVehicleDriver(v);
         }
         
         long startTime = System.nanoTime();
         long endTime;
         
         // System.out.println("vehicles: tick");
-        for (Map.Entry<String, Vehicle> entry : vehicleHash.entrySet()) {
-          Vehicle v = entry.getValue();
-          v.tick();
+        for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
+          d.tick();
           cars++;
         }
         
-        
-        for(int i = 0; i < openStreetMap.ways.size(); i++) {
-          Way w = openStreetMap.ways.get(i);
-          for (Vehicle v : w.vehiclesTraversing) {
-            // each vehicle's velocity vector has been determined by now
-            // we simply calculate exactly where the vehicle should be for
-            // the next timestep
-            
-            String lastNodeId = v.lastPassedNodeId;
-            if (lastNodeId == null)
-              lastNodeId = v.lastPassedNodeId = w.nd.get(0);
-            Node lastNode = openStreetMap.getNode(lastNodeId);
-            
-            String nextNodeId = w.nd.get(w.nd.indexOf(lastNodeId) + 1);
-            Node nextNode = openStreetMap.getNode(nextNodeId);
-            
-            double newLat = v.lat + v.velocity.x;
-            double newLon = v.lon + v.velocity.y;
-            
-            v.lat = (double)newLat;
-            v.lon = (double)newLon;
-          }
+        for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
+          // each vehicle's velocity vector has been determined by now
+          // we simply calculate exactly where the vehicle should be for
+          // the next timestep
+          
+          if (v.velocity == null)
+            continue;
+          
+          Node lastNode = v.getOriginNode();
+          Node nextNode = v.getDestinationNode();
+          
+          double newLat = v.lat + v.velocity.x;
+          double newLon = v.lon + v.velocity.y;
+          
+          v.lat = (double)newLat;
+          v.lon = (double)newLon;
         }
         
         
+        for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
+          i.tick();
+        }
+        
         endTime = System.nanoTime();
         long duration = endTime - startTime;
-        System.out.println("d = " + duration + " cars = " + cars);
+        // System.out.println("d = " + duration + " cars = " + cars);
         
         Thread.sleep(2);
-        myPanel.repaint();
       }
     }
     
@@ -163,9 +105,9 @@ public class AppWindow {
       float bottom = -1;
       float left = -1;
       float right = -1;
-      int scale = 10;
-      int offsetX = 0;
-      int offsetY = 0;
+      int scale = 11300;
+      int offsetX = -6599;
+      int offsetY = -6124;
       
       private BufferedImage map;
       private Graphics2D mapG2D;
@@ -178,8 +120,8 @@ public class AppWindow {
       int draggingOffsetX;
       int draggingOffsetY;
       
-        public MyPanel(OpenStreetMap openStreetMap) {
-          this.osm = openStreetMap;
+        public MyPanel() {
+          this.osm = Global.openStreetMap;
           setBorder(BorderFactory.createLineBorder(Color.black));
           
           
@@ -282,6 +224,14 @@ public class AppWindow {
               }
             }
           });
+          
+          
+          javax.swing.Timer t = new javax.swing.Timer(16, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+              repaint();
+            }
+          });
+          t.start();
         }
 
         public Dimension getPreferredSize() {
@@ -323,6 +273,26 @@ public class AppWindow {
           g2d.setColor(Color.white);
           g2d.fillRect(0,0,getWidth(),getHeight());
           
+          
+          
+          
+          
+          g2d.setStroke(new BasicStroke(1f));
+          g2d.setColor(new Color(200, 200, 255));
+        	
+          for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
+            Node n = Global.openStreetMap.getNode(i.getRootNodeId());
+            
+            NodePoint p = scaledXY(n.lat,n.lon);
+            g2d.fillOval((int)p.x, (int)p.y, (int)i.getBounds(), (int)i.getBounds());
+          }
+          
+          
+          
+          
+          
+          
+          
   	    	// ways
         	Node _n;
         	NodePoint _np;
@@ -331,41 +301,77 @@ public class AppWindow {
           float _np_old_x = -1;
           float _np_old_y = -1;
         	
-        	Color[] colorz = new Color[10];
-        	colorz[0] = Color.black;
-        	colorz[1] = Color.red;
-        	colorz[2] = Color.green;
-        	colorz[3] = Color.blue;
-        	colorz[4] = Color.yellow;
-        	colorz[5] = Color.gray;
-        	colorz[6] = Color.cyan;
-        	colorz[7] = Color.orange;
-        	colorz[8] = Color.magenta;
-        	colorz[9] = Color.pink;
+          // Color[] colorz = new Color[10];
+          // colorz[0] = Color.black;
+          // colorz[1] = Color.red;
+          // colorz[2] = Color.green;
+          // colorz[3] = Color.blue;
+          // colorz[4] = Color.yellow;
+          // colorz[5] = Color.gray;
+          // colorz[6] = Color.cyan;
+          // colorz[7] = Color.orange;
+          // colorz[8] = Color.magenta;
+          // colorz[9] = Color.pink;
         	
-          g2d.setStroke(new BasicStroke(1f));
           for(int i = 0; i < osm.ways.size(); i++) {
-            g2d.setColor(colorz[i%10]);
+            // g2d.setColor(colorz[i%10]);
            _w = osm.ways.get(i);
            
-            for(int j = 0; j < _w.nd.size(); j++){
-              _n = osm.getNode(_w.nd.get(j));
-              _np = scaledXY(_n.lat, _n.lon);
+           if (_w.lanes > 1)
+             g2d.setStroke(new BasicStroke(3f));
+           else
+             g2d.setStroke(new BasicStroke(1f));
+          
+          
+           // if (_w.oneway) {
+           //   g2d.setColor(Color.blue);
+           // }
+           // else {
+           //   g2d.setColor(Color.red);
+           // }
+           
+           if (_w.oneway) {
+             g2d.setColor(Color.BLACK);
+             
+              for(int j = 0; j < _w.nd.size(); j++){
+                _n = osm.getNode(_w.nd.get(j));
+                _np = scaledXY(_n.lat, _n.lon);
 
-              if(j == 0){
-                _np_old_x = _np.x;
-                _np_old_y = _np.y;
-              } else {
-                g2d.drawLine((int)_np_old_x,(int)_np_old_y,(int)_np.x,(int)_np.y);
-                _np_old_x = _np.x;
-                _np_old_y = _np.y;
+                if(j == 0){
+                  _np_old_x = _np.x;
+                  _np_old_y = _np.y;
+                } else {
+                  g2d.drawLine((int)_np_old_x,(int)_np_old_y,(int)_np.x,(int)_np.y);
+                  _np_old_x = _np.x;
+                  _np_old_y = _np.y;
+                }
               }
             }
+            else {
+               for(int j = 0; j < _w.nd.size(); j++){
+                 _n = osm.getNode(_w.nd.get(j));
+                 _np = scaledXY(_n.lat, _n.lon);
+
+                 if(j == 0){
+                   _np_old_x = _np.x;
+                   _np_old_y = _np.y;
+                 } else {
+                   int streetSpacing = 8;
+                   g2d.setColor(Color.BLACK);
+                   g2d.drawLine((int)_np_old_x+streetSpacing,(int)_np_old_y+streetSpacing,(int)_np.x+streetSpacing,(int)_np.y+streetSpacing);
+                   g2d.setColor(Color.LIGHT_GRAY);
+                   g2d.drawLine((int)_np_old_x-streetSpacing,(int)_np_old_y-streetSpacing,(int)_np.x-streetSpacing,(int)_np.y-streetSpacing);
+                   
+                   _np_old_x = _np.x;
+                   _np_old_y = _np.y;
+                 }
+               }
+             }
           }
         	
         	// nodes
         	g2d.setStroke(new BasicStroke(1f));
-          g2d.setColor(Color.red);
+          g2d.setColor(Color.LIGHT_GRAY);
           
           g2d.setFont(new Font("TimesRoman", Font.PLAIN, (int)((scale/10000.0)*40)));
           
@@ -374,6 +380,20 @@ public class AppWindow {
             NodePoint p = scaledXY(n.lat,n.lon);
             g2d.fillOval((int)p.x, (int)p.y, 2, 2);
           }
+          
+          
+          
+          
+          
+          // g2d.setStroke(new BasicStroke(1f));
+          // g2d.setColor(Color.BLUE);
+          //          
+          // for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
+          //   Node n = Global.openStreetMap.getNode(i.getRootNodeId());
+          //   
+          //   NodePoint p = scaledXY(n.lat,n.lon);
+          //   g2d.fillOval((int)p.x, (int)p.y, (int)i.getBounds(), (int)i.getBounds());
+          // }
         }
         
         private void paintOverlay() {
@@ -396,37 +416,84 @@ public class AppWindow {
         	Way _w;
         	
           g2d.setStroke(new BasicStroke(1f));
-          for(int i = 0; i < osm.ways.size(); i++) {
+          
+          
+          
+          for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
+             g2d.setColor(Color.red);
+              
+            // Node lastNode = osm.getNode(lastNodeId);
+            // String nextNodeId = _w.nd.get(_w.nd.indexOf(lastNodeId) + 1);
+            // Node nextNode = osm.getNode(nextNodeId);
+            Node lastNode = v.getOriginNode();//osm.getNode(v.originNodeId);
+            Node nextNode = v.getDestinationNode();//osm.getNode(v.destinationNodeId);
+            NodePoint lnP = scaledXY(lastNode.lat+"",lastNode.lon+"");
+            NodePoint nnP = scaledXY(nextNode.lat+"",nextNode.lon+"");
+            
+            g2d.setColor(Color.blue);
+            g2d.fillOval((int)lnP.x, (int)lnP.y, 2, 2);
+            g2d.setColor(Color.orange);
+            g2d.fillOval((int)nnP.x, (int)nnP.y, 2, 2);
+            
             g2d.setColor(Color.red);
-           _w = osm.ways.get(i);
-           
-            for (Vehicle v : _w.vehiclesTraversing) {
-              
-              String lastNodeId = v.lastPassedNodeId;
-              if (v.originNodeId == null) {
-                System.out.println("not drawing line");
-              }
-              else {
-                // Node lastNode = osm.getNode(lastNodeId);
-                // String nextNodeId = _w.nd.get(_w.nd.indexOf(lastNodeId) + 1);
-                // Node nextNode = osm.getNode(nextNodeId);
-                Node lastNode = osm.getNode(v.originNodeId);
-                Node nextNode = osm.getNode(v.destinationNodeId);
-                NodePoint lnP = scaledXY(lastNode.lat+"",lastNode.lon+"");
-                NodePoint nnP = scaledXY(nextNode.lat+"",nextNode.lon+"");
-                
-                g2d.setColor(Color.blue);
-                g2d.fillOval((int)lnP.x, (int)lnP.y, 2, 2);
-                g2d.setColor(Color.green);
-                g2d.fillOval((int)nnP.x, (int)nnP.y, 4, 4);
-              }
-              
+            NodePoint p = scaledXY(v.lat+"",v.lon+"");
+            g2d.fillOval((int)p.x, (int)p.y, 5, 5);
+            
+            if (v.vehicleInFront != null) {
+              g2d.setColor(Color.blue);
+              NodePoint p1 = scaledXY(v.vehicleInFront.lat+"",v.vehicleInFront.lon+"");
+              g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
+            }
+            if (v.vehicleBehind != null) {
               g2d.setColor(Color.red);
-              
-              NodePoint p = scaledXY(v.lat+"",v.lon+"");
-              g2d.fillOval((int)p.x, (int)p.y, 5, 5);
+              NodePoint p1 = scaledXY(v.vehicleBehind.lat+"",v.vehicleBehind.lon+"");
+              g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
             }
           }
+          
+          
+          // for(int i = 0; i < osm.ways.size(); i++) {
+          //   g2d.setColor(Color.red);
+          //  _w = osm.ways.get(i);
+          //  
+          //   for (Vehicle v : _w.vehiclesTraversing) {
+          //     
+          //     String lastNodeId = v.lastPassedNodeId;
+          //     if (v.originNodeId == null) {
+          //       System.out.println("not drawing line");
+          //     }
+          //     else {
+          //       // Node lastNode = osm.getNode(lastNodeId);
+          //       // String nextNodeId = _w.nd.get(_w.nd.indexOf(lastNodeId) + 1);
+          //       // Node nextNode = osm.getNode(nextNodeId);
+          //       Node lastNode = osm.getNode(v.originNodeId);
+          //       Node nextNode = osm.getNode(v.destinationNodeId);
+          //       NodePoint lnP = scaledXY(lastNode.lat+"",lastNode.lon+"");
+          //       NodePoint nnP = scaledXY(nextNode.lat+"",nextNode.lon+"");
+          //       
+          //       g2d.setColor(Color.blue);
+          //       g2d.fillOval((int)lnP.x, (int)lnP.y, 2, 2);
+          //       g2d.setColor(Color.green);
+          //       g2d.fillOval((int)nnP.x, (int)nnP.y, 4, 4);
+          //     }
+          //     
+          //     g2d.setColor(Color.red);
+          //     
+          //     NodePoint p = scaledXY(v.lat+"",v.lon+"");
+          //     g2d.fillOval((int)p.x, (int)p.y, 5, 5);
+          //     
+          //     if (v.vehicleInFront != null) {
+          //       g2d.setColor(Color.blue);
+          //       NodePoint p1 = scaledXY(v.vehicleInFront.lat+"",v.vehicleInFront.lon+"");
+          //       g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
+          //     }
+          //     if (v.vehicleBehind != null) {
+          //       g2d.setColor(Color.red);
+          //       NodePoint p1 = scaledXY(v.vehicleBehind.lat+"",v.vehicleBehind.lon+"");
+          //       g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
+          //     }
+          //   }
+          // }
         }
         
         

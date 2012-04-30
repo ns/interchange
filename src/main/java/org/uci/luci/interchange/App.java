@@ -10,9 +10,10 @@ public class App
     {
         OsmFileReader osmFileReader = new OsmFileReader();
         osmFileReader.parseStructure();
-        
         OpenStreetMap openStreetMap = osmFileReader.osmHandler.openStreetMap;
         
-        AppWindow appWindow = new AppWindow(openStreetMap);
+        Global.openStreetMap = openStreetMap;
+        
+        AppWindow appWindow = new AppWindow();
     }
 }
