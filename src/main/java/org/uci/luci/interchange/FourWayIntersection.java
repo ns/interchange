@@ -35,7 +35,7 @@ public class FourWayIntersection extends Intersection {
         double angle = angleBetween2Lines(Double.valueOf(centerNode.lon), Double.valueOf(centerNode.lat), Double.valueOf(node1.lon), Double.valueOf(node1.lat),
                                           Double.valueOf(centerNode.lon), Double.valueOf(centerNode.lat), Double.valueOf(node2.lon), Double.valueOf(node2.lat));
         
-        System.out.println("\tangle = " + Math.toDegrees(angle));
+        // System.out.println("\tangle = " + Math.toDegrees(angle));
         
         if (angleBetweenSelectedNodes == Double.MAX_VALUE || Math.abs(180-Math.toDegrees(angleBetweenSelectedNodes))>Math.abs(180-Math.toDegrees(angle))) {
           selectedNode1 = node1;
@@ -46,7 +46,7 @@ public class FourWayIntersection extends Intersection {
       }
     }
     
-    System.out.println("picked angle = ");
+    // System.out.println("picked angle = ");
     
     return Arrays.asList(selectedNode1, selectedNode2);
   }

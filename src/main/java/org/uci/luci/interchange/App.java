@@ -1,9 +1,5 @@
 package org.uci.luci.interchange;
 
-/**
- * Hello world!
- *
- */
 public class App 
 {
     public static void main( String[] args ) throws Exception
@@ -13,7 +9,10 @@ public class App
         OpenStreetMap openStreetMap = osmFileReader.osmHandler.openStreetMap;
         
         Global.openStreetMap = openStreetMap;
+        Global.openStreetMap.purgeUnconnectedNodes();
+        IntersectionRegistry.generateIntersections();
         
         AppWindow appWindow = new AppWindow();
+        Simulator simulator = new Simulator();
     }
 }

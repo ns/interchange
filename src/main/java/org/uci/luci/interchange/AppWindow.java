@@ -28,12 +28,8 @@ import java.util.Random;
 public class AppWindow {
   JFrame f;
   MyPanel myPanel;
-	ArrayList<String> spawnPoints = new ArrayList<String>();
   
     public AppWindow() throws InterruptedException {
-      Global.openStreetMap.purgeUnconnectedNodes();
-      IntersectionRegistry.generateIntersections();
-      
       myPanel = new MyPanel();
       
       f = new JFrame("Interchange");
@@ -42,59 +38,6 @@ public class AppWindow {
       f.pack();
       f.setVisible(true);
       f.setLocationRelativeTo(null);
-      
-      simulate();
-    }
-    
-    public void simulate() throws InterruptedException {
-      int tick = 0;
-      int cars=0;
-      while (true) {
-        tick++;
-        cars=0;
-        
-        if (tick%100==1) {
-          Vehicle v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122633613"));
-          // Vehicle v = VehicleFactory.createVehicleAtRandomPoint();
-          VehicleDriver d = VehicleDriverFactory.createVehicleDriver(v);
-        }
-        
-        long startTime = System.nanoTime();
-        long endTime;
-        
-        // System.out.println("vehicles: tick");
-        for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
-          d.tick();
-          cars++;
-        }
-        
-        for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
-          // each vehicle's velocity vector has been determined by now
-          // we simply calculate exactly where the vehicle should be for
-          // the next timestep
-          
-          if (v.velocity == null)
-            continue;
-          
-          Node lastNode = v.getOriginNode();
-          Node nextNode = v.getDestinationNode();
-          
-          double newLat = v.lat + v.velocity.x;
-          double newLon = v.lon + v.velocity.y;
-          
-          v.lat = (double)newLat;
-          v.lon = (double)newLon;
-        }
-        
-        
-        for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
-          i.tick();
-        }
-        
-        endTime = System.nanoTime();
-        long duration = endTime - startTime;
-        Thread.sleep(5);
-      }
     }
     
     class MyPanel extends JPanel {
@@ -104,8 +47,8 @@ public class AppWindow {
       double left = -1;
       double right = -1;
       int scale = 100;
-      int offsetX = 0;
-      int offsetY = 0;
+      int offsetX = -1;
+      int offsetY = -1;
       
       private BufferedImage map;
       private Graphics2D mapG2D;
@@ -126,6 +69,13 @@ public class AppWindow {
           
           
           this.requestFocus();
+          
+          addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent e) {
+              map = null;
+              overlay = null;
+            }
+          });
           
           addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
@@ -304,9 +254,6 @@ public class AppWindow {
           g2d.fillRect(0,0,getWidth(),getHeight());
           
           
-          
-          
-          
           g2d.setStroke(new BasicStroke(1f));
           g2d.setColor(new Color(200, 200, 255));
         	
@@ -316,10 +263,6 @@ public class AppWindow {
             NodePoint p = scaledXY(n.lat,n.lon);
             g2d.fillOval((int)p.x, (int)p.y, (int)i.getBounds(), (int)i.getBounds());
           }
-          
-          
-          
-          
           
           
           

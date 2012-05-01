@@ -150,9 +150,7 @@ public class OpenStreetMap {
 	}
 	
 	public void addNode(Node n){
-	  System.out.println(n.id);
 	  nodeHash.put(n.id, n);
-    // nodes().add(n);
 	}
 	
 	public void addRelation(){
