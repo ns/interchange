@@ -93,21 +93,19 @@ public class AppWindow {
         
         endTime = System.nanoTime();
         long duration = endTime - startTime;
-        // System.out.println("d = " + duration + " cars = " + cars);
-        
-        Thread.sleep(2);
+        Thread.sleep(5);
       }
     }
     
     class MyPanel extends JPanel {
       OpenStreetMap osm;
-      float top = -1;
-      float bottom = -1;
-      float left = -1;
-      float right = -1;
-      int scale = 11300;
-      int offsetX = -6599;
-      int offsetY = -6124;
+      double top = -1;
+      double bottom = -1;
+      double left = -1;
+      double right = -1;
+      int scale = 100;
+      int offsetX = 0;
+      int offsetY = 0;
       
       private BufferedImage map;
       private Graphics2D mapG2D;
@@ -119,6 +117,8 @@ public class AppWindow {
       
       int draggingOffsetX;
       int draggingOffsetY;
+      
+      NodePoint highlightPoint;
       
         public MyPanel() {
           this.osm = Global.openStreetMap;
@@ -150,6 +150,7 @@ public class AppWindow {
           
           addMouseMotionListener(new MouseMotionListener() {
             public void mouseMoved(MouseEvent e) {
+              highlightPoint = unscaleXY(e.getX(), e.getY());
             }
             
             public void mouseDragged(MouseEvent e) {
@@ -163,30 +164,40 @@ public class AppWindow {
                 offsetY = e.getY() - draggingOffsetY;
               }
               
-              System.out.println("offsetX="+offsetX + " offsetY="+offsetY + " scale="+scale);
+              // System.out.println("offsetX="+offsetX + " offsetY="+offsetY + " scale="+scale);
               repaint();
             }
           });
           
           addMouseWheelListener(new MouseWheelListener() {
             public void mouseWheelMoved(MouseWheelEvent e) {
-              int steps = e.getWheelRotation();
-              int newScale = scale + (steps * 50);
+              int steps = (int)Math.pow(e.getWheelRotation(),2) * (e.getWheelRotation()<0 ? -1 : 1);
+              int newScale = scale + (steps * 5);
               
               if (newScale < 50)
                 newScale = 50;
               if (newScale > 100000)
-                newScale = 100000;
+                newScale = 10000;
               
-              // correct center on mouse X,Y
-              // if (scale != newScale) {
-              //   double pX = ((double)offsetX/(double)scale);
-              //   double pY = ((double)offsetY/(double)scale);
-              //   offsetX = (int)(getSize().getWidth()/2) - (int)(pX*newScale);
-              //   offsetY = (int)(getSize().getHeight()/2) - (int)(pY*newScale);
-              // }
+              
+              int mapWidth = scale;
+              int mapHeight = scale;
+              
+              int newMapWidth = newScale;
+              int newMapHeight = newScale;
+
+              NodePoint unscaledXY = unscaleXY(e.getX(), e.getY());
               
               scale = newScale;
+              
+              NodePoint whereThePointIsNow = scaledXY(unscaledXY.x+"",unscaledXY.y+"");
+              
+              // System.out.println("offsetXY " + offsetX + ", " + offsetY);
+              // System.out.println("whereThePointIsNow " + whereThePointIsNow.x + ", " + whereThePointIsNow.y);
+              // System.out.println("diff " + (whereThePointIsNow.x-(double)offsetX) + ", " + (whereThePointIsNow.y-(double)offsetY));
+
+              offsetX += e.getX() - whereThePointIsNow.x;
+              offsetY += e.getY() - whereThePointIsNow.y;
               
               repaint();
             }
@@ -211,7 +222,7 @@ public class AppWindow {
               }
               else if (e.getKeyChar() == 'c') {
                 // paintMap(null);
-                scale = 200;
+                // scale = 200;
                 offsetX = (int)(getSize().getWidth()/2) - scale/2;
                 offsetY = (int)(getSize().getHeight()/2) - scale/2;
                 repaint();
@@ -240,24 +251,43 @@ public class AppWindow {
         
         public NodePoint scaledXY(String lat, String lon) {
           if (top == -1)
-            top = Float.valueOf(osm.getMinlat());
+            top = Double.valueOf(osm.getMinlat());
           if (bottom == -1)
-            bottom = Float.valueOf(osm.getMaxlat());
+            bottom = Double.valueOf(osm.getMaxlat());
           if (left == -1)
-            left = Float.valueOf(osm.getMinlon());
+            left = Double.valueOf(osm.getMinlon());
           if (right == -1)
-            right = Float.valueOf(osm.getMaxlon());
+            right = Double.valueOf(osm.getMaxlon());
           
-          float latF = Float.valueOf(lat);
-          float lonF = Float.valueOf(lon);
+          double latF = Double.valueOf(lat);
+          double lonF = Double.valueOf(lon);
           
-          float pY = ((latF-top) / (bottom-top));
-          float pX = ((lonF-left) / (right-left));
+          double pY = ((latF-top) / (double)(bottom-top));
+          double pX = ((lonF-left) / (double)(right-left));
           
-          float x = (pX * scale) + offsetX;
-          float y = (pY * scale) + offsetY;
+          double x = (pX * scale) + offsetX;
+          double y = (pY * scale) + offsetY;
           
           return new NodePoint(x,y);
+        }
+        
+        public NodePoint unscaleXY(int x, int y) {
+          if (top == -1)
+            top = Double.valueOf(osm.getMinlat());
+          if (bottom == -1)
+            bottom = Double.valueOf(osm.getMaxlat());
+          if (left == -1)
+            left = Double.valueOf(osm.getMinlon());
+          if (right == -1)
+            right = Double.valueOf(osm.getMaxlon());
+          
+          double pX = (x - offsetX) / (double)scale;
+          double pY = (y - offsetY) / (double)scale;
+          
+          double lat = (pY * (bottom-top)) + top;
+          double lon = (pX * (right-left)) + left;
+          
+          return new NodePoint((double)lat, (double)lon);
         }
         
         private void paintMap(Graphics g_old) {
@@ -298,8 +328,8 @@ public class AppWindow {
         	NodePoint _np;
         	Way _w;
         	
-          float _np_old_x = -1;
-          float _np_old_y = -1;
+          double _np_old_x = -1;
+          double _np_old_y = -1;
         	
           // Color[] colorz = new Color[10];
           // colorz[0] = Color.black;
@@ -452,6 +482,13 @@ public class AppWindow {
           }
           
           
+          
+          if (highlightPoint != null) {
+            NodePoint lnP = scaledXY(highlightPoint.x+"", highlightPoint.y+"");
+            g2d.setColor(Color.yellow);
+            g2d.fillOval((int)lnP.x-10, (int)lnP.y-10, 20, 20);
+          }
+          
           // for(int i = 0; i < osm.ways.size(); i++) {
           //   g2d.setColor(Color.red);
           //  _w = osm.ways.get(i);
@@ -515,8 +552,8 @@ public class AppWindow {
           // draw path
           g2d.setStroke(new BasicStroke(4f));
           g2d.setColor(Color.blue);
-          float __np_old_x = -1;
-          float __np_old_y = -1;
+          double __np_old_x = -1;
+          double __np_old_y = -1;
           
           for (int i = 0; i < path.size(); i++) {
             Node __n = path.get(i);
@@ -571,15 +608,15 @@ public class AppWindow {
     }
     
     class NodePoint{
-    	float x;
-    	float y;
-    	float xc; // constrained on Canvas
-    	float yc; // constrained on Canvas
-    	NodePoint(float _x, float _y){
+    	double x;
+    	double y;
+    	double xc; // constrained on Canvas
+    	double yc; // constrained on Canvas
+    	NodePoint(double _x, double _y){
     		x = _x;
     		y = _y;
     	}
-    	NodePoint sub(float _x, float _y){
+    	NodePoint sub(double _x, double _y){
     		return new NodePoint(x-_x, y-_y);
     	}
     	NodePoint sub(NodePoint n){

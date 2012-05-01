@@ -28,7 +28,7 @@ public abstract class Intersection {
   }
   
   // 0 = green, 1 = yellow, 2 = red
-  public int getLightForWayOnLane(Way w, int lane) {
+  public int getLightForWayOnLane(Way w, String originNodeId, int lane) {
     // System.out.println("w " + w + " lane = " + lane);
     return 0;
   }

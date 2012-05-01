@@ -71,7 +71,7 @@ public class VehicleDriver {
           vehicle.setVelocity(speed/4);
         }
         else {
-          int light = i.getLightForWayOnLane(null, vehicle.lane);
+          int light = i.getLightForWayOnLane(null, vehicle.getOriginNode().id, vehicle.lane);
           // System.out.println("i = " + i.id + " getLightForWayOnLane() = " + light);
 
           // green
