@@ -373,26 +373,6 @@ public class AppWindow {
                      }
                    }
                    
-                   
-                   
-                   
-                     // // int streetSpacing = 8;
-                     // int laneSpacing = 4;
-                     // 
-                     // // draw lanes on primary direction
-                     // for (int l = 0; l < _n.way.lanes; l++) {
-                     //   g2d.setColor(Color.BLACK);
-                     //   g2d.drawLine((int)_np_old_x+streetSpacing+(l*laneSpacing),(int)_np_old_y+streetSpacing+(l*laneSpacing),(int)_np.x+streetSpacing+(l*laneSpacing),(int)_np.y+streetSpacing+(l*laneSpacing));
-                     // }
-                     // 
-                     // // draw lanes on reverse direction
-                     // for (int l = 0; l < _n.way.lanes; l++) {
-                     //   g2d.setColor(Color.BLUE);
-                     //   g2d.drawLine((int)_np_old_x-streetSpacing-(l*laneSpacing),(int)_np_old_y-streetSpacing-(l*laneSpacing),(int)_np.x-streetSpacing-(l*laneSpacing),(int)_np.y-streetSpacing-(l*laneSpacing));
-                     // }
-                   
-                   // _np_old_x = _np.x;
-                   // _np_old_y = _np.y;
                    _last_n = _n;
                  }
                }
@@ -462,31 +442,65 @@ public class AppWindow {
               double laneSpacing =   0.00001;
               double streetSpacing = laneSpacing;
               
-              for (int l = 0; l < connectedNode.way.lanes; l++) {
-                NodePoint rnP = scaledXY(
-                  rootNode.lat+streetSpacing+(l*laneSpacing),
-                  rootNode.lon+streetSpacing+(l*laneSpacing)
-                );
-                
-                int light = i.getLightForWayOnLane(null, connectedNode.id, 0);
+              Way w = Oracle.wayBetweenNodes(rootNode.id, connectedNode.id);
               
-                NodePoint ccPUS = distanceFromPointInDirectionOfPoint(
-                  rootNode.lat+streetSpacing+(l*laneSpacing),
-                  rootNode.lon+streetSpacing+(l*laneSpacing),
-                  connectedNode.lat+streetSpacing+(l*laneSpacing),
-                  connectedNode.lon+streetSpacing+(l*laneSpacing),
-                  0.00005
-                );
-                NodePoint cnP = scaledXY(ccPUS.x,ccPUS.y);
-              
-                if (light == 0) {
-                  g2d.setColor(Color.green);
+              for (int l = 0; l < w.lanes; l++) {
+                if (w.oneway) {
+                  System.out.println("Warning: not drawing one way traffic lights");
                 }
-                else if (light == 2) {
-                  g2d.setColor(Color.red);
+                else {
+                  NodePoint rnP = scaledXY(
+                    rootNode.lat+streetSpacing+(l*laneSpacing),
+                    rootNode.lon+streetSpacing+(l*laneSpacing)
+                  );
+                  
+                  int light = i.getLightForWayOnLane(null, connectedNode.id, l);
+
+                  NodePoint ccPUS = distanceFromPointInDirectionOfPoint(
+                    rootNode.lat+streetSpacing+(l*laneSpacing),
+                    rootNode.lon+streetSpacing+(l*laneSpacing),
+                    connectedNode.lat+streetSpacing+(l*laneSpacing),
+                    connectedNode.lon+streetSpacing+(l*laneSpacing),
+                    0.00005
+                  );
+                  NodePoint cnP = scaledXY(ccPUS.x,ccPUS.y);
+
+                  if (light == 0) {
+                    g2d.setColor(Color.green);
+                  }
+                  else if (light == 2) {
+                    g2d.setColor(Color.red);
+                  }
+
+                  g2d.drawLine((int)cnP.x,(int)cnP.y,(int)rnP.x,(int)rnP.y);
+                  
+                  
+                  ///////
+                  // other direction
+                  ///////
+                  rnP = scaledXY(
+                    rootNode.lat-streetSpacing-(l*laneSpacing),
+                    rootNode.lon-streetSpacing-(l*laneSpacing)
+                  );
+                  
+                  ccPUS = distanceFromPointInDirectionOfPoint(
+                    rootNode.lat-streetSpacing-(l*laneSpacing),
+                    rootNode.lon-streetSpacing-(l*laneSpacing),
+                    connectedNode.lat-streetSpacing-(l*laneSpacing),
+                    connectedNode.lon-streetSpacing-(l*laneSpacing),
+                    0.00005
+                  );
+                  cnP = scaledXY(ccPUS.x,ccPUS.y);
+
+                  if (light == 0) {
+                    g2d.setColor(Color.green);
+                  }
+                  else if (light == 2) {
+                    g2d.setColor(Color.red);
+                  }
+
+                  g2d.drawLine((int)cnP.x,(int)cnP.y,(int)rnP.x,(int)rnP.y);
                 }
-            
-                g2d.drawLine((int)cnP.x,(int)cnP.y,(int)rnP.x,(int)rnP.y);
               }
             }
           }
@@ -535,10 +549,18 @@ public class AppWindow {
             g2d.fillOval((int)nnP.x, (int)nnP.y, 2, 2);
             
             g2d.setColor(Color.red);
-            NodePoint p = scaledXY(v.lat+streetSpacing+(v.getOnLaneNumber()*laneSpacing),v.lon+streetSpacing+(v.getOnLaneNumber()*laneSpacing));
-            g2d.fillOval((int)p.x, (int)p.y, 5, 5);
             
-            // System.out.println("p.x = " + p.x + ", " + p.y);
+            NodePoint p = null;
+            
+            if (v.isGoingForwardOnWay()) {
+              p = scaledXY(v.lat+streetSpacing+(v.getOnLaneNumber()*laneSpacing),v.lon+streetSpacing+(v.getOnLaneNumber()*laneSpacing));
+              g2d.fillOval((int)p.x, (int)p.y, 5, 5);
+            }
+            else {
+              p = scaledXY(v.lat-streetSpacing-(v.getOnLaneNumber()*laneSpacing),v.lon-streetSpacing-(v.getOnLaneNumber()*laneSpacing));
+            }
+            
+            g2d.fillOval((int)p.x, (int)p.y, 5, 5);
             
             if (v.vehicleInFront != null) {
               g2d.setColor(Color.blue);
@@ -554,54 +576,23 @@ public class AppWindow {
           
           
           
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
           if (highlightPoint != null) {
             NodePoint lnP = scaledXY(highlightPoint.x, highlightPoint.y);
             g2d.setColor(Color.yellow);
             g2d.fillOval((int)lnP.x-10, (int)lnP.y-10, 20, 20);
           }
-          
-          // for(int i = 0; i < osm.ways.size(); i++) {
-          //   g2d.setColor(Color.red);
-          //  _w = osm.ways.get(i);
-          //  
-          //   for (Vehicle v : _w.vehiclesTraversing) {
-          //     
-          //     String lastNodeId = v.lastPassedNodeId;
-          //     if (v.originNodeId == null) {
-          //       System.out.println("not drawing line");
-          //     }
-          //     else {
-          //       // Node lastNode = osm.getNode(lastNodeId);
-          //       // String nextNodeId = _w.nd.get(_w.nd.indexOf(lastNodeId) + 1);
-          //       // Node nextNode = osm.getNode(nextNodeId);
-          //       Node lastNode = osm.getNode(v.originNodeId);
-          //       Node nextNode = osm.getNode(v.destinationNodeId);
-          //       NodePoint lnP = scaledXY(lastNode.lat,lastNode.lon);
-          //       NodePoint nnP = scaledXY(nextNode.lat,nextNode.lon);
-          //       
-          //       g2d.setColor(Color.blue);
-          //       g2d.fillOval((int)lnP.x, (int)lnP.y, 2, 2);
-          //       g2d.setColor(Color.green);
-          //       g2d.fillOval((int)nnP.x, (int)nnP.y, 4, 4);
-          //     }
-          //     
-          //     g2d.setColor(Color.red);
-          //     
-          //     NodePoint p = scaledXY(v.lat,v.lon);
-          //     g2d.fillOval((int)p.x, (int)p.y, 5, 5);
-          //     
-          //     if (v.vehicleInFront != null) {
-          //       g2d.setColor(Color.blue);
-          //       NodePoint p1 = scaledXY(v.vehicleInFront.lat,v.vehicleInFront.lon);
-          //       g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
-          //     }
-          //     if (v.vehicleBehind != null) {
-          //       g2d.setColor(Color.red);
-          //       NodePoint p1 = scaledXY(v.vehicleBehind.lat,v.vehicleBehind.lon);
-          //       g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
-          //     }
-          //   }
-          // }
         }
         
         

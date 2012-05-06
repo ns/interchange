@@ -235,6 +235,8 @@ public class OpenStreetMap {
       if (i != 0) {
         Node prevN = getNode(w.nd.get(i-1));
         n.addLink(prevN);
+        
+        Oracle.registerWay(prevN.id, n.id, w);
       }
       
       if (i != w.nd.size() - 1) {

@@ -16,6 +16,15 @@ public class Vehicle {
   private int onLaneNumber;
   String state = "";
   
+  public boolean isGoingForwardOnWay() {
+    Way w = Oracle.wayBetweenNodes(originNodeId, destinationNodeId);
+    
+    int oI = w.nd.indexOf(originNodeId);
+    int dI = w.nd.indexOf(destinationNodeId);
+    
+    return oI < dI;
+  }
+  
   private void setOriginNodeId(String nodeId) {
     if (originNodeId != null)
       Oracle.deregisterVehicleOrigin(vin, originNodeId);
@@ -102,14 +111,19 @@ public class Vehicle {
         state = "";
       }
       else {
-        // // make the driver handle this, it's an intersection
-        // // we assume that this is an intersection
-        // // pick a random way to go.
+        // make the driver handle this, it's an intersection
+        // we assume that this is an intersection
+        // pick a random way to go.
         int i = nextNode.connectedNodes.indexOf(lastNode);
         // originNodeId = nextNode.id;
         setOriginNodeId(nextNode.id);
         setDestinationNodeId(randomConnectedNode(nextNode, lastNode).id);
         // state = "reached_intersection";
+        
+        // we need to determine if the vehicle can actually make this turn
+        // and also merge this vehicle onto a lane appropriately
+        Random randomGenerator = new Random();
+        setOnLaneNumber(randomGenerator.nextInt(Oracle.wayBetweenNodes(originNodeId, destinationNodeId).lanes));
       }
     }
   }

@@ -18,7 +18,7 @@ public class VehicleFactory {
       randomNode.id,
       randomNextNode.id,
       // this isn't really right because node.way might not refer to the right way at intersections
-      generator.nextInt(randomNode.way.lanes)
+      generator.nextInt(Oracle.wayBetweenNodes(randomNode.id, randomNextNode.id).lanes)
     );
 
     return vehicle;
@@ -39,7 +39,7 @@ public class VehicleFactory {
       randomNode.id,
       randomNextNode.id,
       // this isn't really right because node.way might not refer to the right way at intersections
-      generator.nextInt(randomNode.way.lanes)
+      generator.nextInt(Oracle.wayBetweenNodes(randomNode.id, randomNextNode.id).lanes)
     );
 
     return vehicle;
