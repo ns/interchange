@@ -127,7 +127,7 @@ public class AppWindow {
               if (newScale < 50)
                 newScale = 50;
               if (newScale > 100000)
-                newScale = 10000;
+                newScale = 100000;
               
               
               int mapWidth = scale;
@@ -140,7 +140,7 @@ public class AppWindow {
               
               scale = newScale;
               
-              NodePoint whereThePointIsNow = scaledXY(unscaledXY.x+"",unscaledXY.y+"");
+              NodePoint whereThePointIsNow = scaledXY(unscaledXY.x,unscaledXY.y);
               
               // System.out.println("offsetXY " + offsetX + ", " + offsetY);
               // System.out.println("whereThePointIsNow " + whereThePointIsNow.x + ", " + whereThePointIsNow.y);
@@ -199,7 +199,7 @@ public class AppWindow {
             return new Dimension(800,600);
         }
         
-        public NodePoint scaledXY(String lat, String lon) {
+        public NodePoint scaledXY(double lat, double lon) {
           if (top == -1)
             top = Double.valueOf(osm.getMinlat());
           if (bottom == -1)
@@ -209,8 +209,8 @@ public class AppWindow {
           if (right == -1)
             right = Double.valueOf(osm.getMaxlon());
           
-          double latF = Double.valueOf(lat);
-          double lonF = Double.valueOf(lon);
+          double latF = lat;
+          double lonF = lon;
           
           double pY = ((latF-top) / (double)(bottom-top));
           double pX = ((lonF-left) / (double)(right-left));
@@ -257,35 +257,37 @@ public class AppWindow {
           g2d.setStroke(new BasicStroke(1f));
           g2d.setColor(new Color(200, 200, 255));
         	
-          for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
-            Node n = Global.openStreetMap.getNode(i.getRootNodeId());
-            
-            NodePoint p = scaledXY(n.lat,n.lon);
-            g2d.fillOval((int)p.x, (int)p.y, (int)i.getBounds(), (int)i.getBounds());
-          }
+          // for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
+          //   Node n = Global.openStreetMap.getNode(i.getRootNodeId());
+          //   
+          //   
+          //   NodePoint p = scaledXY(n.lat,n.lon);
+          //   g2d.fillOval((int)p.x, (int)p.y, (int)i.getBounds(), (int)i.getBounds());
+          // }
           
           
           
   	    	// ways
+        	Node _last_n = null;
         	Node _n;
-        	NodePoint _np;
+          // NodePoint _np;
         	Way _w;
         	
-          double _np_old_x = -1;
-          double _np_old_y = -1;
+          // double _np_old_x = -1;
+          // double _np_old_y = -1;
         	
-          // Color[] colorz = new Color[10];
-          // colorz[0] = Color.black;
-          // colorz[1] = Color.red;
-          // colorz[2] = Color.green;
-          // colorz[3] = Color.blue;
-          // colorz[4] = Color.yellow;
-          // colorz[5] = Color.gray;
-          // colorz[6] = Color.cyan;
-          // colorz[7] = Color.orange;
-          // colorz[8] = Color.magenta;
-          // colorz[9] = Color.pink;
-        	
+          Color[] colorz = new Color[10];
+          colorz[0] = Color.black;
+          colorz[1] = Color.red;
+          colorz[2] = Color.green;
+          colorz[3] = Color.blue;
+          colorz[4] = Color.yellow;
+          colorz[5] = Color.gray;
+          colorz[6] = Color.cyan;
+          colorz[7] = Color.orange;
+          colorz[8] = Color.magenta;
+          colorz[9] = Color.pink;
+          
           for(int i = 0; i < osm.ways.size(); i++) {
             // g2d.setColor(colorz[i%10]);
            _w = osm.ways.get(i);
@@ -304,39 +306,94 @@ public class AppWindow {
            // }
            
            if (_w.oneway) {
-             g2d.setColor(Color.BLACK);
-             
-              for(int j = 0; j < _w.nd.size(); j++){
-                _n = osm.getNode(_w.nd.get(j));
-                _np = scaledXY(_n.lat, _n.lon);
-
-                if(j == 0){
-                  _np_old_x = _np.x;
-                  _np_old_y = _np.y;
-                } else {
-                  g2d.drawLine((int)_np_old_x,(int)_np_old_y,(int)_np.x,(int)_np.y);
-                  _np_old_x = _np.x;
-                  _np_old_y = _np.y;
-                }
-              }
+             System.out.println("Warning: Not drawing one-way.");
             }
             else {
                for(int j = 0; j < _w.nd.size(); j++){
                  _n = osm.getNode(_w.nd.get(j));
-                 _np = scaledXY(_n.lat, _n.lon);
+                 // _np = scaledXY(_n.lat, _n.lon);
 
                  if(j == 0){
-                   _np_old_x = _np.x;
-                   _np_old_y = _np.y;
+                   // _np_old_x = _np.x;
+                   // _np_old_y = _np.y;
+                   _last_n = _n;
                  } else {
-                   int streetSpacing = 8;
-                   g2d.setColor(Color.BLACK);
-                   g2d.drawLine((int)_np_old_x+streetSpacing,(int)_np_old_y+streetSpacing,(int)_np.x+streetSpacing,(int)_np.y+streetSpacing);
-                   g2d.setColor(Color.LIGHT_GRAY);
-                   g2d.drawLine((int)_np_old_x-streetSpacing,(int)_np_old_y-streetSpacing,(int)_np.x-streetSpacing,(int)_np.y-streetSpacing);
+                   double laneSpacing =   0.00001;
+                   double streetSpacing = laneSpacing;//*(_w.lanes+1);
                    
-                   _np_old_x = _np.x;
-                   _np_old_y = _np.y;
+                   for (int l = 0; l < _w.lanes; l++) {
+                     g2d.setColor(colorz[l%10]);
+                     
+                     if (l != 0) {
+                       // System.out.println("_last_n.lat = " + _last_n.lat);
+                       // System.out.println("\tl = " + l);
+                       // System.out.println("\tshift = " + (streetSpacing+(l*laneSpacing)));
+                       // System.out.println("\t_last_n.lat = " + (_last_n.lat+streetSpacing+(l*laneSpacing)));
+                     }
+                     
+                     
+                     NodePoint _last_np = scaledXY(
+                       _last_n.lat+streetSpacing+(l*laneSpacing),
+                       _last_n.lon+streetSpacing+(l*laneSpacing)
+                     );
+                     NodePoint _np = scaledXY(
+                       _n.lat+streetSpacing+(l*laneSpacing),
+                       _n.lon+streetSpacing+(l*laneSpacing)
+                     );
+                     
+                     // fwd
+                     g2d.setColor(Color.black);
+                     g2d.drawLine(
+                       (int)_last_np.x,
+                       (int)_last_np.y,
+                       (int)_np.x,
+                       (int)_np.y
+                     );
+                     
+                     
+                     
+                     if (!_w.oneway) {
+                       NodePoint _last_np_reverse = scaledXY(
+                         _last_n.lat-streetSpacing-(l*laneSpacing),
+                         _last_n.lon-streetSpacing-(l*laneSpacing)
+                       );
+                       NodePoint _np_reverse = scaledXY(
+                         _n.lat-streetSpacing-(l*laneSpacing),
+                         _n.lon-streetSpacing-(l*laneSpacing)
+                       );
+
+                       // reverse
+                       g2d.setColor(Color.blue);
+                       g2d.drawLine(
+                         (int)_last_np_reverse.x,
+                         (int)_last_np_reverse.y,
+                         (int)_np_reverse.x,
+                         (int)_np_reverse.y
+                       );
+                     }
+                   }
+                   
+                   
+                   
+                   
+                     // // int streetSpacing = 8;
+                     // int laneSpacing = 4;
+                     // 
+                     // // draw lanes on primary direction
+                     // for (int l = 0; l < _n.way.lanes; l++) {
+                     //   g2d.setColor(Color.BLACK);
+                     //   g2d.drawLine((int)_np_old_x+streetSpacing+(l*laneSpacing),(int)_np_old_y+streetSpacing+(l*laneSpacing),(int)_np.x+streetSpacing+(l*laneSpacing),(int)_np.y+streetSpacing+(l*laneSpacing));
+                     // }
+                     // 
+                     // // draw lanes on reverse direction
+                     // for (int l = 0; l < _n.way.lanes; l++) {
+                     //   g2d.setColor(Color.BLUE);
+                     //   g2d.drawLine((int)_np_old_x-streetSpacing-(l*laneSpacing),(int)_np_old_y-streetSpacing-(l*laneSpacing),(int)_np.x-streetSpacing-(l*laneSpacing),(int)_np.y-streetSpacing-(l*laneSpacing));
+                     // }
+                   
+                   // _np_old_x = _np.x;
+                   // _np_old_y = _np.y;
+                   _last_n = _n;
                  }
                }
              }
@@ -383,6 +440,74 @@ public class AppWindow {
           g2d.setBackground(new Color(255, 255, 255, 0));
           g2d.clearRect(0,0,getWidth(),getHeight());
           
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          g2d.setStroke(new BasicStroke(4f));
+          for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
+            
+            String rootNodeId = i.getRootNodeId();
+            
+            Node rootNode = osm.getNode(rootNodeId);
+            
+            for (Node connectedNode : rootNode.connectedNodes) {
+              double laneSpacing =   0.00001;
+              double streetSpacing = laneSpacing;
+              
+              for (int l = 0; l < connectedNode.way.lanes; l++) {
+                NodePoint rnP = scaledXY(
+                  rootNode.lat+streetSpacing+(l*laneSpacing),
+                  rootNode.lon+streetSpacing+(l*laneSpacing)
+                );
+                
+                int light = i.getLightForWayOnLane(null, connectedNode.id, 0);
+              
+                NodePoint ccPUS = distanceFromPointInDirectionOfPoint(
+                  rootNode.lat+streetSpacing+(l*laneSpacing),
+                  rootNode.lon+streetSpacing+(l*laneSpacing),
+                  connectedNode.lat+streetSpacing+(l*laneSpacing),
+                  connectedNode.lon+streetSpacing+(l*laneSpacing),
+                  0.00005
+                );
+                NodePoint cnP = scaledXY(ccPUS.x,ccPUS.y);
+              
+                if (light == 0) {
+                  g2d.setColor(Color.green);
+                }
+                else if (light == 2) {
+                  g2d.setColor(Color.red);
+                }
+            
+                g2d.drawLine((int)cnP.x,(int)cnP.y,(int)rnP.x,(int)rnP.y);
+              }
+            }
+          }
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
           // ways
         	Node _n;
         	NodePoint _np;
@@ -391,7 +516,8 @@ public class AppWindow {
           g2d.setStroke(new BasicStroke(1f));
           
           
-          
+          double laneSpacing =   0.00001;
+          double streetSpacing = laneSpacing;
           for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
              g2d.setColor(Color.red);
               
@@ -400,8 +526,8 @@ public class AppWindow {
             // Node nextNode = osm.getNode(nextNodeId);
             Node lastNode = v.getOriginNode();//osm.getNode(v.originNodeId);
             Node nextNode = v.getDestinationNode();//osm.getNode(v.destinationNodeId);
-            NodePoint lnP = scaledXY(lastNode.lat+"",lastNode.lon+"");
-            NodePoint nnP = scaledXY(nextNode.lat+"",nextNode.lon+"");
+            NodePoint lnP = scaledXY(lastNode.lat,lastNode.lon);
+            NodePoint nnP = scaledXY(nextNode.lat,nextNode.lon);
             
             g2d.setColor(Color.blue);
             g2d.fillOval((int)lnP.x, (int)lnP.y, 2, 2);
@@ -409,17 +535,19 @@ public class AppWindow {
             g2d.fillOval((int)nnP.x, (int)nnP.y, 2, 2);
             
             g2d.setColor(Color.red);
-            NodePoint p = scaledXY(v.lat+"",v.lon+"");
+            NodePoint p = scaledXY(v.lat+streetSpacing+(v.getOnLaneNumber()*laneSpacing),v.lon+streetSpacing+(v.getOnLaneNumber()*laneSpacing));
             g2d.fillOval((int)p.x, (int)p.y, 5, 5);
+            
+            // System.out.println("p.x = " + p.x + ", " + p.y);
             
             if (v.vehicleInFront != null) {
               g2d.setColor(Color.blue);
-              NodePoint p1 = scaledXY(v.vehicleInFront.lat+"",v.vehicleInFront.lon+"");
+              NodePoint p1 = scaledXY(v.vehicleInFront.lat,v.vehicleInFront.lon);
               g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
             }
             if (v.vehicleBehind != null) {
               g2d.setColor(Color.red);
-              NodePoint p1 = scaledXY(v.vehicleBehind.lat+"",v.vehicleBehind.lon+"");
+              NodePoint p1 = scaledXY(v.vehicleBehind.lat,v.vehicleBehind.lon);
               g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
             }
           }
@@ -427,7 +555,7 @@ public class AppWindow {
           
           
           if (highlightPoint != null) {
-            NodePoint lnP = scaledXY(highlightPoint.x+"", highlightPoint.y+"");
+            NodePoint lnP = scaledXY(highlightPoint.x, highlightPoint.y);
             g2d.setColor(Color.yellow);
             g2d.fillOval((int)lnP.x-10, (int)lnP.y-10, 20, 20);
           }
@@ -448,8 +576,8 @@ public class AppWindow {
           //       // Node nextNode = osm.getNode(nextNodeId);
           //       Node lastNode = osm.getNode(v.originNodeId);
           //       Node nextNode = osm.getNode(v.destinationNodeId);
-          //       NodePoint lnP = scaledXY(lastNode.lat+"",lastNode.lon+"");
-          //       NodePoint nnP = scaledXY(nextNode.lat+"",nextNode.lon+"");
+          //       NodePoint lnP = scaledXY(lastNode.lat,lastNode.lon);
+          //       NodePoint nnP = scaledXY(nextNode.lat,nextNode.lon);
           //       
           //       g2d.setColor(Color.blue);
           //       g2d.fillOval((int)lnP.x, (int)lnP.y, 2, 2);
@@ -459,17 +587,17 @@ public class AppWindow {
           //     
           //     g2d.setColor(Color.red);
           //     
-          //     NodePoint p = scaledXY(v.lat+"",v.lon+"");
+          //     NodePoint p = scaledXY(v.lat,v.lon);
           //     g2d.fillOval((int)p.x, (int)p.y, 5, 5);
           //     
           //     if (v.vehicleInFront != null) {
           //       g2d.setColor(Color.blue);
-          //       NodePoint p1 = scaledXY(v.vehicleInFront.lat+"",v.vehicleInFront.lon+"");
+          //       NodePoint p1 = scaledXY(v.vehicleInFront.lat,v.vehicleInFront.lon);
           //       g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
           //     }
           //     if (v.vehicleBehind != null) {
           //       g2d.setColor(Color.red);
-          //       NodePoint p1 = scaledXY(v.vehicleBehind.lat+"",v.vehicleBehind.lon+"");
+          //       NodePoint p1 = scaledXY(v.vehicleBehind.lat,v.vehicleBehind.lon);
           //       g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
           //     }
           //   }
@@ -547,6 +675,35 @@ public class AppWindow {
         public boolean isFocusTraversable()
         {
           return true;
+        }
+        
+        private NodePoint distanceFromPointInDirectionOfPoint(double fromLat, double fromLon, double toLat, double toLon, double d) {
+          double angle = -Math.atan2((toLat - fromLat), (toLon - fromLon));
+          angle = Math.toDegrees(angle);
+          if (angle < 0)
+            angle = 360 + angle;
+          angle = Math.toRadians(angle);
+          double deltaLat = Math.sin(angle)*d;
+          double deltaLon = Math.cos(angle)*d;
+          
+          // based on this we can negate deltaLat or deltaLon to the correct sign
+          if (Math.toDegrees(angle) < 0) {
+            deltaLat*=1;
+            deltaLon*=1;
+          }
+          else if (Math.toDegrees(angle) > 45) {
+            deltaLat*=-1;
+            deltaLon*=1;
+          }
+          else {
+            deltaLat*=-1;
+            deltaLon*=1;
+          }
+          
+          double newLat = fromLat + deltaLat;
+          double newLon = fromLon + deltaLon;
+          
+          return new NodePoint(newLat, newLon);
         }
     }
     

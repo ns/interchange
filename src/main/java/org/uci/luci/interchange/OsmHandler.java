@@ -42,11 +42,11 @@ public class OsmHandler extends DefaultHandler{
         // System.out.println("...?");
     		//increment node counter
     		node = new Node();
-    	    node.lat = atts.getValue("lat");
+    	    node.lat = Double.parseDouble(atts.getValue("lat"));
     	    node.id =atts.getValue("id");
-    	    node.lon = atts.getValue("lon");
-    	    node.x = Float.parseFloat(node.lon);
-    	    node.y = Float.parseFloat(node.lat);
+    	    node.lon = Double.parseDouble(atts.getValue("lon"));
+          // node.x = Float.parseFloat(node.lon);
+          // node.y = Float.parseFloat(node.lat);
     		return;	
     	} else if(name.equals("relation")){
     		openStreetMap.addRelation();

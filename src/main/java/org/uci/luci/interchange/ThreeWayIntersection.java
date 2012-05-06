@@ -30,8 +30,8 @@ public class ThreeWayIntersection extends Intersection {
         Node node1 = nodes.get(i);
         Node node2 = nodes.get(ii);
         
-        double angle = angleBetween2Lines(Double.valueOf(centerNode.lon), Double.valueOf(centerNode.lat), Double.valueOf(node1.lon), Double.valueOf(node1.lat),
-                                          Double.valueOf(centerNode.lon), Double.valueOf(centerNode.lat), Double.valueOf(node2.lon), Double.valueOf(node2.lat));
+        double angle = angleBetween2Lines(centerNode.lon, centerNode.lat, node1.lon, node1.lat,
+                                          centerNode.lon, centerNode.lat, node2.lon, node2.lat);
         
         // System.out.println("\tangle = " + Math.toDegrees(angle));
         

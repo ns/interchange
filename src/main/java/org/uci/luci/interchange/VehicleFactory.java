@@ -13,10 +13,12 @@ public class VehicleFactory {
     Node randomNextNode = randomNode.connectedNodes.get(generator.nextInt(randomNode.connectedNodes.size()));
     // System.out.println(randomNode.id);
     Vehicle vehicle = new Vehicle(
-      Float.valueOf(randomNode.lat),
-      Float.valueOf(randomNode.lon),
+      randomNode.lat,
+      randomNode.lon,
       randomNode.id,
-      randomNextNode.id
+      randomNextNode.id,
+      // this isn't really right because node.way might not refer to the right way at intersections
+      generator.nextInt(randomNode.way.lanes)
     );
 
     return vehicle;
@@ -32,10 +34,12 @@ public class VehicleFactory {
     Node randomNextNode = randomNode.connectedNodes.get(generator.nextInt(randomNode.connectedNodes.size()));
 
     Vehicle vehicle = new Vehicle(
-      Float.valueOf(randomNode.lat),
-      Float.valueOf(randomNode.lon),
+      randomNode.lat,
+      randomNode.lon,
       randomNode.id,
-      randomNextNode.id
+      randomNextNode.id,
+      // this isn't really right because node.way might not refer to the right way at intersections
+      generator.nextInt(randomNode.way.lanes)
     );
 
     return vehicle;

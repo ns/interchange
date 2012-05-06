@@ -14,8 +14,10 @@ public class Node extends AStarNode {
 	public ArrayList<Connector> links = new ArrayList<Connector>(); // Connectors to other Nodes
 	public boolean walkable = true; // Is this Node to be ignored?
 	public String id;
-    public String lat;
-    public String lon;
+  public double lat;
+  public double lon;
+  // public String lat;
+  // public String lon;
     public ArrayList<Tag> tags = new ArrayList<Tag>();
   
   public ArrayList<Node> connectedNodes = new ArrayList<Node>();

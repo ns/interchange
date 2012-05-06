@@ -8,11 +8,12 @@ import java.util.List;
 
 public class Vehicle {
   int vin;
-  
   double lat, lon;
   Vector2d velocity;
   private String originNodeId, destinationNodeId;
-  
+  // lanes are numbered 0-(lanes-1) with 0 being the left-most lane.
+  // the highest number is the lane on the right shoulder of the street
+  private int onLaneNumber;
   String state = "";
   
   private void setOriginNodeId(String nodeId) {
@@ -22,13 +23,26 @@ public class Vehicle {
     Oracle.registerVehicleOrigin(vin, originNodeId);
   }
   
-  public Vehicle(float lat, float lon, String anOriginNodeId, String aDestinationNodeId) {
+  private void setDestinationNodeId(String nodeId) {
+    destinationNodeId = nodeId;
+  }
+  
+  private void setOnLaneNumber(int laneNumber) {
+    onLaneNumber = laneNumber;
+  }
+  
+  public int getOnLaneNumber() {
+    return onLaneNumber;
+  }
+  
+  public Vehicle(double lat, double lon, String anOriginNodeId, String aDestinationNodeId, int laneNumber) {
     VehicleRegistry.registerVehicle(this);
     
     this.lat = lat;
     this.lon = lon;
     setOriginNodeId(anOriginNodeId);
-    destinationNodeId = aDestinationNodeId;
+    setDestinationNodeId(aDestinationNodeId);
+    setOnLaneNumber(laneNumber);
   }
   
   public boolean isAtDestinationNode() {
@@ -37,12 +51,12 @@ public class Vehicle {
   
   public double distanceToDestinationNode() {
     Node nextNode = getDestinationNode();
-    double d = Math.sqrt(Math.pow(lat - Double.valueOf(nextNode.lat),2)+Math.pow(lon - Double.valueOf(nextNode.lon),2));
+    double d = Math.sqrt(Math.pow(lat - nextNode.lat,2)+Math.pow(lon - nextNode.lon,2));
     return d;
   }
   public double distanceFromOriginNode() {
     Node lastNode = getOriginNode();
-    double d = Math.sqrt(Math.pow(lat - Double.valueOf(lastNode.lat),2)+Math.pow(lon - Double.valueOf(lastNode.lon),2));
+    double d = Math.sqrt(Math.pow(lat - lastNode.lat,2)+Math.pow(lon - lastNode.lon,2));
     return d;
   }
   
@@ -71,10 +85,10 @@ public class Vehicle {
         int i = nextNode.connectedNodes.indexOf(lastNode);
         setOriginNodeId(nextNode.id);
         if (i == 0) {
-          destinationNodeId = nextNode.connectedNodes.get(1).id;
+          setDestinationNodeId(nextNode.connectedNodes.get(1).id);
         }
         else {
-          destinationNodeId = nextNode.connectedNodes.get(0).id;
+          setDestinationNodeId(nextNode.connectedNodes.get(0).id);
         }
         state = "";
       }
@@ -84,7 +98,7 @@ public class Vehicle {
         // potentially remove this and make the driver handle it
         String _originNodeId = originNodeId;
         setOriginNodeId(destinationNodeId);
-        destinationNodeId = _originNodeId;
+        setDestinationNodeId(_originNodeId);
         state = "";
       }
       else {
@@ -94,7 +108,7 @@ public class Vehicle {
         int i = nextNode.connectedNodes.indexOf(lastNode);
         // originNodeId = nextNode.id;
         setOriginNodeId(nextNode.id);
-        destinationNodeId = randomConnectedNode(nextNode, lastNode).id;
+        setDestinationNodeId(randomConnectedNode(nextNode, lastNode).id);
         // state = "reached_intersection";
       }
     }
@@ -204,7 +218,7 @@ public class Vehicle {
     List<Integer> vehicles = Oracle.vehiclesWithNodeAsOrigin(originNodeId);
     for (int vin : vehicles) {
       Vehicle v = VehicleRegistry.getVehicle(vin);
-      if (v == this || !v.destinationNodeId.equals(destinationNodeId))
+      if (v == this || !v.destinationNodeId.equals(destinationNodeId) || v.getOnLaneNumber() != getOnLaneNumber())
         continue;
       
       if (distanceToDestinationNode() > v.distanceToDestinationNode()) {
@@ -218,16 +232,16 @@ public class Vehicle {
       Node destNode = Global.openStreetMap.getNode(destinationNodeId);
       if (destNode.connectedNodes.size() == 2) {
         if (destNode.connectedNodes.get(0).id.equals(originNodeId))
-          vehicle = findVehicleClosestToOriginNode(destNode.id, destNode.connectedNodes.get(1).id);
+          vehicle = findVehicleClosestToOriginNodeOnLane(destNode.id, destNode.connectedNodes.get(1).id, getOnLaneNumber());
         else
-          vehicle = findVehicleClosestToOriginNode(destNode.id, destNode.connectedNodes.get(0).id);
+          vehicle = findVehicleClosestToOriginNodeOnLane(destNode.id, destNode.connectedNodes.get(0).id, getOnLaneNumber());
       }
     }
     
     vehicleInFront = vehicle;
   }
   
-  private Vehicle findVehicleClosestToOriginNode(String originNodeId, String destinationNodeId) {
+  private Vehicle findVehicleClosestToOriginNodeOnLane(String originNodeId, String destinationNodeId, int onLaneNumber) {
     List<Integer> vehicles = Oracle.vehiclesWithNodeAsOrigin(originNodeId);
     
     if (vehicles == null || vehicles.isEmpty()) {
@@ -237,7 +251,7 @@ public class Vehicle {
       Vehicle vehicle = null;
       for (Integer vin : vehicles) {
         Vehicle v = VehicleRegistry.getVehicle(vin);
-        if (!v.getDestinationNode().id.equals(destinationNodeId))
+        if (!v.getDestinationNode().id.equals(destinationNodeId) || v.getOnLaneNumber() != onLaneNumber)
           continue;
         if (vehicle == null || v.distanceFromOriginNode() < vehicle.distanceFromOriginNode())
           vehicle = v;
@@ -249,7 +263,7 @@ public class Vehicle {
   private double angleOfTravel() {
     Node lastNode = getOriginNode();
     Node nextNode = getDestinationNode();
-    double angle = -Math.atan2((Double.valueOf(nextNode.lat) - Double.valueOf(lastNode.lat)), (Double.valueOf(nextNode.lon) - Double.valueOf(lastNode.lon)));
+    double angle = -Math.atan2((nextNode.lat - lastNode.lat), (nextNode.lon - lastNode.lon));
     angle = Math.toDegrees(angle);
     if (angle < 0)
       angle = 360 + angle;
@@ -282,8 +296,8 @@ public class Vehicle {
       deltaLon*=1;
     }
     
-    double newLat = Double.valueOf(lastNode.lat) + deltaLat;
-    double newLon = Double.valueOf(lastNode.lon) + deltaLon;
+    double newLat = lastNode.lat + deltaLat;
+    double newLon = lastNode.lon + deltaLon;
     
     velocity = new Vector2d(newLat-lat, newLon-lon);
   }

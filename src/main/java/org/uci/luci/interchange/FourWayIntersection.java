@@ -3,6 +3,7 @@ package org.uci.luci.interchange;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 public class FourWayIntersection extends Intersection {
   
@@ -13,10 +14,14 @@ public class FourWayIntersection extends Intersection {
   boolean ewGreen = false;
   boolean nsGreen = false;
   
+  int switchInterval;
+  
   int k = 0;
   
   public FourWayIntersection(String rootNodeId) {
     super(rootNodeId);
+    Random randomGenerator = new Random();
+    switchInterval = randomGenerator.nextInt(1000)+500;
     generateGroups();
   }
   
@@ -32,8 +37,8 @@ public class FourWayIntersection extends Intersection {
         Node node1 = nodes.get(i);
         Node node2 = nodes.get(ii);
         
-        double angle = angleBetween2Lines(Double.valueOf(centerNode.lon), Double.valueOf(centerNode.lat), Double.valueOf(node1.lon), Double.valueOf(node1.lat),
-                                          Double.valueOf(centerNode.lon), Double.valueOf(centerNode.lat), Double.valueOf(node2.lon), Double.valueOf(node2.lat));
+        double angle = angleBetween2Lines(centerNode.lon, centerNode.lat, node1.lon, node1.lat,
+                                          centerNode.lon, centerNode.lat, node2.lon, node2.lat);
         
         // System.out.println("\tangle = " + Math.toDegrees(angle));
         
@@ -99,7 +104,7 @@ public class FourWayIntersection extends Intersection {
     // - -
     //  |
     
-    if (k % 2000 == 0) {
+    if (k % switchInterval == 0) {
       if (nsGreen) {
         nsGreen = false;
         ewGreen = true;
