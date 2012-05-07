@@ -28,8 +28,10 @@ public class VehicleDriver {
     
     // System.out.println("d2I = " + d2I);
     
+    double minDistToIntersection = 0.0002;
+    
     // too far away from intersection
-    if (d2I == -1 || d2I > 0.001) {
+    if (d2I == -1 || d2I > minDistToIntersection) {
       if (nearbyIntersectionId != null) {
         Intersection i = IntersectionRegistry.getIntersection(nearbyIntersectionId);
         nearbyIntersectionId = null;
@@ -49,7 +51,7 @@ public class VehicleDriver {
     }
     
     // too far away from intersection
-    if (d2I == -1 || d2I > 0.001) {
+    if (d2I == -1 || d2I > minDistToIntersection) {
       double d = vehicle.getDistanceToVehicleInFront();
       if (d == -1 || d > 0.00005) {
         vehicle.setVelocity(speed);
@@ -127,9 +129,9 @@ public class VehicleDriver {
   
   // this is called per-simulator tick which currently represents 1sec
   // don't do anything that will slow down the simulator in here
-  public void tick() {
+  public void tick(int tick) {
     // this *must* be called first see vehicle.tick() for more info
-    vehicle.tick();
+    vehicle.tick(tick);
     
     // here we make any changes to the vehicles meta-navigation system
     // e.g. change destination, choose alternate routes, calculate expected delay, etc

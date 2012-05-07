@@ -84,7 +84,7 @@ public class Vehicle {
   // for those situations the vehicle does nothing. the driver
   // must figure out where he wants to take the car
   // *this should only be called by the driver*
-  public void tick() {
+  public void tick(int tick) {
     Node lastNode = getOriginNode();
     Node nextNode = getDestinationNode();
     

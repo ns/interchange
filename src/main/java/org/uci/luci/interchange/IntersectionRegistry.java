@@ -32,10 +32,10 @@ public class IntersectionRegistry {
     for (Node n : nodes) {
       if (n.connectedNodes.size() > 2) {
         if (n.connectedNodes.size() == 3) {
-          IntersectionFactory.createThreeWayIntersectionForNode(n);
+          IntersectionFactory.createThreeWayBiddingIntersectionForNode(n);
         }
         else if (n.connectedNodes.size() == 4) {
-          IntersectionFactory.createFourWayIntersectionForNode(n);
+          IntersectionFactory.createFourWayBiddingIntersectionForNode(n);
         }
         else {
           System.out.println("Node "+ n.id + " has " + n.connectedNodes.size() + " connections!");

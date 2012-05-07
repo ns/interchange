@@ -3,17 +3,23 @@ package org.uci.luci.interchange;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ThreeWayIntersection extends Intersection {
+public class ThreeWayBiddingIntersection extends Intersection {
   String eastNodeId, westNodeId;
   String northNodeId;
   
   boolean ewGreen = false;
   boolean nsGreen = false;
   
-  public ThreeWayIntersection(String rootNodeId) {
+  HashMap<String, Integer> ewBids, nsBids;
+  
+  public ThreeWayBiddingIntersection(String rootNodeId) {
     super(rootNodeId);
     generateGroups();
+    ewBids = new HashMap<String, Integer>();
+    nsBids = new HashMap<String, Integer>();
   }
   
   private void generateGroups() {
@@ -44,27 +50,49 @@ public class ThreeWayIntersection extends Intersection {
   }
   
   public void tick(int tick) {
-    if (tick % 2000 == 0) {
-      if (nsGreen) {
-        nsGreen = false;
-        ewGreen = true;
-      }
-      else {
-        nsGreen = true;
-        ewGreen = false;
-      }
+    if (nsBidTotal() > ewBidTotal()) {
+      ewGreen = false;
+      nsGreen = true;
+    }
+    else {
+      ewGreen = true;
+      nsGreen = false;
     }
   }
   
+  public int nsBidTotal() {
+    return nsBids.size();
+    // int total = 0;
+    // for (Map.Entry<String, Integer> entry : nsBids.entrySet()) {
+    //   Integer bid = entry.getValue();
+    //   total += bid;
+    // }
+    // return total;
+  }
+  
+  public int ewBidTotal() {
+    return ewBids.size();
+    // int total = 0;
+    // for (Map.Entry<String, Integer> entry : ewBids.entrySet()) {
+    //   Integer bid = entry.getValue();
+    //   total += bid;
+    // }
+    // return total;
+  }
+  
   public void vehicleIsApproaching(Vehicle v) {
-    // info about vehicle
-    // System.out.println("v " + v.vin + " is approaching " + id);
-    // System.out.println("\tvin = " + v.vin);
-    // System.out.println("\torigin node = " + v.getOriginNode().id);
-    // System.out.println("\tdestination node = " + v.getDestinationNode().id);
+    // just count it as a +1 bid for the moment
+    if (v.getOriginNode().id.equals(eastNodeId) || v.getOriginNode().id.equals(westNodeId)) {
+      ewBids.put(v.vin+"", 1);
+    }
+    else if (v.getOriginNode().id.equals(northNodeId)) {
+      nsBids.put(v.vin+"", 1);
+    }
   }
   
   public void vehicleIsLeaving(Vehicle v) {
-    // System.out.println("v " + v.vin + " is leaving " + id);
+    // remove the vehicles bid
+    nsBids.remove(v.vin+"");
+    ewBids.remove(v.vin+"");
   }
 }

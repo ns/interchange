@@ -71,7 +71,7 @@ public class Simulator {
       
       // System.out.println("vehicles: tick");
       for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
-        d.tick();
+        d.tick(tick);
       }
       
       for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
@@ -93,14 +93,14 @@ public class Simulator {
       }
       
       for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
-        i.tick();
+        i.tick(tick);
       }
       
       endTime = System.nanoTime();
       long duration = endTime - startTime;
       lastSimulatorStepTotalVehicles = VehicleRegistry.allRegisteredVehicles().size();
       lastSimulatorStepTotalTime = duration;
-      Thread.sleep(20);
+      Thread.sleep(5);
     }
   }
 }

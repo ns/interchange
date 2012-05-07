@@ -11,7 +11,7 @@ public abstract class Intersection {
     rootNodeId = nodeId;
   }
   
-  public abstract void tick();
+  public abstract void tick(int tick);
   
   // called when a vehicle can 'see' an intersection
   public abstract void vehicleIsApproaching(Vehicle v);

@@ -438,6 +438,14 @@ public class AppWindow {
             
             Node rootNode = osm.getNode(rootNodeId);
             
+            // // || i instanceof ThreeWayBiddingIntersection
+            // if (i instanceof FourWayBiddingIntersection) {
+            //   FourWayBiddingIntersection ii = (FourWayBiddingIntersection)i;
+            //   NodePoint scaledRootNode = scaledXY(rootNode.lat,rootNode.lon);
+            //   g2d.setColor(Color.black);
+            //   g2d.drawString("n/s " + ii.nsBidTotal() + "; e/w " + ii.ewBidTotal(), (int)scaledRootNode.x+20, (int)scaledRootNode.y-20);
+            // }
+            
             for (Node connectedNode : rootNode.connectedNodes) {
               double laneSpacing =   0.00001;
               double streetSpacing = laneSpacing;
@@ -554,13 +562,13 @@ public class AppWindow {
             
             if (v.isGoingForwardOnWay()) {
               p = scaledXY(v.lat+streetSpacing+(v.getOnLaneNumber()*laneSpacing),v.lon+streetSpacing+(v.getOnLaneNumber()*laneSpacing));
-              g2d.fillOval((int)p.x, (int)p.y, 5, 5);
             }
             else {
               p = scaledXY(v.lat-streetSpacing-(v.getOnLaneNumber()*laneSpacing),v.lon-streetSpacing-(v.getOnLaneNumber()*laneSpacing));
             }
             
-            g2d.fillOval((int)p.x, (int)p.y, 5, 5);
+            int size = 5;//(int)(((double)scale/100000.0) * 30);
+            g2d.fillOval((int)p.x - size/2, (int)p.y - size/2, size, size);
             
             if (v.vehicleInFront != null) {
               g2d.setColor(Color.blue);

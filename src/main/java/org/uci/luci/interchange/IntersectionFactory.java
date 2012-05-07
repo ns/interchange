@@ -15,4 +15,16 @@ public class IntersectionFactory {
     IntersectionRegistry.registerIntersection(intersection);
     return intersection;
  	}
+ 	
+ 	public static FourWayBiddingIntersection createFourWayBiddingIntersectionForNode(Node n) {
+    FourWayBiddingIntersection intersection = new FourWayBiddingIntersection(n.id);
+    IntersectionRegistry.registerIntersection(intersection);
+    return intersection;
+ 	}
+ 	
+ 	public static ThreeWayBiddingIntersection createThreeWayBiddingIntersectionForNode(Node n) {
+    ThreeWayBiddingIntersection intersection = new ThreeWayBiddingIntersection(n.id);
+    IntersectionRegistry.registerIntersection(intersection);
+    return intersection;
+ 	}
 }
