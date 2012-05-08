@@ -1,6 +1,5 @@
 package org.uci.luci.interchange;
 
-import javax.vecmath.Vector2d;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Map;
