@@ -4,44 +4,44 @@ import java.util.Random;
 import java.util.List;
 
 public class VehicleFactory {
-  public static Vehicle createVehicleAtRandomPoint() {
-    Random generator = new Random();
+	public static Vehicle createVehicleAtRandomPoint() {
+		Random generator = new Random();
 
-    List<Node> nodes = Global.openStreetMap.nodes();
+		List<Node> nodes = Global.openStreetMap.nodes();
 
-    Node randomNode = nodes.get(generator.nextInt(nodes.size()));
-    Node randomNextNode = randomNode.connectedNodes.get(generator.nextInt(randomNode.connectedNodes.size()));
-    // System.out.println(randomNode.id);
-    Vehicle vehicle = new Vehicle(
-      randomNode.lat,
-      randomNode.lon,
-      randomNode.id,
-      randomNextNode.id,
-      // this isn't really right because node.way might not refer to the right way at intersections
-      generator.nextInt(Oracle.wayBetweenNodes(randomNode.id, randomNextNode.id).lanes)
-    );
+		Node randomNode = nodes.get(generator.nextInt(nodes.size()));
+		Node randomNextNode = randomNode.connectedNodes.get(generator.nextInt(randomNode.connectedNodes.size()));
+		// System.out.println(randomNode.id);
+		Vehicle vehicle = new Vehicle(
+				randomNode.lat,
+				randomNode.lon,
+				randomNode.id,
+				randomNextNode.id,
+				// this isn't really right because node.way might not refer to the right way at intersections
+				generator.nextInt(Oracle.wayBetweenNodes(randomNode.id, randomNextNode.id).lanes)
+		);
 
-    return vehicle;
- 	}
- 	
-  public static Vehicle createVehicleAtNode(Node n) {
-    Random generator = new Random();
+		return vehicle;
+	}
 
-    List<Node> nodes = Global.openStreetMap.nodes();
+	public static Vehicle createVehicleAtNode(Node n) {
+		Random generator = new Random();
 
-    Node randomNode = n;
-    // Node randomNextNode = randomNode.connectedNodes.get(2);
-    Node randomNextNode = randomNode.connectedNodes.get(generator.nextInt(randomNode.connectedNodes.size()));
+		List<Node> nodes = Global.openStreetMap.nodes();
 
-    Vehicle vehicle = new Vehicle(
-      randomNode.lat,
-      randomNode.lon,
-      randomNode.id,
-      randomNextNode.id,
-      // this isn't really right because node.way might not refer to the right way at intersections
-      generator.nextInt(Oracle.wayBetweenNodes(randomNode.id, randomNextNode.id).lanes)
-    );
+		Node randomNode = n;
+		// Node randomNextNode = randomNode.connectedNodes.get(2);
+		Node randomNextNode = randomNode.connectedNodes.get(generator.nextInt(randomNode.connectedNodes.size()));
 
-    return vehicle;
- 	}
+		Vehicle vehicle = new Vehicle(
+				randomNode.lat,
+				randomNode.lon,
+				randomNode.id,
+				randomNextNode.id,
+				// this isn't really right because node.way might not refer to the right way at intersections
+				generator.nextInt(Oracle.wayBetweenNodes(randomNode.id, randomNextNode.id).lanes)
+		);
+
+		return vehicle;
+	}
 }

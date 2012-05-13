@@ -13,6 +13,7 @@ public class App
         IntersectionRegistry.generateIntersections();
         
         AppWindow appWindow = new AppWindow();
-        Simulator simulator = new Simulator();
+        Global.simulator = new Simulator();
+        Global.simulator.simulate();
     }
 }

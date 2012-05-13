@@ -1,5 +1,8 @@
 package org.uci.luci.interchange;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -25,12 +28,34 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class AppWindow {
+public class AppWindow implements ActionListener{
 	JFrame f;
 	MyPanel myPanel;
 
 	public AppWindow() throws InterruptedException {
 		myPanel = new MyPanel();
+
+		JMenuBar menubar = new JMenuBar();
+
+		JMenu sim = new JMenu("Simulator");
+		sim.setMnemonic(KeyEvent.VK_S);
+
+		JMenuItem eMenuItem = new JMenuItem("Start");
+		eMenuItem.addActionListener(this);
+		sim.add(eMenuItem);
+		eMenuItem = new JMenuItem("Stop");
+		eMenuItem.addActionListener(this);
+		sim.add(eMenuItem);
+		eMenuItem = new JMenuItem("Reset");
+		eMenuItem.addActionListener(this);
+		sim.add(eMenuItem);
+
+
+		JMenu view = new JMenu("View");
+		view.setMnemonic(KeyEvent.VK_V);
+
+		menubar.add(sim);
+		menubar.add(view);
 
 		f = new JFrame("Interchange");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,6 +63,28 @@ public class AppWindow {
 		f.pack();
 		f.setVisible(true);
 		f.setLocationRelativeTo(null);
+		f.setJMenuBar(menubar);
+	}
+
+	public void actionPerformed(ActionEvent e){
+
+		// Menu item actions
+		String command = e.getActionCommand();
+		try
+		{
+			if (command.equals("Start")) {
+				Global.simulator.startSimulating();
+			} else if (command.equals("Stop")) {
+				Global.simulator.stopSimulating();
+			} else if (command.equals("Reset")) {
+				Global.simulator.resetSimulator();
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		System.out.println("Menu Done");
 	}
 
 	class MyPanel extends JPanel {
@@ -192,7 +239,7 @@ public class AppWindow {
 			offsetY += y - whereThePointIsNow.y;
 			repaint();
 		}
-		
+
 		public Dimension getPreferredSize() {
 			return new Dimension(800,600);
 		}
@@ -256,12 +303,12 @@ public class AppWindow {
 			g2d.setColor(new Color(200, 200, 255));
 
 			// for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
-				//   Node n = Global.openStreetMap.getNode(i.getRootNodeId());
-				//   
-				//   
-				//   NodePoint p = scaledXY(n.lat,n.lon);
-				//   g2d.fillOval((int)p.x, (int)p.y, (int)i.getBounds(), (int)i.getBounds());
-				// }
+			//   Node n = Global.openStreetMap.getNode(i.getRootNodeId());
+			//   
+			//   
+			//   NodePoint p = scaledXY(n.lat,n.lon);
+			//   g2d.fillOval((int)p.x, (int)p.y, (int)i.getBounds(), (int)i.getBounds());
+			// }
 
 
 
@@ -297,7 +344,7 @@ public class AppWindow {
 
 
 				// if (_w.oneway) {
-					//   g2d.setColor(Color.blue);
+				//   g2d.setColor(Color.blue);
 				// }
 				// else {
 				//   g2d.setColor(Color.red);
@@ -438,10 +485,10 @@ public class AppWindow {
 
 				// // || i instanceof ThreeWayBiddingIntersection
 				// if (i instanceof FourWayBiddingIntersection) {
-					//   FourWayBiddingIntersection ii = (FourWayBiddingIntersection)i;
-					//   NodePoint scaledRootNode = scaledXY(rootNode.lat,rootNode.lon);
-					//   g2d.setColor(Color.black);
-					//   g2d.drawString("n/s " + ii.nsBidTotal() + "; e/w " + ii.ewBidTotal(), (int)scaledRootNode.x+20, (int)scaledRootNode.y-20);
+				//   FourWayBiddingIntersection ii = (FourWayBiddingIntersection)i;
+				//   NodePoint scaledRootNode = scaledXY(rootNode.lat,rootNode.lon);
+				//   g2d.setColor(Color.black);
+				//   g2d.drawString("n/s " + ii.nsBidTotal() + "; e/w " + ii.ewBidTotal(), (int)scaledRootNode.x+20, (int)scaledRootNode.y-20);
 				// }
 
 				for (Node connectedNode : rootNode.connectedNodes) {

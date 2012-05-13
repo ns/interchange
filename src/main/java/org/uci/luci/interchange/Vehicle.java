@@ -17,7 +17,6 @@ public class Vehicle {
   
   public boolean isGoingForwardOnWay() {
     Way w = Oracle.wayBetweenNodes(originNodeId, destinationNodeId);
-    
     int oI = w.nd.indexOf(originNodeId);
     int dI = w.nd.indexOf(destinationNodeId);
     

@@ -9,6 +9,11 @@ public class Oracle {
   private static HashMap<String, ArrayList<Integer>> originNodesToVehicles = new HashMap<String, ArrayList<Integer>>();
   private static HashMap<String, Way> twoNodesToWay = new HashMap<String, Way>();
   
+  public static void resetVehicles()
+  {
+	  originNodesToVehicles.clear();
+  }
+  
   public static void deregisterVehicleOrigin(Integer vin, String nodeId) {
     // System.out.println("deregistering vehicle " + vin + " at " + nodeId);
     if (originNodesToVehicles.get(nodeId) == null)
