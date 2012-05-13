@@ -327,7 +327,10 @@ public class Node extends AStarNode {
 	
 	
 	
-	
+	public float dist2(Node n){
+    // return (float)Math.sqrt(((x - n.x) * (x - n.x)) + ((y - n.y) * (y - n.y)));
+    return (float)Math.sqrt(((lat - n.lat) * (lat - n.lat)) + ((lon - n.lon) * (lon - n.lon)));
+	}
 	
 	
 	/**
@@ -346,10 +349,10 @@ public class Node extends AStarNode {
     effecient the search.
   */
   public float getEstimatedCost(AStarNode node) {
-    return dist((Node)node);
+    // System.out.println("dist = " + dist2((Node)node));
+    return dist2((Node)node);
   }
-
-
+  
   /**
     Gets the children (AKA "neighbors" or "adjacent nodes")
     of this node.

@@ -423,7 +423,26 @@ public class AppWindow {
           
           
           
-          
+          //
+          g2d.setStroke(new BasicStroke(2f));
+          g2d.setColor(Color.green);
+          for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
+            Navigation n = d.navigation;
+            Node ln = null;
+            for (Node node : n.getPath()) {
+              if (ln == null) {
+                ln = node;
+              }
+              else {
+                NodePoint p1 = scaledXY(ln.lat,ln.lon);
+                NodePoint p2 = scaledXY(node.lat,node.lon);
+                g2d.drawLine((int)p1.x,(int)p1.y,(int)p2.x,(int)p2.y);
+                
+                ln = node;
+              }
+            }
+          }
+          //
           
           
           
@@ -587,20 +606,12 @@ public class AppWindow {
           
           
           
-          
-          
-          
-          
-          
-          
-          
-          
-          
           if (highlightPoint != null) {
             NodePoint lnP = scaledXY(highlightPoint.x, highlightPoint.y);
             g2d.setColor(Color.yellow);
             g2d.fillOval((int)lnP.x-10, (int)lnP.y-10, 20, 20);
           }
+
         }
         
         

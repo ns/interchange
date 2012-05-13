@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.text.DecimalFormat;
 
 public class Simulator {
+  private boolean paused;
 	ArrayList<String> spawnPoints = new ArrayList<String>();
   
   int lastSimulatorStepTotalVehicles;
@@ -20,6 +21,7 @@ public class Simulator {
   public Simulator() throws InterruptedException {
     lastSimulatorStepTotalVehicles = 0;
     lastSimulatorStepTotalTime = 0;
+    paused = false;
     
     ActionListener taskPerformer = new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
@@ -27,7 +29,7 @@ public class Simulator {
         
         System.out.println("\tFree memory: " + humanReadableByteCount(Runtime.getRuntime().freeMemory(), false));
         System.out.println("\tMaximum memory: " + (Runtime.getRuntime().maxMemory() == Long.MAX_VALUE ? "no limit" : humanReadableByteCount(Runtime.getRuntime().maxMemory(), false)));
-        System.out.println("\t" + lastSimulatorStepTotalVehicles + " vehicles in simulators.");
+        System.out.println("\t" + lastSimulatorStepTotalVehicles + " vehicles in simulator.");
         System.out.println("\t" + lastSimulatorStepTotalTime + " ns per simulator step.");
         
         double nsPerVehicle = (lastSimulatorStepTotalTime/lastSimulatorStepTotalVehicles);
@@ -54,16 +56,40 @@ public class Simulator {
       return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
   }
   
+  public void pause() {
+    paused = true;
+  }
+  
   public void simulate() throws InterruptedException {
     int tick = 0;
     
     while (true) {
+      
+      if (paused) {
+        Thread.sleep(500);
+        continue;
+      }
+      
       tick++;
       
-      if (tick%30 == 1) {
+      if (tick%500 == 1) {
         Vehicle v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122633613"));
-        // Vehicle v = VehicleFactory.createVehicleAtRandomPoint();
         VehicleDriver d = VehicleDriverFactory.createVehicleDriver(v);
+        try {
+          // d.setDestinationAndGo("560587843");
+          d.pickRandomDestinationAndGo();
+        }
+        catch (NoPathToDestinationException e) {
+          VehicleDriverFactory.destroyVehicleDriver(d);
+          VehicleFactory.destroyVehicle(v);
+          
+          System.out.println("removing vehicle");
+        }
+        
+        // Vehicle v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122633613"));
+        // // Vehicle v = VehicleFactory.createVehicleAtRandomPoint();
+        // VehicleDriver d = VehicleDriverFactory.createVehicleDriver(v);
+        // d.pickRandomDestinationAndGo();
       }
       
       long startTime = System.nanoTime();
@@ -71,6 +97,7 @@ public class Simulator {
       
       // System.out.println("vehicles: tick");
       for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
+        if (d.vehicle.paused()) continue;
         d.tick(tick);
       }
       
@@ -79,8 +106,9 @@ public class Simulator {
         // we simply calculate exactly where the vehicle should be for
         // the next timestep
         
-        if (v.velocity == null)
+        if (v.velocity == null || v.paused()) {
           continue;
+        }
         
         Node lastNode = v.getOriginNode();
         Node nextNode = v.getDestinationNode();
@@ -96,11 +124,15 @@ public class Simulator {
         i.tick(tick);
       }
       
+      List<Vehicle> collisions = VehicleCollisionChecker.checkCollisions(VehicleRegistry.allRegisteredVehicles());
+      for (Vehicle v : collisions)
+        v.pause();
+      
       endTime = System.nanoTime();
       long duration = endTime - startTime;
       lastSimulatorStepTotalVehicles = VehicleRegistry.allRegisteredVehicles().size();
       lastSimulatorStepTotalTime = duration;
-      Thread.sleep(5);
+      Thread.sleep(1);
     }
   }
 }

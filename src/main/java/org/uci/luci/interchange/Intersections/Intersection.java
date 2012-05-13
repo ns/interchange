@@ -33,6 +33,9 @@ public abstract class Intersection {
     return 0;
   }
   
+  public abstract boolean isLeftTurn(String fromNodeId, String toNodeId);
+  public abstract boolean isRightTurn(String fromNodeId, String toNodeId);
+  
   // public List<Node> connectingNodes() {
   //   Node root = Global.openStreetMap.getNode(rootNodeId);
   //   return root.connectedNodes;

@@ -11,22 +11,24 @@ public class VehicleFactory {
 
     Node randomNode = nodes.get(generator.nextInt(nodes.size()));
     Node randomNextNode = randomNode.connectedNodes.get(generator.nextInt(randomNode.connectedNodes.size()));
-    // System.out.println(randomNode.id);
+    
     Vehicle vehicle = new Vehicle(
       randomNode.lat,
       randomNode.lon,
       randomNode.id,
-      randomNextNode.id,
+      // randomNextNode.id,
       // this isn't really right because node.way might not refer to the right way at intersections
       generator.nextInt(Oracle.wayBetweenNodes(randomNode.id, randomNextNode.id).lanes)
     );
-
+    
+    VehicleRegistry.registerVehicle(vehicle);
+    
     return vehicle;
  	}
  	
   public static Vehicle createVehicleAtNode(Node n) {
     Random generator = new Random();
-
+    
     List<Node> nodes = Global.openStreetMap.nodes();
 
     Node randomNode = n;
@@ -37,11 +39,17 @@ public class VehicleFactory {
       randomNode.lat,
       randomNode.lon,
       randomNode.id,
-      randomNextNode.id,
+      // randomNextNode.id,
       // this isn't really right because node.way might not refer to the right way at intersections
       generator.nextInt(Oracle.wayBetweenNodes(randomNode.id, randomNextNode.id).lanes)
     );
+    
+    VehicleRegistry.registerVehicle(vehicle);
 
     return vehicle;
+ 	}
+ 	
+ 	public static void destroyVehicle(Vehicle v) {
+ 	  VehicleRegistry.deregisterVehicle(v);
  	}
 }

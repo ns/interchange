@@ -14,6 +14,27 @@ public class Vehicle {
   // the highest number is the lane on the right shoulder of the street
   private int onLaneNumber;
   String state = "";
+  boolean paused;
+  
+  public boolean vehicleOnLeft() {
+    return false;
+  }
+  
+  public boolean vehicleOnRight() {
+    return false;
+  }
+  
+  public void pause() {
+    paused = true;
+  }
+  
+  public boolean paused() {
+    return paused;
+  }
+  
+  public Way getWay() {
+    return Oracle.wayBetweenNodes(originNodeId, destinationNodeId);
+  }
   
   public boolean isGoingForwardOnWay() {
     Way w = Oracle.wayBetweenNodes(originNodeId, destinationNodeId);
@@ -24,14 +45,14 @@ public class Vehicle {
     return oI < dI;
   }
   
-  private void setOriginNodeId(String nodeId) {
+  public void setOriginNodeId(String nodeId) {
     if (originNodeId != null)
       Oracle.deregisterVehicleOrigin(vin, originNodeId);
     originNodeId = nodeId;
     Oracle.registerVehicleOrigin(vin, originNodeId);
   }
   
-  private void setDestinationNodeId(String nodeId) {
+  public void setDestinationNodeId(String nodeId) {
     destinationNodeId = nodeId;
   }
   
@@ -43,13 +64,14 @@ public class Vehicle {
     return onLaneNumber;
   }
   
-  public Vehicle(double lat, double lon, String anOriginNodeId, String aDestinationNodeId, int laneNumber) {
-    VehicleRegistry.registerVehicle(this);
+  public Vehicle(double lat, double lon, String anOriginNodeId, int laneNumber) {
+  // public Vehicle(double lat, double lon, String anOriginNodeId, String aDestinationNodeId, int laneNumber) {
     
+    this.paused = false;
     this.lat = lat;
     this.lon = lon;
     setOriginNodeId(anOriginNodeId);
-    setDestinationNodeId(aDestinationNodeId);
+    // setDestinationNodeId(aDestinationNodeId);
     setOnLaneNumber(laneNumber);
   }
   
@@ -110,19 +132,21 @@ public class Vehicle {
         state = "";
       }
       else {
-        // make the driver handle this, it's an intersection
-        // we assume that this is an intersection
-        // pick a random way to go.
-        int i = nextNode.connectedNodes.indexOf(lastNode);
-        // originNodeId = nextNode.id;
-        setOriginNodeId(nextNode.id);
-        setDestinationNodeId(randomConnectedNode(nextNode, lastNode).id);
         // state = "reached_intersection";
-        
-        // we need to determine if the vehicle can actually make this turn
-        // and also merge this vehicle onto a lane appropriately
-        Random randomGenerator = new Random();
-        setOnLaneNumber(randomGenerator.nextInt(Oracle.wayBetweenNodes(originNodeId, destinationNodeId).lanes));
+        // setVelocity(0);
+        // 
+        // // make the driver handle this, it's an intersection
+        // // we assume that this is an intersection
+        // // pick a random way to go.
+        // int i = nextNode.connectedNodes.indexOf(lastNode);
+        // setOriginNodeId(nextNode.id);
+        // setDestinationNodeId(randomConnectedNode(nextNode, lastNode).id);
+        // // state = "reached_intersection";
+        // 
+        // // we need to determine if the vehicle can actually make this turn
+        // // and also merge this vehicle onto a lane appropriately
+        // Random randomGenerator = new Random();
+        // setOnLaneNumber(randomGenerator.nextInt(Oracle.wayBetweenNodes(originNodeId, destinationNodeId).lanes));
       }
     }
   }
@@ -313,5 +337,12 @@ public class Vehicle {
     double newLon = lastNode.lon + deltaLon;
     
     velocity = new Vector2d(newLat-lat, newLon-lon);
+  }
+  
+  public boolean isCollidingWith(Vehicle v) {
+    if (Math.abs(lat-v.lat) < 0.0000005 && Math.abs(lon-v.lon) < 0.0000005) {
+      return true;
+    }
+    return false;
   }
 }

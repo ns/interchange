@@ -3,19 +3,20 @@ package org.uci.luci.interchange;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ThreeWayBiddingIntersection extends Intersection {
+public class FourWayBiddingIntersection extends Intersection {
   String eastNodeId, westNodeId;
-  String northNodeId;
+  String northNodeId, southNodeId;
   
   boolean ewGreen = false;
   boolean nsGreen = false;
   
   HashMap<String, Integer> ewBids, nsBids;
   
-  public ThreeWayBiddingIntersection(String rootNodeId) {
+  public FourWayBiddingIntersection(String rootNodeId) {
     super(rootNodeId);
     generateGroups();
     ewBids = new HashMap<String, Integer>();
@@ -26,11 +27,12 @@ public class ThreeWayBiddingIntersection extends Intersection {
     Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
     List<Node> connectedNodes = (List<Node>)rootNode.connectedNodes.clone();
     List<Node> g1 = Utils.findNodesWithAngleBetweenClosestTo180(rootNode, connectedNodes);
-    eastNodeId = g1.get(0).id;
-    westNodeId = g1.get(1).id;
+    northNodeId = g1.get(0).id;
+    southNodeId = g1.get(1).id;
     connectedNodes.remove(g1.get(0));
     connectedNodes.remove(g1.get(1));
-    northNodeId = connectedNodes.get(0).id;
+    eastNodeId = connectedNodes.get(0).id;
+    westNodeId = connectedNodes.get(1).id;
   }
   
   // 0 = green, 1 = yellow, 2 = red
@@ -39,7 +41,7 @@ public class ThreeWayBiddingIntersection extends Intersection {
     if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
       return ewGreen ? 0 : 2;
     }
-    else if (originNodeId.equals(northNodeId)) {
+    else if (originNodeId.equals(northNodeId) || originNodeId.equals(southNodeId)) {
       return nsGreen ? 0 : 2;
     }
     else {
@@ -85,7 +87,7 @@ public class ThreeWayBiddingIntersection extends Intersection {
     if (v.getOriginNode().id.equals(eastNodeId) || v.getOriginNode().id.equals(westNodeId)) {
       ewBids.put(v.vin+"", 1);
     }
-    else if (v.getOriginNode().id.equals(northNodeId)) {
+    else if (v.getOriginNode().id.equals(northNodeId) || v.getOriginNode().id.equals(southNodeId)) {
       nsBids.put(v.vin+"", 1);
     }
   }
@@ -94,5 +96,26 @@ public class ThreeWayBiddingIntersection extends Intersection {
     // remove the vehicles bid
     nsBids.remove(v.vin+"");
     ewBids.remove(v.vin+"");
+  }
+  
+  
+  public boolean isLeftTurn(String fromNodeId, String toNodeId) {
+    Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
+    Node node1 = Global.openStreetMap.getNode(fromNodeId);
+    Node node2 = Global.openStreetMap.getNode(toNodeId);
+    double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1, node2);
+    if (Math.toDegrees(angle) < -45 && Math.toDegrees(angle) > -135)
+      return true;
+    return false;
+  }
+  
+  public boolean isRightTurn(String fromNodeId, String toNodeId) {
+    Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
+    Node node1 = Global.openStreetMap.getNode(fromNodeId);
+    Node node2 = Global.openStreetMap.getNode(toNodeId);
+    double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1, node2);
+    if (Math.toDegrees(angle) > 45 && Math.toDegrees(angle) < 135)
+      return true;
+    return false;
   }
 }

@@ -15,6 +15,10 @@ public class VehicleRegistry {
     nextVinToGenerate++;
   }
   
+  public static void deregisterVehicle(Vehicle v) {
+    vehicleHash.remove(v.vin);
+  }
+  
   public static Vehicle getVehicle(Integer vin) {
     return vehicleHash.get(vin);
   }

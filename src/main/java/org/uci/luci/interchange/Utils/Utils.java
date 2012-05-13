@@ -40,6 +40,13 @@ public class Utils {
     return Arrays.asList(selectedNode1, selectedNode2);
   }
   
+  public static double angleBetweenNodesWithCenterNode(Node centerNode, Node node1, Node node2) {
+    double angle = Utils.angleBetween2Lines(centerNode.lon, centerNode.lat, node1.lon, node1.lat,
+                                            centerNode.lon, centerNode.lat, node2.lon, node2.lat);
+    // System.out.println("\tangle = " + Math.toDegrees(angle));
+    return angle;
+  }
+  
   public static double angleBetween2Lines(double l1x1, double l1y1, double l1x2, double l1y2,
                                           double l2x1, double l2y1, double l2x2, double l2y2) {
     double angle1 = Math.atan2(l1y1 - l1y2,

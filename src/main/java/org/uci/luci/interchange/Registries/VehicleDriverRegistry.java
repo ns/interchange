@@ -9,9 +9,14 @@ public class VehicleDriverRegistry {
   private static int nextLicenseToGenerate = 0;
 	private static HashMap<Integer, VehicleDriver> driverHash = new HashMap<Integer, VehicleDriver>();
   
-  public static void registerDriver(VehicleDriver d) {;
+  public static void registerDriver(VehicleDriver d) {
+    d.licence = nextLicenseToGenerate;
     driverHash.put(nextLicenseToGenerate, d);
     nextLicenseToGenerate++;
+  }
+  
+  public static void deregisterDriver(VehicleDriver d) {
+    driverHash.remove(d.licence);
   }
   
   public static VehicleDriver getDriver(Integer licenseNumber) {

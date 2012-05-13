@@ -4,7 +4,9 @@ package org.uci.luci.interchange;
 // velocity based on relevant factors
 public class VehicleDriver {
   Vehicle vehicle;
+  Navigation navigation;
   
+  int licence;
   double speed = 0.000001;
   double minSpeed = 0;
   double maxSpeed = 0.000002;
@@ -15,6 +17,7 @@ public class VehicleDriver {
   
   public VehicleDriver(Vehicle vehicle) {
     this.vehicle = vehicle;
+    // this.navigation = new Navigation(vehicle.getOriginNode().id);
   }
   
   public void navTick() {
@@ -23,7 +26,44 @@ public class VehicleDriver {
     // }
   }
   
+  public void pickRandomDestinationAndGo() throws NoPathToDestinationException {
+    this.navigation = new Navigation(vehicle.getOriginNode().id);
+    vehicle.setDestinationNodeId(navigation.nextNodeOnPath(vehicle.getOriginNode().id).id);
+  }
+  
+  public void setDestinationAndGo(String destinationNodeId) throws NoPathToDestinationException {
+    navigation = new Navigation(vehicle.getOriginNode().id, destinationNodeId);
+    vehicle.setDestinationNodeId(destinationNodeId);
+  }
+  
   private void actuateVelocity() {
+    
+    
+    
+    Intersection ii = vehicle.getNextIntersection();
+    if (ii != null) {
+      Node nextNode = navigation.nextNodeOnPath(vehicle.getDestinationNode().id);
+      if (nextNode != null) {
+        if (ii.isLeftTurn(vehicle.getOriginNode().id, nextNode.id)) {
+          // car needs to be in left lane
+          if (vehicle.lane != 0) {
+            System.out.println("need to switch lanes to the left");
+          }
+        }
+        else if (ii.isRightTurn(vehicle.getOriginNode().id, nextNode.id)) {
+          // car needs to be in right lane
+          if (vehicle.lane != vehicle.getWay().lanes - 1) {
+            System.out.println("need to switch lanes to the right");
+          }
+        }
+      }
+    }
+    
+    
+    
+    
+    
+    
     double d2I = vehicle.getDistanceToNextIntersection();
     
     // System.out.println("d2I = " + d2I);
@@ -73,9 +113,10 @@ public class VehicleDriver {
           vehicle.setVelocity(speed/4);
         }
         else {
+          // we're at the intersection
           int light = i.getLightForWayOnLane(null, vehicle.getOriginNode().id, vehicle.lane);
           // System.out.println("i = " + i.id + " getLightForWayOnLane() = " + light);
-
+          
           // green
           if (light == 0) {
             vehicle.setVelocity(speed);
@@ -93,6 +134,28 @@ public class VehicleDriver {
           }
           else {
             System.out.println("uh.. what?");
+          }
+          
+          
+          if (d2I <= 0.00001) {
+            
+            Node nextNode = navigation.nextNodeOnPath(vehicle.getDestinationNode().id);
+            
+            if (nextNode != null) {
+              vehicle.setOriginNodeId(vehicle.getDestinationNode().id);
+              vehicle.setDestinationNodeId(nextNode.id);
+            }
+            else {
+              vehicle.setVelocity(0);
+              vehicle.pause();
+              System.out.println("Vehicle has reached dest");
+            }
+            
+            // System.out.println("--- o --- > " + vehicle.getOriginNode().id);
+            // System.out.println("--- o --- > " + nextNode.id);
+            
+            // Global.simulator.pause();
+            // System.out.println("----------------------");
           }
         }
       }
