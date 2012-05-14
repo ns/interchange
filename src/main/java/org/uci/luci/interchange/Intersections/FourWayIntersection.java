@@ -16,7 +16,7 @@ public class FourWayIntersection extends Intersection {
   
   public FourWayIntersection(String rootNodeId) {
     super(rootNodeId);
-    Random randomGenerator = new Random();
+    Random randomGenerator = Utils.randomNumberGenerator();
     switchInterval = randomGenerator.nextInt(1000)+500;
     generateGroups();
   }

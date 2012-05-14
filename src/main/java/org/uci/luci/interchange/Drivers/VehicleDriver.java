@@ -29,6 +29,7 @@ public class VehicleDriver {
   public void pickRandomDestinationAndGo() throws NoPathToDestinationException {
     this.navigation = new Navigation(vehicle.getOriginNode().id);
     vehicle.setDestinationNodeId(navigation.nextNodeOnPath(vehicle.getOriginNode().id).id);
+    
   }
   
   public void setDestinationAndGo(String destinationNodeId) throws NoPathToDestinationException {
@@ -36,9 +37,10 @@ public class VehicleDriver {
     vehicle.setDestinationNodeId(destinationNodeId);
   }
   
+  String preparingFor = "";
   private void actuateVelocity() {
     
-    
+    vehicle.preparingFor = "";
     
     Intersection ii = vehicle.getNextIntersection();
     if (ii != null) {
@@ -46,14 +48,57 @@ public class VehicleDriver {
       if (nextNode != null) {
         if (ii.isLeftTurn(vehicle.getOriginNode().id, nextNode.id)) {
           // car needs to be in left lane
-          if (vehicle.lane != 0) {
-            System.out.println("need to switch lanes to the left");
+          
+          vehicle.preparingFor = "left";
+          
+          if (vehicle.getOnLaneNumber() != vehicle.getWay().lanes - 1) {
+            System.out.println(vehicle.vin + ": need to switch lanes to the left " + vehicle.getOnLaneNumber() + " (total lanes = " + (vehicle.getWay().lanes - 1) + ")");
+            
+            // here we should check if there's a vehicle on the left
+            if (vehicle.getOnLaneNumber() > vehicle.getWay().lanes - 1)
+              vehicle.setOnLaneNumber(vehicle.getWay().lanes - 1);
+            else {
+              if (!vehicle.vehicleOnRight()) {
+                // move over to the right
+                vehicle.setOnLaneNumber(vehicle.getOnLaneNumber()+1);
+              }
+              else {
+                System.out.println("Couldnt move vehicle to left");
+              }
+            }
           }
+          
+          
+          // if (vehicle.getOnLaneNumber() != 0) {
+          //   System.out.println(vehicle.vin + ": need to switch lanes to the left "  + vehicle.getOnLaneNumber() + " (total lanes = " + (vehicle.getWay().lanes - 1) + ")");
+          //   
+          //   if (!vehicle.vehicleOnLeft()) {
+          //     // move over to the left
+          //     vehicle.getOnLaneNumber()--;
+          //   }
+          //   else {
+          //     System.out.println("Couldnt move vehicle to left");
+          //   }
+          // }
         }
         else if (ii.isRightTurn(vehicle.getOriginNode().id, nextNode.id)) {
+          vehicle.preparingFor = "right";
           // car needs to be in right lane
-          if (vehicle.lane != vehicle.getWay().lanes - 1) {
-            System.out.println("need to switch lanes to the right");
+          if (vehicle.getOnLaneNumber() != vehicle.getWay().lanes - 1) {
+            System.out.println(vehicle.vin + ": need to switch lanes to the right " + vehicle.getOnLaneNumber() + " (total lanes = " + (vehicle.getWay().lanes - 1) + ")");
+            
+            // here we should check if there's a vehicle on the left
+            if (vehicle.getOnLaneNumber() > vehicle.getWay().lanes - 1)
+              vehicle.setOnLaneNumber(vehicle.getWay().lanes - 1);
+            else {
+              if (!vehicle.vehicleOnRight()) {
+                // move over to the right
+                vehicle.setOnLaneNumber(vehicle.getOnLaneNumber()+1);
+              }
+              else {
+                System.out.println("Couldnt move vehicle to right");
+              }
+            }
           }
         }
       }
@@ -114,7 +159,7 @@ public class VehicleDriver {
         }
         else {
           // we're at the intersection
-          int light = i.getLightForWayOnLane(null, vehicle.getOriginNode().id, vehicle.lane);
+          int light = i.getLightForWayOnLane(null, vehicle.getOriginNode().id, vehicle.getOnLaneNumber());
           // System.out.println("i = " + i.id + " getLightForWayOnLane() = " + light);
           
           // green
@@ -142,13 +187,28 @@ public class VehicleDriver {
             Node nextNode = navigation.nextNodeOnPath(vehicle.getDestinationNode().id);
             
             if (nextNode != null) {
+              
               vehicle.setOriginNodeId(vehicle.getDestinationNode().id);
               vehicle.setDestinationNodeId(nextNode.id);
+              
+              if (ii.isLeftTurn(vehicle.getOriginNode().id, nextNode.id)) {
+                vehicle.setOnLaneNumber(0);
+              }
+              else if (ii.isRightTurn(vehicle.getOriginNode().id, nextNode.id)) {
+                vehicle.setOnLaneNumber(vehicle.getWay().lanes - 1);
+              }
+              
+              if (vehicle.getOnLaneNumber() > vehicle.getWay().lanes - 1)
+                vehicle.setOnLaneNumber(vehicle.getWay().lanes - 1);
+              
             }
             else {
               vehicle.setVelocity(0);
               vehicle.pause();
-              System.out.println("Vehicle has reached dest");
+              vehicle.flagForRemoval = true;
+              // System.out.println(vehicle.vin + ": Vehicle has reached dest");
+              // VehicleDriverFactory.destroyVehicleDriver(this);
+              // VehicleFactory.destroyVehicle(vehicle);
             }
             
             // System.out.println("--- o --- > " + vehicle.getOriginNode().id);

@@ -1,12 +1,12 @@
 package org.uci.luci.interchange;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 public class IntersectionRegistry {
-  private static HashMap<String, Intersection> intersectionHash = new HashMap<String, Intersection>();
+  private static Hashtable<String, Intersection> intersectionHash = new Hashtable<String, Intersection>();
   
   public static void registerIntersection(Intersection i) {
     String id = "i-" + i.getRootNodeId();

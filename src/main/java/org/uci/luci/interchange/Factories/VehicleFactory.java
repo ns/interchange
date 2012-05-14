@@ -5,7 +5,7 @@ import java.util.List;
 
 public class VehicleFactory {
   public static Vehicle createVehicleAtRandomPoint() {
-    Random generator = new Random();
+    Random generator = Utils.randomNumberGenerator();
 
     List<Node> nodes = Global.openStreetMap.nodes();
 
@@ -27,7 +27,7 @@ public class VehicleFactory {
  	}
  	
   public static Vehicle createVehicleAtNode(Node n) {
-    Random generator = new Random();
+    Random generator = Utils.randomNumberGenerator();
     
     List<Node> nodes = Global.openStreetMap.nodes();
 
@@ -50,6 +50,9 @@ public class VehicleFactory {
  	}
  	
  	public static void destroyVehicle(Vehicle v) {
- 	  VehicleRegistry.deregisterVehicle(v);
+    Oracle.deregisterVehicleOrigin(v.vin, v.getOriginNode().id);
+    if (v.getDestinationNode() != null)
+      Oracle.deregisterVehicleOrigin(v.vin, v.getDestinationNode().id);
+    VehicleRegistry.deregisterVehicle(v);
  	}
 }

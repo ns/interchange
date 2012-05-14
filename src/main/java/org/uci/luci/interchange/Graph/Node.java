@@ -6,7 +6,7 @@ import java.lang.Math;
 
 public class Node extends AStarNode {
 
-	public float x, y, z; // Location, variable dimensions
+	public double x, y;
 	public Node parent = null; // Parent Node setting
 	public float f = 0.0f; // Sum of goal and heuristic calculations
 	public float g = 0.0f; // Cost of reaching goal
@@ -27,9 +27,9 @@ public class Node extends AStarNode {
     
 	// Constructors
 
-	public Node(){
-		this(0.0f, 0.0f, 0.0f);
-	}
+  public Node(){
+   this(0.0f, 0.0f);
+  }
 	
 	public String getName() {
 	  for (Tag t : tags) {
@@ -46,43 +46,42 @@ public class Node extends AStarNode {
 	public Node(float x, float y){
 		this.x = x;
 		this.y = y;
-		this.z = 0.0f;
+    // this.z = 0.0f;
 	}
 
-	public Node(float x, float y, float z){
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
+  // public Node(float x, float y, float z){
+  //  this.x = x;
+  //  this.y = y;
+  //  this.z = z;
+  // }
 
 	// Undocumented constructor - used by makeCuboidNodes(int [] dim, float scale)
+  // public Node(float [] p){
+  //  x = p[0];
+  //  y = p[1];
+  //  z = 0.0f;
+  //  if(p.length > 2){
+  //    z = p[2];
+  //  }
+  // }
 
-	public Node(float [] p){
-		x = p[0];
-		y = p[1];
-		z = 0.0f;
-		if(p.length > 2){
-			z = p[2];
-		}
-	}
+  // public Node(float x, float y, ArrayList<Connector> links){
+  //   System.out.println("connecting x");
+  //   
+  //  this.x = x;
+  //  this.y = y;
+  //  this.z = 0.0f;
+  //  this.links = links;
+  // }
 
-	public Node(float x, float y, ArrayList<Connector> links){
-	  System.out.println("connecting x");
-	  
-		this.x = x;
-		this.y = y;
-		this.z = 0.0f;
-		this.links = links;
-	}
-
-	public Node(float x, float y, float z, ArrayList<Connector> links){
-	  System.out.println("connecting x");
-	  
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.links = links;
-	}
+  // public Node(float x, float y, float z, ArrayList<Connector> links){
+  //   System.out.println("connecting x");
+  //   
+  //  this.x = x;
+  //  this.y = y;
+  //  this.z = z;
+  //  this.links = links;
+  // }
 
 	//
 	// Field utilities
@@ -101,56 +100,56 @@ public class Node extends AStarNode {
 
 	// Euclidean field methods calculate F & H
 
-	public void setF(Node finish){
-		setH(finish);
-		f = g + h;
-	}
-
-	public void setH(Node finish){
-		h = dist(finish);
-	}
+  // public void setF(Node finish){
+  //  setH(finish);
+  //  f = g + h;
+  // }
+  // 
+  // public void setH(Node finish){
+  //  h = dist(finish);
+  // }
 
 	// Manhattan field methods calculate F & H
 
-	public void MsetF(Node finish){
-		MsetH(finish);
-		f = g + h;
-	}
+  // public void MsetF(Node finish){
+  //  MsetH(finish);
+  //  f = g + h;
+  // }
 
-	public void MsetH(Node finish){
-		h = manhattan(finish);
-	}
+  // public void MsetH(Node finish){
+  //  h = manhattan(finish);
+  // }
 
 	//
 	// Linking tools
 	//
 
-	public Node copy(){
-		ArrayList<Connector> temp = new ArrayList<Connector>();
-		temp.addAll(links);
-		return new Node(x, y, z, temp);
-	}
+  // public Node copy(){
+  //  ArrayList<Connector> temp = new ArrayList<Connector>();
+  //  temp.addAll(links);
+  //  return new Node(x, y, z, temp);
+  // }
 
-	public void connect(Node n){
-	  System.out.println("connecting");
-		links.add(new Connector(n, dist(n)));
-	}
-
-	public void connect(Node n, float d){
-	  System.out.println("connecting");
-		links.add(new Connector(n, d));
-	}
-
-	public void connect(ArrayList<Connector> links){
-    // System.out.println("connecting");
-		this.links.addAll(links);
-	}
-
-	public void connectBoth(Node n){
-    // System.out.println("connecting");
-		links.add(new Connector(n, dist(n)));
-		n.links.add(new Connector(this, dist(n)));
-	}
+  // public void connect(Node n){
+  //   System.out.println("connecting");
+  //  links.add(new Connector(n, dist(n)));
+  // }
+  // 
+  // public void connect(Node n, float d){
+  //   System.out.println("connecting");
+  //  links.add(new Connector(n, d));
+  // }
+  // 
+  // public void connect(ArrayList<Connector> links){
+  //     // System.out.println("connecting");
+  //  this.links.addAll(links);
+  // }
+  // 
+  // public void connectBoth(Node n){
+  //     // System.out.println("connecting");
+  //  links.add(new Connector(n, dist(n)));
+  //  n.links.add(new Connector(this, dist(n)));
+  // }
 
 	public void connectBoth(Node n, float d){
     // System.out.println("connecting");
@@ -238,86 +237,84 @@ public class Node extends AStarNode {
 	// Used for making routes around objects account for the object's size
 	// Uses actual distances rather than Connector settings
 
-	public void radialDisconnect(){
-		float radius = 0.0f;
-		for(int j = 0; j < links.size(); j++){
-			Connector myLink = (Connector) links.get(j);
-			if(straightLink(myLink.n)){
-				radius = dist(myLink.n);
-				break;
-			}
-		}
-		for(int j = 0; j < links.size(); j++){
-			Connector myLink = (Connector) links.get(j);
-			ArrayList<Node> removeMe = new ArrayList<Node>();
-			for(int k = 0; k < myLink.n.links.size(); k++){
-				Connector myLinkLink = (Connector) myLink.n.links.get(k);
-				float midX = (myLink.n.x + myLinkLink.n.x) * 0.5f;
-				float midY = (myLink.n.y + myLinkLink.n.y) * 0.5f;
-				float midZ = (myLink.n.z + myLinkLink.n.z) * 0.5f;
-				Node temp = new Node(midX, midY, midZ);
-				if(dist(temp) <= radius){
-					removeMe.add(myLinkLink.n);
-				}
-			}
-			for(int k = 0; k < removeMe.size(); k++){
-				Node temp = (Node) removeMe.get(k);
-				int index = myLink.n.indexOf(temp);
-				if(index > -1){
-					myLink.n.links.remove(index);
-				}
-			}
-		}
-	}
+  // public void radialDisconnect(){
+  //  float radius = 0.0f;
+  //  for(int j = 0; j < links.size(); j++){
+  //    Connector myLink = (Connector) links.get(j);
+  //    if(straightLink(myLink.n)){
+  //      radius = dist(myLink.n);
+  //      break;
+  //    }
+  //  }
+  //  for(int j = 0; j < links.size(); j++){
+  //    Connector myLink = (Connector) links.get(j);
+  //    ArrayList<Node> removeMe = new ArrayList<Node>();
+  //    for(int k = 0; k < myLink.n.links.size(); k++){
+  //      Connector myLinkLink = (Connector) myLink.n.links.get(k);
+  //      float midX = (myLink.n.x + myLinkLink.n.x) * 0.5f;
+  //      float midY = (myLink.n.y + myLinkLink.n.y) * 0.5f;
+  //      float midZ = (myLink.n.z + myLinkLink.n.z) * 0.5f;
+  //      Node temp = new Node(midX, midY, midZ);
+  //      if(dist(temp) <= radius){
+  //        removeMe.add(myLinkLink.n);
+  //      }
+  //    }
+  //    for(int k = 0; k < removeMe.size(); k++){
+  //      Node temp = (Node) removeMe.get(k);
+  //      int index = myLink.n.indexOf(temp);
+  //      if(index > -1){
+  //        myLink.n.links.remove(index);
+  //      }
+  //    }
+  //  }
+  // }
 
 	// Checks if a Node's position differs along one dimension only
 
-	public boolean straightLink(Node myLink){
-		if(indexOf(myLink) < 0){
-			return false;
-		}
-		int dimDelta = 0;
-		if(x != myLink.x){
-			dimDelta++;
-		}
-		if(y != myLink.y){
-			dimDelta++;
-		}
-		if(z != myLink.z){
-			dimDelta++;
-		}
-		if(dimDelta == 1){
-			return true;
-		}
-		return false;
-	}
+  // public boolean straightLink(Node myLink){
+  //  if(indexOf(myLink) < 0){
+  //    return false;
+  //  }
+  //  int dimDelta = 0;
+  //  if(x != myLink.x){
+  //    dimDelta++;
+  //  }
+  //  if(y != myLink.y){
+  //    dimDelta++;
+  //  }
+  //  if(z != myLink.z){
+  //    dimDelta++;
+  //  }
+  //  if(dimDelta == 1){
+  //    return true;
+  //  }
+  //  return false;
+  // }
 
 	//
 	// Location tools
 	//
 
 	// Euclidean distance measuring for accuracy
-
-	public float dist(Node n){
-		if(z == 0.0 && n.z == 0.0){
-			return (float) Math.sqrt(((x - n.x) * (x - n.x))
-					+ ((y - n.y) * (y - n.y)));
-		}else{
-			return (float) Math.sqrt(((x - n.x) * (x - n.x))
-					+ ((y - n.y) * (y - n.y)) + ((z - n.z) * (z - n.z)));
-		}
-	}
+  // public float dist(Node n){
+  //  if(z == 0.0 && n.z == 0.0){
+  //    return (float) Math.sqrt(((x - n.x) * (x - n.x))
+  //        + ((y - n.y) * (y - n.y)));
+  //  }else{
+  //    return (float) Math.sqrt(((x - n.x) * (x - n.x))
+  //        + ((y - n.y) * (y - n.y)) + ((z - n.z) * (z - n.z)));
+  //  }
+  // }
 
 	// Manhattan distance measuring for avoiding jagged paths
-
-	public float manhattan(Node n){
-		if(z == 0.0 && n.z == 0.0){
-			return ((x - n.x) * (x - n.x)) + ((y - n.y) * (y - n.y))
-					+ ((z - n.z) * (z - n.z));
-		}else{
-			return ((x - n.x) * (x - n.x)) + ((y - n.y) * (y - n.y));
-		}
-	}
+  // public float manhattan(Node n){
+  //  if(z == 0.0 && n.z == 0.0){
+  //    return ((x - n.x) * (x - n.x)) + ((y - n.y) * (y - n.y))
+  //        + ((z - n.z) * (z - n.z));
+  //  }else{
+  //    return ((x - n.x) * (x - n.x)) + ((y - n.y) * (y - n.y));
+  //  }
+  // }
 	
 	
 	
@@ -338,7 +335,7 @@ public class Node extends AStarNode {
     adjacent (AKA "neighbor" or "child") node.
   */
   public float getCost(AStarNode node) {
-    return dist((Node)node);
+    return dist2((Node)node);
   }
 
 
@@ -364,5 +361,9 @@ public class Node extends AStarNode {
   public void addLink(Node n) {
     if (!connectedNodes.contains(n))
       connectedNodes.add(n);
+  }
+  
+  public String toString() {
+    return id;
   }
 }

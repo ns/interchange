@@ -58,7 +58,7 @@ public class Navigation {
   
   public void pickRandomDestination() {
     List<Node> nodes = Global.openStreetMap.nodes();
-    Random generator = new Random();
+    Random generator = Utils.randomNumberGenerator();
     while (destinationNodeId == null || destinationNodeId.equals(originNodeId)) {
       Node destinationNode = nodes.get(generator.nextInt(nodes.size()));
       destinationNodeId = destinationNode.id;
@@ -67,7 +67,7 @@ public class Navigation {
   
   public void pickRandomOriginAndDestination() {
     List<Node> nodes = Global.openStreetMap.nodes();
-    Random generator = new Random();
+    Random generator = Utils.randomNumberGenerator();
     Node originNode = nodes.get(generator.nextInt(nodes.size()));
     originNodeId = originNode.id;
     while (destinationNodeId == null || destinationNodeId.equals(originNodeId)) {
@@ -79,7 +79,9 @@ public class Navigation {
   private void generatePath() throws NoPathToDestinationException {
     Node startNode = Global.openStreetMap.getNode(originNodeId);
     Node endNode = Global.openStreetMap.getNode(destinationNodeId);
+    
     LinkedList<Node> aStarResult = (LinkedList)Global.openStreetMap.AStar2.findPath(startNode, endNode);
+    
     if (aStarResult == null) {
       System.out.println("Unable to generate a path between " + originNodeId + " and " + destinationNodeId);
       throw new NoPathToDestinationException();

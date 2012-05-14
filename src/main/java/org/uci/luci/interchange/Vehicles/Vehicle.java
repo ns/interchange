@@ -15,6 +15,8 @@ public class Vehicle {
   private int onLaneNumber;
   String state = "";
   boolean paused;
+  boolean flagForRemoval = false;
+  String preparingFor = "";
   
   public boolean vehicleOnLeft() {
     return false;
@@ -37,12 +39,22 @@ public class Vehicle {
   }
   
   public boolean isGoingForwardOnWay() {
+    if (originNodeId == null || destinationNodeId == null) {
+      // this is okay because it just means we haven't been able to determine it yet.
+      return true;
+    }
+    
     Way w = Oracle.wayBetweenNodes(originNodeId, destinationNodeId);
     
-    int oI = w.nd.indexOf(originNodeId);
-    int dI = w.nd.indexOf(destinationNodeId);
-    
-    return oI < dI;
+    if (w == null) {
+      System.out.println("Could not determine direction of vehicle on way. ("+originNodeId + " - " + destinationNodeId + " vehicle " + vin + ")");
+      return true;
+    }
+    else {
+      int oI = w.nd.indexOf(originNodeId);
+      int dI = w.nd.indexOf(destinationNodeId);
+      return oI < dI;
+    }
   }
   
   public void setOriginNodeId(String nodeId) {
@@ -56,7 +68,7 @@ public class Vehicle {
     destinationNodeId = nodeId;
   }
   
-  private void setOnLaneNumber(int laneNumber) {
+  public void setOnLaneNumber(int laneNumber) {
     onLaneNumber = laneNumber;
   }
   
@@ -145,14 +157,14 @@ public class Vehicle {
         // 
         // // we need to determine if the vehicle can actually make this turn
         // // and also merge this vehicle onto a lane appropriately
-        // Random randomGenerator = new Random();
+        // Random randomGenerator = Utils.randomNumberGenerator();
         // setOnLaneNumber(randomGenerator.nextInt(Oracle.wayBetweenNodes(originNodeId, destinationNodeId).lanes));
       }
     }
   }
   
   private Node randomConnectedNode(Node n, Node excludeNode) {
-    Random randomGenerator = new Random();
+    Random randomGenerator = Utils.randomNumberGenerator();
     
     int nodeIndex = -1;
     int excludeNodeIndex = n.connectedNodes.indexOf(excludeNode);
@@ -173,7 +185,7 @@ public class Vehicle {
   double minSpeed = 0;
   double maxSpeed = 0.000002;
   int direction = 0; // 0 or 1
-  int lane = 0;
+  // int lane = 0;
   
   Vehicle vehicleBehind, vehicleInFront;
   private void calculateVehicleBehind() {
@@ -252,9 +264,14 @@ public class Vehicle {
   private void calculateVehicleInFront() {
     Vehicle vehicle = null;
     
-    List<Integer> vehicles = Oracle.vehiclesWithNodeAsOrigin(originNodeId);
-    for (int vin : vehicles) {
+    List<String> vehicles = Oracle.vehiclesWithNodeAsOrigin(originNodeId);
+    for (String vin : vehicles) {
       Vehicle v = VehicleRegistry.getVehicle(vin);
+      
+      if (v == null) {
+        System.out.println("vehicle with VIN " + vin + " is null (i am vehicle " + this.vin + ") (node "+originNodeId+")");
+      }
+      
       if (v == this || !v.destinationNodeId.equals(destinationNodeId) || v.getOnLaneNumber() != getOnLaneNumber())
         continue;
       
@@ -279,14 +296,14 @@ public class Vehicle {
   }
   
   private Vehicle findVehicleClosestToOriginNodeOnLane(String originNodeId, String destinationNodeId, int onLaneNumber) {
-    List<Integer> vehicles = Oracle.vehiclesWithNodeAsOrigin(originNodeId);
+    List<String> vehicles = Oracle.vehiclesWithNodeAsOrigin(originNodeId);
     
     if (vehicles == null || vehicles.isEmpty()) {
       return null;
     }
     else {
       Vehicle vehicle = null;
-      for (Integer vin : vehicles) {
+      for (String vin : vehicles) {
         Vehicle v = VehicleRegistry.getVehicle(vin);
         if (!v.getDestinationNode().id.equals(destinationNodeId) || v.getOnLaneNumber() != onLaneNumber)
           continue;

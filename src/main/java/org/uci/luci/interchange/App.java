@@ -16,5 +16,6 @@ public class App
         
         Simulator simulator = new Simulator();
         Global.simulator = simulator;
+        simulator.start();
     }
 }

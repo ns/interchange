@@ -32,10 +32,14 @@ public class OsmHandler extends DefaultHandler{
       	return;
     	}
     	else if (name.equals("bounds")){
-    		openStreetMap.setMinlat(atts.getValue("minlat"));
-    		openStreetMap.setMaxlat(atts.getValue("maxlat"));
-    		openStreetMap.setMinlon(atts.getValue("minlon"));
-    		openStreetMap.setMaxlon(atts.getValue("maxlon"));
+    		Global.minLat = Double.parseDouble(atts.getValue("minlat"));
+    		Global.maxLat = Double.parseDouble(atts.getValue("maxlat"));
+    		Global.minLon = Double.parseDouble(atts.getValue("minlon"));
+    		Global.maxLon = Double.parseDouble(atts.getValue("maxlon"));
+    		openStreetMap.setMinlat(Double.toString(Global.minLat));
+    		openStreetMap.setMaxlat(Double.toString(Global.maxLat));
+    		openStreetMap.setMinlon(Double.toString(Global.minLon));
+    		openStreetMap.setMaxlon(Double.toString(Global.maxLon));
     		
     	return;
     	} else if(name.equals("node")){
@@ -45,8 +49,8 @@ public class OsmHandler extends DefaultHandler{
     	    node.lat = Double.parseDouble(atts.getValue("lat"));
     	    node.id =atts.getValue("id");
     	    node.lon = Double.parseDouble(atts.getValue("lon"));
-          // node.x = Float.parseFloat(node.lon);
-          // node.y = Float.parseFloat(node.lat);
+    	    node.x = Global.projection.convertLongToX(node.lon);
+    	    node.y = Global.projection.convertLatToY(node.lat);
     		return;	
     	} else if(name.equals("relation")){
     		openStreetMap.addRelation();

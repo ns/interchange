@@ -1,0 +1,1 @@
+java -Xdock:name="Interchange" -Dapple.laf.useScreenMenuBar=true -jar target/interchange-1.0-SNAPSHOT.jar 

@@ -6,29 +6,38 @@ import java.util.List;
 import java.util.Map;
 
 public class Oracle {
-  private static HashMap<String, ArrayList<Integer>> originNodesToVehicles = new HashMap<String, ArrayList<Integer>>();
+  private static HashMap<String, ArrayList<String>> originNodesToVehicles = new HashMap<String, ArrayList<String>>();
   private static HashMap<String, Way> twoNodesToWay = new HashMap<String, Way>();
+  
+  public static void resetVehicles()
+  {
+	  originNodesToVehicles.clear();
+  }
+  
+  // public static void deregisterVehicleEverywhere(Integer vin) {
+  // }
   
   public static void deregisterVehicleOrigin(Integer vin, String nodeId) {
     // System.out.println("deregistering vehicle " + vin + " at " + nodeId);
-    if (originNodesToVehicles.get(nodeId) == null)
-      originNodesToVehicles.put(nodeId, new ArrayList<Integer>());
     
-    ArrayList<Integer> vehicles = originNodesToVehicles.get(nodeId);
-    vehicles.remove(vin);
+    if (originNodesToVehicles.get(nodeId) == null)
+      originNodesToVehicles.put(nodeId, new ArrayList<String>());
+    
+    ArrayList<String> vehicles = originNodesToVehicles.get(nodeId);
+    vehicles.remove(vin+"");
   }
   
   public static void registerVehicleOrigin(Integer vin, String nodeId) {
     // System.out.println("registering vehicle " + vin + " at " + nodeId);
     
     if (originNodesToVehicles.get(nodeId) == null)
-      originNodesToVehicles.put(nodeId, new ArrayList<Integer>());
+      originNodesToVehicles.put(nodeId, new ArrayList<String>());
     
-    ArrayList<Integer> vehicles = originNodesToVehicles.get(nodeId);
-    vehicles.add(vin);
+    ArrayList<String> vehicles = originNodesToVehicles.get(nodeId);
+    vehicles.add(vin+"");
   }
   
-  public static List<Integer> vehiclesWithNodeAsOrigin(String nodeId) {
+  public static List<String> vehiclesWithNodeAsOrigin(String nodeId) {
     return originNodesToVehicles.get(nodeId);
   }
   
