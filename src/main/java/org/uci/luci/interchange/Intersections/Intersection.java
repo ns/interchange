@@ -1,5 +1,10 @@
 package org.uci.luci.interchange;
 
+
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Vehicles.*;
+
 // import java.util.List;
 
 public abstract class Intersection {

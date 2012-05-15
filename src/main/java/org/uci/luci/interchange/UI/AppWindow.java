@@ -700,7 +700,9 @@ public class AppWindow implements ActionListener{
 
 			double laneSpacing =   0.00001;
 			double streetSpacing = laneSpacing;
-			for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
+      for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
+			// for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
+        Vehicle v = d.vehicle;
 				g2d.setColor(Color.red);
 
 				// Node lastNode = osm.getNode(lastNodeId);
@@ -712,10 +714,10 @@ public class AppWindow implements ActionListener{
   				Node nextNode = v.getDestinationNode();//osm.getNode(v.destinationNodeId);
   				NodePoint lnP = scaledXY(lastNode.lat,lastNode.lon);
   				NodePoint nnP = scaledXY(nextNode.lat,nextNode.lon);
-  				g2d.setColor(Color.blue);
-  				g2d.fillOval((int)lnP.x, (int)lnP.y, 2, 2);
-  				g2d.setColor(Color.orange);
-  				g2d.fillOval((int)nnP.x, (int)nnP.y, 2, 2);
+          g2d.setColor(Color.blue);
+          // g2d.fillOval((int)lnP.x, (int)lnP.y, 5, 5);
+          // g2d.setColor(Color.orange);
+  				g2d.fillOval((int)nnP.x-2, (int)nnP.y-2, 4, 4);
 				}
 
 				g2d.setColor(Color.RED);
@@ -739,8 +741,8 @@ public class AppWindow implements ActionListener{
           
           g2d.drawString("vin = " + v.vin, (int)p.x+4, (int)p.y-20);
           g2d.drawString("lane = " + v.getOnLaneNumber() + " " + v.preparingFor, (int)p.x+4, (int)p.y-12);
-          g2d.drawString("origin node id = " + v.getOriginNode(), (int)p.x+4, (int)p.y-4);
-          g2d.drawString("destination node id = " + v.getDestinationNode(), (int)p.x+4, (int)p.y+4);
+          g2d.drawString("micro: origin node id = " + v.getOriginNode() + " destination node id = " + v.getDestinationNode(), (int)p.x+4, (int)p.y-4);
+          g2d.drawString("navi: origin node id = " + d.navigation.getOrigin() + " destination node id = " + d.navigation.getDestination(), (int)p.x+4, (int)p.y+4);
           g2d.drawString("state = " + v.state, (int)p.x+4, (int)p.y+12);
         } 
 				

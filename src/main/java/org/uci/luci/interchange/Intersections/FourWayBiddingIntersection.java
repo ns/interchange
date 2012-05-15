@@ -7,6 +7,10 @@ import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Vehicles.*;
+
 public class FourWayBiddingIntersection extends Intersection {
   String eastNodeId, westNodeId;
   String northNodeId, southNodeId;

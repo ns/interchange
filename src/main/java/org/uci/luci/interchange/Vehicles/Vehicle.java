@@ -5,7 +5,14 @@ import java.util.Random;
 import java.util.Map;
 import java.util.List;
 
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Intersections.*;
+import org.uci.luci.interchange.Registry.*;
+import org.uci.luci.interchange.Util.*;
+
 public class Vehicle {
+  public static double DISTANCE_TO_CONSIDER_AS_SAME = 0.00002;
+  
   int vin;
   double lat, lon;
   Vector2d velocity;
@@ -88,7 +95,11 @@ public class Vehicle {
   }
   
   public boolean isAtDestinationNode() {
-    return distanceToDestinationNode() < 0.0000005;
+    return distanceToDestinationNode() < DISTANCE_TO_CONSIDER_AS_SAME;
+  }
+  
+  public boolean isAtOriginNode() {
+    return distanceFromOriginNode() < DISTANCE_TO_CONSIDER_AS_SAME;
   }
   
   public double distanceToDestinationNode() {
@@ -269,7 +280,7 @@ public class Vehicle {
       Vehicle v = VehicleRegistry.getVehicle(vin);
       
       if (v == null) {
-        System.out.println("vehicle with VIN " + vin + " is null (i am vehicle " + this.vin + ") (node "+originNodeId+")");
+        // System.out.println("vehicle with VIN " + vin + " is null (i am vehicle " + this.vin + ") (node "+originNodeId+")");
         continue;
       }
       
@@ -307,7 +318,7 @@ public class Vehicle {
       for (String vin : vehicles) {
         Vehicle v = VehicleRegistry.getVehicle(vin);
         if (v == null) {
-          System.out.println("2: vehicle with VIN " + vin + " is null (i am vehicle " + this.vin + ") (node "+originNodeId+")");
+          // System.out.println("2: vehicle with VIN " + vin + " is null (i am vehicle " + this.vin + ") (node "+originNodeId+")");
           continue;
         }
         if (!v.getDestinationNode().id.equals(destinationNodeId) || v.getOnLaneNumber() != onLaneNumber)
@@ -331,6 +342,10 @@ public class Vehicle {
   
   // move by velocity in the right direction
   public void setVelocity(double speed) {
+    // System.out.format("setVelocity (%.8f)", speed);
+    // System.out.println();
+    
+    
     Node lastNode = getOriginNode();
     Node nextNode = getDestinationNode();
     

@@ -3,7 +3,7 @@ package org.uci.luci.interchange;
 public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
   private VehicleDriver vehicleDriver;
   private Vehicle vehicle;
-  double speed = 0.000001;
+  double speed = Vehicle.DISTANCE_TO_CONSIDER_AS_SAME/100;
   
   public IntersectionCrossingBehavior(VehicleDriver d) {
     vehicleDriver = d;
@@ -11,6 +11,7 @@ public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
   }
   
   public void tick() {
+    // System.out.println("IntersectionCrossingBehavior tick");
     Intersection i = vehicle.getNextIntersection();
     double d2I = vehicle.getDistanceToNextIntersection();
 
@@ -25,15 +26,16 @@ public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
       
       // green
       if (light == 0) {
+        // System.out.println("Green");
         vehicle.setVelocity(speed);
       }
       // yellow
       else if (light == 1) {
-        vehicle.setVelocity(d2I/20);
+        vehicle.setVelocity(speed);
       }
       // red and we're 
       else if (light == 2 && d2I > 0.00005) {
-        vehicle.setVelocity(d2I/20);
+        vehicle.setVelocity(speed);
       }
       else if (light == 2 && d2I <= 0.00005) {
         vehicle.setVelocity(0);
@@ -43,7 +45,7 @@ public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
       }
       
       
-      if (d2I <= 0.00001) {
+      if (d2I <= Vehicle.DISTANCE_TO_CONSIDER_AS_SAME) {
         
         Node nextNode = vehicleDriver.navigation.nextNodeOnPath(vehicle.getDestinationNode().id);
         
@@ -64,9 +66,9 @@ public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
           
         }
         else {
-          vehicle.setVelocity(0);
-          vehicle.pause();
-          vehicle.flagForRemoval = true;
+          // vehicle.setVelocity(0);
+          // vehicle.pause();
+          // vehicle.flagForRemoval = true;
           // System.out.println(vehicle.vin + ": Vehicle has reached dest");
           // VehicleDriverFactory.destroyVehicleDriver(this);
           // VehicleFactory.destroyVehicle(vehicle);

@@ -1,13 +1,13 @@
 package org.uci.luci.interchange;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 public class VehicleDriverRegistry {
 	private static int nextLicenseToGenerate = 0;
-	private static HashMap<String, VehicleDriver> driverHash = new HashMap<String, VehicleDriver>();
+	private static Hashtable<String, VehicleDriver> driverHash = new Hashtable<String, VehicleDriver>();
   
   public static void registerDriver(VehicleDriver d) {
     d.licence = nextLicenseToGenerate;

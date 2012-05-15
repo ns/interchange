@@ -3,7 +3,7 @@ package org.uci.luci.interchange;
 public class FollowingBehavior implements VehicleDriverBehavior {
   private VehicleDriver vehicleDriver;
   private Vehicle vehicle;
-  double speed = 0.000001;
+  double speed = Vehicle.DISTANCE_TO_CONSIDER_AS_SAME/100;
   
   public FollowingBehavior(VehicleDriver d) {
     vehicleDriver = d;

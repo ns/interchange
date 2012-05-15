@@ -20,7 +20,7 @@ public class Simulator extends Thread {
   int delay;
   
   public Simulator() throws InterruptedException {
-    delay = 5;
+    delay = 10;
     lastSimulatorStepTotalVehicles = 0;
     lastSimulatorStepTotalTime = 0;
     paused = false;
@@ -34,7 +34,10 @@ public class Simulator extends Thread {
         System.out.println("\t" + lastSimulatorStepTotalVehicles + " vehicles in simulator.");
         System.out.println("\t" + lastSimulatorStepTotalTime + " ns per simulator step.");
         
-        double nsPerVehicle = (lastSimulatorStepTotalTime/lastSimulatorStepTotalVehicles);
+        
+        double nsPerVehicle = 0;
+        if (lastSimulatorStepTotalVehicles != 0)
+          nsPerVehicle = (lastSimulatorStepTotalTime/lastSimulatorStepTotalVehicles);
         double vps = 1.0/(nsPerVehicle/1000000000);
         
         DecimalFormat df = new DecimalFormat();
@@ -65,13 +68,13 @@ public class Simulator extends Thread {
         
         log("// simulator tick begin");
       
-        if (tick%20 == 1) {
+        if (tick%2 == 1) {
           log("\t// generating vehicle");
-          // Vehicle v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122633613"));
+          // Vehicle v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("1575123787"));
           Vehicle v = VehicleFactory.createVehicleAtRandomPoint();
           VehicleDriver d = VehicleDriverFactory.createVehicleDriver(v);
           try {
-            // d.setDestinationAndGo("560587843");
+            // d.setDestinationAndGo("122838448");
             d.pickRandomDestinationAndGo();
           }
           catch (NoPathToDestinationException e) {
@@ -199,7 +202,4 @@ public class Simulator extends Thread {
       return;
     System.out.println(str);
   }
-  
-  // public void simulate() throws InterruptedException {
-  // }
 }

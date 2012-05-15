@@ -1,5 +1,9 @@
 package org.uci.luci.interchange;
 
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Vehicles.*;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
