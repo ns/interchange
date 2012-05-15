@@ -62,18 +62,18 @@ public class AppWindow implements ActionListener{
 		sim.add(makeMenuItem("Stop"));
 		sim.add(makeMenuItem("Reset"));
 		sim.addSeparator();
-		sim.add(makeMenuItem("Speed Up\t(-)"));
-		sim.add(makeMenuItem("Slow Down\t(=/+)"));
+		sim.add(makeMenuItem("Speed Up"));
+		sim.add(makeMenuItem("Slow Down"));
 
 
 		JMenu view = new JMenu("View");
 		view.setMnemonic(KeyEvent.VK_V);
-		view.add("Center Map");
-		view.add("Zoom In\t(})");
-		view.add("Zoom Out\t({)");
+		view.add(makeMenuItem("Center Map"));
+		view.add(makeMenuItem("Zoom In"));
+		view.add(makeMenuItem("Zoom Out"));
 		view.addSeparator();
 		view.add(makeMenuItem("Use White Background"));
-		view.add(makeMenuItem("Use White Background"));
+		view.add(makeMenuItem("Use Black Background"));
 		view.addSeparator();
 		view.add(makeMenuItem("Toggle Place Names"));
 		view.add(makeMenuItem("Toggle Vehicle Info"));
@@ -122,14 +122,15 @@ public class AppWindow implements ActionListener{
 				// Global.simulator.resetSimulator();
 			} else if (command.equals("Toggle Vehicle Traces")) {
 				showVehicleDebugTraces = !showVehicleDebugTraces;
-			} else if (command.equals("Slow Down\t(=/+)")) {
+			} else if (command.equals("Slow Down")) {
 				Global.simulator.changeSpeed(+10);
-			} else if (command.equals("Slow Down\t(=/+)")) {
+			} else if (command.equals("Slow Down")) {
 				Global.simulator.changeSpeed(-10);
-			} else if (command.equals("Zoom In\t(})")) {
+			} else if (command.equals("Zoom In")) {
+				System.out.println("here");
 				myPanel.zoomMap(myPanel.offsetX,myPanel.offsetY,+10);
 				//myPanel.centerMap();
-			} else if (command.equals("Zoom Out\t({)")) {
+			} else if (command.equals("Zoom Out")) {
 				myPanel.zoomMap(myPanel.offsetX,myPanel.offsetY,-10);
 				//myPanel.centerMap();
 			} else if (command.equals("Center Map")) {
@@ -256,8 +257,10 @@ public class AppWindow implements ActionListener{
 						break;
 					case 91: 
 						zoomMap(offsetX, offsetY, -3);
+						break;
 					case 93:
 						zoomMap(offsetX, offsetY, 3);
+						break;
 					default:
 						System.out.println(e.getKeyCode());
 						break;
