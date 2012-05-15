@@ -138,10 +138,10 @@ public class Vehicle {
         // we make the car go back down the path it came from
         // this happens when the car hits a dead end,
         // potentially remove this and make the driver handle it
-        String _originNodeId = originNodeId;
-        setOriginNodeId(destinationNodeId);
-        setDestinationNodeId(_originNodeId);
-        state = "";
+        // String _originNodeId = originNodeId;
+        // setOriginNodeId(destinationNodeId);
+        // setDestinationNodeId(_originNodeId);
+        state = "dead_end";
       }
       else {
         // state = "reached_intersection";
@@ -270,6 +270,7 @@ public class Vehicle {
       
       if (v == null) {
         System.out.println("vehicle with VIN " + vin + " is null (i am vehicle " + this.vin + ") (node "+originNodeId+")");
+        continue;
       }
       
       if (v == this || !v.destinationNodeId.equals(destinationNodeId) || v.getOnLaneNumber() != getOnLaneNumber())
@@ -305,6 +306,10 @@ public class Vehicle {
       Vehicle vehicle = null;
       for (String vin : vehicles) {
         Vehicle v = VehicleRegistry.getVehicle(vin);
+        if (v == null) {
+          System.out.println("2: vehicle with VIN " + vin + " is null (i am vehicle " + this.vin + ") (node "+originNodeId+")");
+          continue;
+        }
         if (!v.getDestinationNode().id.equals(destinationNodeId) || v.getOnLaneNumber() != onLaneNumber)
           continue;
         if (vehicle == null || v.distanceFromOriginNode() < vehicle.distanceFromOriginNode())

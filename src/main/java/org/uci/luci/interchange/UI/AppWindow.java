@@ -741,6 +741,7 @@ public class AppWindow implements ActionListener{
           g2d.drawString("lane = " + v.getOnLaneNumber() + " " + v.preparingFor, (int)p.x+4, (int)p.y-12);
           g2d.drawString("origin node id = " + v.getOriginNode(), (int)p.x+4, (int)p.y-4);
           g2d.drawString("destination node id = " + v.getDestinationNode(), (int)p.x+4, (int)p.y+4);
+          g2d.drawString("state = " + v.state, (int)p.x+4, (int)p.y+12);
         } 
 				
 				if (showVehicleDebugTraces) {
