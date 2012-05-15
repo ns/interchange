@@ -11,6 +11,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.text.DecimalFormat;
 
+import org.uci.luci.interchange.Intersections.*;
+import org.uci.luci.interchange.OSM.*;
+import org.uci.luci.interchange.Driver.*;
+import org.uci.luci.interchange.Exception.*;
+import org.uci.luci.interchange.Vehicles.*;
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Registry.*;
+import org.uci.luci.interchange.Factory.*;
+
 public class Simulator extends Thread {
   private boolean debug = false;
   private boolean paused;

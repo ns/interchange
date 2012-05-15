@@ -15,7 +15,7 @@ public class Vehicle {
   
   public int vin;
   public double lat, lon;
-  Vector2d velocity;
+  public Vector2d velocity;
   private String originNodeId, destinationNodeId;
   // lanes are numbered 0-(lanes-1) with 0 being the left-most lane.
   // the highest number is the lane on the right shoulder of the street
