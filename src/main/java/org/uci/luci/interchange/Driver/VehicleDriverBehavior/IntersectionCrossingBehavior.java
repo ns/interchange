@@ -1,4 +1,9 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Driver.VehicleDriverBehavior;
+
+import org.uci.luci.interchange.Vehicles.*;
+import org.uci.luci.interchange.Driver.*;
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Intersections.*;
 
 public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
   private VehicleDriver vehicleDriver;

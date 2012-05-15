@@ -1,4 +1,7 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Registry;
+
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Vehicles.*;
 
 import java.util.ArrayList;
 import java.util.Hashtable;

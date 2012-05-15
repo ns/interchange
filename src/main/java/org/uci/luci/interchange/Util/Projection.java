@@ -1,4 +1,4 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Util;
 
 public interface Projection {
 	double earthRadiusKm = 6378.1;

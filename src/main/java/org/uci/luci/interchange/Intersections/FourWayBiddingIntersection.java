@@ -1,4 +1,8 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Intersections;
+
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Vehicles.*;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -6,10 +10,6 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.uci.luci.interchange.Graph.*;
-import org.uci.luci.interchange.Util.*;
-import org.uci.luci.interchange.Vehicles.*;
 
 public class FourWayBiddingIntersection extends Intersection {
   String eastNodeId, westNodeId;

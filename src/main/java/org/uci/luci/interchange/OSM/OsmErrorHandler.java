@@ -1,4 +1,4 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.OSM;
 
 import org.xml.sax.ErrorHandler; 
 import org.xml.sax.SAXException;

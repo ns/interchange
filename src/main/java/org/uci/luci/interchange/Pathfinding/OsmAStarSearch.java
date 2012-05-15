@@ -1,4 +1,6 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Pathfinding;
+
+import org.uci.luci.interchange.OSM.*;
 
 public class OsmAStarSearch extends AStarSearch {
   OpenStreetMap osm;

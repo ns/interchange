@@ -1,4 +1,4 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Util;
 
 public class Vector2d {
   double x, y;

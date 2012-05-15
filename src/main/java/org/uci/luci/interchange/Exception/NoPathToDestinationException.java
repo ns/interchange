@@ -1,5 +1,5 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Exception;
 
-class NoPathToDestinationException extends Exception
+public class NoPathToDestinationException extends Exception
 {
 }

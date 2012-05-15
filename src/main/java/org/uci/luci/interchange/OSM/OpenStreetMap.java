@@ -1,4 +1,8 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.OSM;
+
+import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Pathfinding.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,18 +18,18 @@ public class OpenStreetMap {
 	
 	
   // ArrayList<Node> nodes = new ArrayList<Node>();
-	HashMap<String, Node> nodeHash = new HashMap<String,Node>();
+	public HashMap<String, Node> nodeHash = new HashMap<String,Node>();
 	
 	
-	ArrayList<Way> ways = new ArrayList<Way>();
+	public ArrayList<Way> ways = new ArrayList<Way>();
 	
 	/* A star algorithm */
-	Pathfinder Astar; 
+	public Pathfinder Astar; 
 	public boolean AstarStatus = false;
 	
 	public static String separator="__";
 	
-	OsmAStarSearch AStar2;
+	public OsmAStarSearch AStar2;
 	
 	public List<Node> nodes() {
 	  return new ArrayList<Node>(nodeHash.values());

@@ -1,4 +1,4 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Vehicles;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -13,17 +13,17 @@ import org.uci.luci.interchange.Util.*;
 public class Vehicle {
   public static double DISTANCE_TO_CONSIDER_AS_SAME = 0.00002;
   
-  int vin;
-  double lat, lon;
+  public int vin;
+  public double lat, lon;
   Vector2d velocity;
   private String originNodeId, destinationNodeId;
   // lanes are numbered 0-(lanes-1) with 0 being the left-most lane.
   // the highest number is the lane on the right shoulder of the street
   private int onLaneNumber;
-  String state = "";
+  public String state = "";
   boolean paused;
-  boolean flagForRemoval = false;
-  String preparingFor = "";
+  public boolean flagForRemoval = false;
+  public String preparingFor = "";
   
   public boolean vehicleOnLeft() {
     return false;
@@ -198,7 +198,7 @@ public class Vehicle {
   int direction = 0; // 0 or 1
   // int lane = 0;
   
-  Vehicle vehicleBehind, vehicleInFront;
+  public Vehicle vehicleBehind, vehicleInFront;
   private void calculateVehicleBehind() {
     Vehicle vehicle = null;
     

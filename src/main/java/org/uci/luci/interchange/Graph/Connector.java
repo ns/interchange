@@ -1,4 +1,4 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Graph;
 
 public class Connector {
 	public Node n;

@@ -1,4 +1,7 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Driver.VehicleDriverBehavior;
+
+import org.uci.luci.interchange.Vehicles.*;
+import org.uci.luci.interchange.Driver.*;
 
 public class GeneralAccelerationBehavior implements VehicleDriverBehavior {
   private VehicleDriver vehicleDriver;

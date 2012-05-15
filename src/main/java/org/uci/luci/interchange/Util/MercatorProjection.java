@@ -1,4 +1,4 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Util;
 
 public class MercatorProjection implements Projection {
 	public double[] convert(double lat, double lon) {

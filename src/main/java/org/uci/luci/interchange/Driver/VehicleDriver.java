@@ -1,14 +1,21 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Driver;
+
+import org.uci.luci.interchange.Vehicles.*;
+import org.uci.luci.interchange.Intersections.*;
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Driver.VehicleDriverBehavior.*;
+import org.uci.luci.interchange.Registry.*;
+import org.uci.luci.interchange.Exception.*;
 
 import java.util.ArrayList;
 
 // the driver looks at the gauges in the vehicle and actuates the car's
 // velocity based on relevant factors
 public class VehicleDriver {
-  Vehicle vehicle;
-  Navigation navigation;
+  public Vehicle vehicle;
+  public Navigation navigation;
   
-  int licence;
+  public int licence;
   double speed = 0.000001;
   double minSpeed = 0;
   double maxSpeed = 0.000002;

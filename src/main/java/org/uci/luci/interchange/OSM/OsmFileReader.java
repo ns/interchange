@@ -1,4 +1,4 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.OSM;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,13 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.UI;
+
+import org.uci.luci.interchange.Intersections.*;
+import org.uci.luci.interchange.OSM.*;
+import org.uci.luci.interchange.Driver.*;
+import org.uci.luci.interchange.Vehicles.*;
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Registry.*;
+import org.uci.luci.interchange.Factory.*;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;

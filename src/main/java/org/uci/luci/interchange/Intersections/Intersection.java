@@ -1,5 +1,4 @@
-package org.uci.luci.interchange;
-
+package org.uci.luci.interchange.Intersections;
 
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Util.*;

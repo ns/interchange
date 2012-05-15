@@ -1,4 +1,7 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.OSM;
+
+import org.uci.luci.interchange.Graph.*;
+import org.uci.luci.interchange.Util.*;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

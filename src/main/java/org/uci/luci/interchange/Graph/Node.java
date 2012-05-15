@@ -1,4 +1,6 @@
-package org.uci.luci.interchange;
+package org.uci.luci.interchange.Graph;
+
+import org.uci.luci.interchange.Pathfinding.*;
 
 import java.util.List;
 import java.util.ArrayList;
