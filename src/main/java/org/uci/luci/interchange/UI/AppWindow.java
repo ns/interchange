@@ -49,8 +49,8 @@ public class AppWindow implements ActionListener{
 	boolean showAllNodes = false;
 	boolean showMapLabels = false;
 	boolean showPlaceNames = false;
-  boolean showVehicleInfo = false;
-  
+	boolean showVehicleInfo = false;
+
 	public AppWindow() throws InterruptedException {
 		myPanel = new MyPanel();
 
@@ -58,49 +58,31 @@ public class AppWindow implements ActionListener{
 
 		JMenu sim = new JMenu("Simulator");
 		sim.setMnemonic(KeyEvent.VK_S);
+		sim.add(makeMenuItem("Start"));
+		sim.add(makeMenuItem("Stop"));
+		sim.add(makeMenuItem("Reset"));
+		sim.addSeparator();
+		sim.add(makeMenuItem("Speed Up\t(-)"));
+		sim.add(makeMenuItem("Slow Down\t(=/+)"));
 
-		JMenuItem eMenuItem = new JMenuItem("Start");
-		eMenuItem.addActionListener(this);
-		sim.add(eMenuItem);
-		eMenuItem = new JMenuItem("Stop");
-		eMenuItem.addActionListener(this);
-		sim.add(eMenuItem);
-		eMenuItem = new JMenuItem("Reset");
-		eMenuItem.addActionListener(this);
-		sim.add(eMenuItem);
-		eMenuItem = new JMenuItem("Slow Down");
-		eMenuItem.addActionListener(this);
-		sim.add(eMenuItem);
-		eMenuItem = new JMenuItem("Speed Up");
-		eMenuItem.addActionListener(this);
-		sim.add(eMenuItem);
-		
+
 		JMenu view = new JMenu("View");
 		view.setMnemonic(KeyEvent.VK_V);
-		eMenuItem = new JMenuItem("Use White Background");
-		eMenuItem.addActionListener(this);
-		view.add(eMenuItem);
-		eMenuItem = new JMenuItem("Use Black Background");
-		eMenuItem.addActionListener(this);
-		view.add(eMenuItem);
-		eMenuItem = new JMenuItem("Toggle Place Names");
-		eMenuItem.addActionListener(this);
-		view.add(eMenuItem);
-		eMenuItem = new JMenuItem("Toggle Vehicle Info");
-		eMenuItem.addActionListener(this);
-		view.add(eMenuItem);
-		
+		view.add("Center Map");
+		view.add("Zoom In\t(})");
+		view.add("Zoom Out\t({)");
+		view.addSeparator();
+		view.add(makeMenuItem("Use White Background"));
+		view.add(makeMenuItem("Use White Background"));
+		view.addSeparator();
+		view.add(makeMenuItem("Toggle Place Names"));
+		view.add(makeMenuItem("Toggle Vehicle Info"));
+
 		JMenu debug = new JMenu("Debug");
-		eMenuItem = new JMenuItem("Toggle Vehicle Traces");
-		eMenuItem.addActionListener(this);
-		debug.add(eMenuItem);
-		eMenuItem = new JMenuItem("Toggle Infrastructure Map");
-		eMenuItem.addActionListener(this);
-		debug.add(eMenuItem);
-		eMenuItem = new JMenuItem("Toggle Nodes");
-		eMenuItem.addActionListener(this);
-		debug.add(eMenuItem);
-		
+		debug.add(makeMenuItem("Toggle Vehicle Traces"));
+		debug.add(makeMenuItem("Toggle Infrastructure Map"));
+		debug.add(makeMenuItem("Toggle Nodes"));
+
 		menubar.add(sim);
 		menubar.add(view);
 		menubar.add(debug);
@@ -114,6 +96,18 @@ public class AppWindow implements ActionListener{
 		f.setJMenuBar(menubar);
 	}
 
+	public JMenuItem makeMenuItem(String action)
+	{
+		return makeMenuItem(action,this);
+	}
+
+	public JMenuItem makeMenuItem(String action, ActionListener listener)
+	{
+		JMenuItem eMenuItem = new JMenuItem(action);
+		eMenuItem.addActionListener(listener);
+		return eMenuItem;
+	}
+
 	public void actionPerformed(ActionEvent e){
 
 		// Menu item actions
@@ -125,25 +119,33 @@ public class AppWindow implements ActionListener{
 			} else if (command.equals("Stop")) {
 				Global.simulator.pause();
 			} else if (command.equals("Reset")) {
-        // Global.simulator.resetSimulator();
+				// Global.simulator.resetSimulator();
 			} else if (command.equals("Toggle Vehicle Traces")) {
-			  showVehicleDebugTraces = !showVehicleDebugTraces;
-			} else if (command.equals("Slow Down")) {
-			  Global.simulator.changeSpeed(+1);
-			} else if (command.equals("Speed Up")) {
-			  Global.simulator.changeSpeed(-1);
+				showVehicleDebugTraces = !showVehicleDebugTraces;
+			} else if (command.equals("Slow Down\t(=/+)")) {
+				Global.simulator.changeSpeed(+10);
+			} else if (command.equals("Slow Down\t(=/+)")) {
+				Global.simulator.changeSpeed(-10);
+			} else if (command.equals("Zoom In\t(})")) {
+				myPanel.zoomMap(myPanel.offsetX,myPanel.offsetY,+10);
+				//myPanel.centerMap();
+			} else if (command.equals("Zoom Out\t({)")) {
+				myPanel.zoomMap(myPanel.offsetX,myPanel.offsetY,-10);
+				//myPanel.centerMap();
+			} else if (command.equals("Center Map")) {
+				myPanel.centerMap();
 			} else if (command.equals("Toggle Infrastructure Map")) {
-			  showMap = !showMap;
+				showMap = !showMap;
 			} else if (command.equals("Use Black Background")) {
-			  backgroundColor = Color.black;
+				backgroundColor = Color.black;
 			} else if (command.equals("Use White Background")) {
-			  backgroundColor = Color.white;
+				backgroundColor = Color.white;
 			} else if (command.equals("Toggle Nodes")) {
-			  showAllNodes = !showAllNodes;
+				showAllNodes = !showAllNodes;
 			} else if (command.equals("Toggle Place Names")) {
-			  showPlaceNames = !showPlaceNames;
+				showPlaceNames = !showPlaceNames;
 			} else if (command.equals("Toggle Vehicle Info")) {
-			  showVehicleInfo = !showVehicleInfo;
+				showVehicleInfo = !showVehicleInfo;
 			}
 		}
 		catch(Exception ex)
@@ -178,7 +180,6 @@ public class AppWindow implements ActionListener{
 		public MyPanel() {
 			this.osm = Global.openStreetMap;
 			setBorder(BorderFactory.createLineBorder(Color.black));
-
 
 			this.requestFocus();
 
@@ -240,55 +241,59 @@ public class AppWindow implements ActionListener{
 
 			addKeyListener(new KeyListener() {
 				public void keyPressed(KeyEvent e) {
-          // System.out.println("Keycode = " + e.getKeyCode());
-          
-          switch (e.getKeyCode()) {
-            case 45:
-              if (Global.simulator == null) {
-                System.out.println("why is simulator null??");
-              }
-              Global.simulator.changeSpeed(+1);
-              break;
-            case 61:
-             Global.simulator.changeSpeed(-1);
-              break;
-            default:
-              break;
-          }
-          
-          // if (e.getKeyChar() == 'p') {
-          //  Way bb = osm.getWayByName("Academy Way");
-          //  Way ee = osm.getWayByName("Port Stirling Place");
-          // 
-          //  Node startNode = osm.getNode(bb.nd.get(0));
-          //  Node endNode = osm.getNode(ee.nd.get(0));
-          //  generateAndDrawPathBetweenNodes(getGraphics(), startNode, endNode);
-          //  // repaint();
-          //  System.out.println("done");
-          // }
-          // else if (e.getKeyChar() == 'c') {
-          //  // paintMap(null);
-          //  // scale = 200;
-          //  offsetX = (int)(getSize().getWidth()/2) - scale/2;
-          //  offsetY = (int)(getSize().getHeight()/2) - scale/2;
-          //  repaint();
-          // }
-          // else if (e.getKeyChar() == 'n') {
-          //  scale = 46415;
-          //  offsetX = -15532;
-          //  offsetY = -43460;
-          //  repaint();
-          // }
-          // else if(e.getKeyChar() == 'e')
-          //  zoomMap(offsetX, offsetY, 3);
-          // else if(e.getKeyChar() == 'i')
-          //  zoomMap(offsetX, offsetY, -3);
-          // else if(e.getKeyChar() == '+')
-          //            Global.simulator.changeSpeed(-1);
-          // else if(e.getKeyChar() == '-')
-          //            Global.simulator.changeSpeed(+1);
-          //          else
-          //            System.out.println(e.getKeyChar());
+					// System.out.println("Keycode = " + e.getKeyCode());
+
+					switch (e.getKeyCode()) {
+					case 45:
+						if (Global.simulator == null) {
+							System.out.println("why is simulator null??");
+						}
+						Global.simulator.changeSpeed(+1);
+						break;
+						//= Sign which is same as plus, but without shift
+					case 61:
+						Global.simulator.changeSpeed(-1);
+						break;
+					case 91: 
+						zoomMap(offsetX, offsetY, -3);
+					case 93:
+						zoomMap(offsetX, offsetY, 3);
+					default:
+						System.out.println(e.getKeyCode());
+						break;
+					}
+
+					// if (e.getKeyChar() == 'p') {
+					//  Way bb = osm.getWayByName("Academy Way");
+					//  Way ee = osm.getWayByName("Port Stirling Place");
+					// 
+					//  Node startNode = osm.getNode(bb.nd.get(0));
+					//  Node endNode = osm.getNode(ee.nd.get(0));
+					//  generateAndDrawPathBetweenNodes(getGraphics(), startNode, endNode);
+					//  // repaint();
+					//  System.out.println("done");
+					// }
+					// else if (e.getKeyChar() == 'c') {
+					//  // paintMap(null);
+					//  // scale = 200;
+					//  
+					// }
+					// else if (e.getKeyChar() == 'n') {
+					//  scale = 46415;
+					//  offsetX = -15532;
+					//  offsetY = -43460;
+					//  repaint();
+					// }
+					// else if(e.getKeyChar() == 'e')
+					//  zoomMap(offsetX, offsetY, 3);
+					// else if(e.getKeyChar() == 'i')
+					//  zoomMap(offsetX, offsetY, -3);
+					// else if(e.getKeyChar() == '+')
+					//            Global.simulator.changeSpeed(-1);
+					// else if(e.getKeyChar() == '-')
+					//            Global.simulator.changeSpeed(+1);
+					//          else
+					//            System.out.println(e.getKeyChar());
 				}
 
 				public void keyReleased(KeyEvent e) {}
@@ -305,8 +310,16 @@ public class AppWindow implements ActionListener{
 			t.start();
 		}
 
+		public void centerMap()
+		{
+			offsetX = (int)(getSize().getWidth()/2) - scale/2;
+			offsetY = (int)(getSize().getHeight()/2) - scale/2;
+			repaint();
+		}
+
 		public void zoomMap(int x, int y, int steps)
 		{
+			System.out.println("zooming");
 			int newScale = scale + (steps * 5);
 			if (newScale < 50)
 				newScale = 50;
@@ -373,7 +386,7 @@ public class AppWindow implements ActionListener{
 
 		private void paintMap(Graphics g_old) {
 			if (map == null) {
-			  map = new BufferedImage(getWidth(),getHeight(), BufferedImage.TYPE_INT_ARGB);
+				map = new BufferedImage(getWidth(),getHeight(), BufferedImage.TYPE_INT_ARGB);
 				mapG2D = map.createGraphics();
 				mapG2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 						RenderingHints.VALUE_ANTIALIAS_ON);
@@ -463,9 +476,9 @@ public class AppWindow implements ActionListener{
 									// System.out.println("\tshift = " + (streetSpacing+(l*laneSpacing)));
 									// System.out.println("\t_last_n.lat = " + (_last_n.lat+streetSpacing+(l*laneSpacing)));
 								}
-								
-                // System.out.println("line ("+_last_n.x+","+_last_n.y+") -> ("+_n.x+","+_n.y+")");
-								
+
+								// System.out.println("line ("+_last_n.x+","+_last_n.y+") -> ("+_n.x+","+_n.y+")");
+
 								NodePoint _last_np = scaledXY(
 										_last_n.lat+streetSpacing+(l*laneSpacing),
 										_last_n.lon+streetSpacing+(l*laneSpacing)
@@ -483,11 +496,11 @@ public class AppWindow implements ActionListener{
 										(int)_np.x,
 										(int)_np.y
 								);
-                
-                
-                // g2d.setFont(new Font("TimesRoman", Font.PLAIN, 12));
-                // g2d.drawString("" + l, (int)_last_np.x+2, (int)_last_np.y+2);
-                
+
+
+								// g2d.setFont(new Font("TimesRoman", Font.PLAIN, 12));
+								// g2d.drawString("" + l, (int)_last_np.x+2, (int)_last_np.y+2);
+
 								if (!_w.oneway) {
 									NodePoint _last_np_reverse = scaledXY(
 											_last_n.lat-streetSpacing-(l*laneSpacing),
@@ -506,8 +519,8 @@ public class AppWindow implements ActionListener{
 											(int)_np_reverse.x,
 											(int)_np_reverse.y
 									);
-                  // g2d.setFont(new Font("TimesRoman", Font.PLAIN, 12));
-                  // g2d.drawString("" + l, (int)_last_np_reverse.x-2, (int)_last_np_reverse.y-2);
+									// g2d.setFont(new Font("TimesRoman", Font.PLAIN, 12));
+									// g2d.drawString("" + l, (int)_last_np_reverse.x-2, (int)_last_np_reverse.y-2);
 								}
 							}
 
@@ -516,44 +529,44 @@ public class AppWindow implements ActionListener{
 					}
 				}
 			}
-			
+
 			if (showMapLabels) {
-        // // nodes
-        // g2d.setStroke(new BasicStroke(1f));
-        // g2d.setColor(Color.LIGHT_GRAY);
-        // 
-        // g2d.setFont(new Font("TimesRoman", Font.PLAIN, (int)((scale/10000.0)*40)));
-        // 
-        // for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
-        //  Node n = entry.getValue();
-        //  NodePoint p = scaledXY(n.lat,n.lon);
-        //  g2d.fillOval((int)p.x, (int)p.y, 2, 2);
-        // }
-			}
-			
-			if (showAllNodes) {
-  			// nodes
-  			g2d.setStroke(new BasicStroke(1f));
-  			g2d.setColor(Color.LIGHT_GRAY);
-  			
-  			for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
-  				Node n = entry.getValue();
-  				NodePoint p = scaledXY(n.lat,n.lon);
-  				g2d.fillOval((int)p.x, (int)p.y, 2, 2);
-  			}
+				// // nodes
+				// g2d.setStroke(new BasicStroke(1f));
+				// g2d.setColor(Color.LIGHT_GRAY);
+				// 
+				// g2d.setFont(new Font("TimesRoman", Font.PLAIN, (int)((scale/10000.0)*40)));
+				// 
+				// for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
+				//  Node n = entry.getValue();
+				//  NodePoint p = scaledXY(n.lat,n.lon);
+				//  g2d.fillOval((int)p.x, (int)p.y, 2, 2);
+				// }
 			}
 
-      if (showPlaceNames) {
-  			g2d.setColor(Color.BLACK);
-        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 12));
-        for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
-  				Node n = entry.getValue();
-          String name = n.getName();
-          if (name == null) continue;
-  				NodePoint p = scaledXY(n.lat,n.lon);
-          g2d.drawString(name, (int)p.x, (int)p.y-2);
-  			}
-      }
+			if (showAllNodes) {
+				// nodes
+				g2d.setStroke(new BasicStroke(1f));
+				g2d.setColor(Color.LIGHT_GRAY);
+
+				for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
+					Node n = entry.getValue();
+					NodePoint p = scaledXY(n.lat,n.lon);
+					g2d.fillOval((int)p.x, (int)p.y, 2, 2);
+				}
+			}
+
+			if (showPlaceNames) {
+				g2d.setColor(Color.BLACK);
+				g2d.setFont(new Font("TimesRoman", Font.PLAIN, 12));
+				for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
+					Node n = entry.getValue();
+					String name = n.getName();
+					if (name == null) continue;
+					NodePoint p = scaledXY(n.lat,n.lon);
+					g2d.drawString(name, (int)p.x, (int)p.y-2);
+				}
+			}
 
 
 
@@ -620,9 +633,9 @@ public class AppWindow implements ActionListener{
 							System.out.println("Warning: not drawing one way traffic lights");
 						}
 						else {
-              double lat_delta = -(streetSpacing+(l*laneSpacing));
-              double lon_delta = -(streetSpacing+(l*laneSpacing));
-              
+							double lat_delta = -(streetSpacing+(l*laneSpacing));
+							double lon_delta = -(streetSpacing+(l*laneSpacing));
+
 							NodePoint rnP = scaledXY(
 									rootNode.lat+lat_delta,
 									rootNode.lon+lon_delta
@@ -638,7 +651,7 @@ public class AppWindow implements ActionListener{
 									0.00005
 							);
 							NodePoint cnP = scaledXY(ccPUS.x,ccPUS.y);
-              
+
 							if (light == 0) {
 								g2d.setColor(Color.green);
 							}
@@ -652,9 +665,9 @@ public class AppWindow implements ActionListener{
 							///////
 							// other direction
 							///////
-              double r_lat_delta = (streetSpacing+(l*laneSpacing));
-              double r_lon_delta = (streetSpacing+(l*laneSpacing));
-              
+							double r_lat_delta = (streetSpacing+(l*laneSpacing));
+							double r_lon_delta = (streetSpacing+(l*laneSpacing));
+
 							rnP = scaledXY(
 									rootNode.lat+r_lat_delta,
 									rootNode.lon+r_lon_delta
@@ -709,63 +722,63 @@ public class AppWindow implements ActionListener{
 
 			double laneSpacing =   0.00001;
 			double streetSpacing = laneSpacing;
-      for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
-			// for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
-        Vehicle v = d.vehicle;
+			for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
+				// for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
+				Vehicle v = d.vehicle;
 				g2d.setColor(Color.red);
 
 				// Node lastNode = osm.getNode(lastNodeId);
 				// String nextNodeId = _w.nd.get(_w.nd.indexOf(lastNodeId) + 1);
 				// Node nextNode = osm.getNode(nextNodeId);
-				
+
 				if (showVehicleDebugTraces) {
-  				Node lastNode = v.getOriginNode();//osm.getNode(v.originNodeId);
-  				Node nextNode = v.getDestinationNode();//osm.getNode(v.destinationNodeId);
-  				NodePoint lnP = scaledXY(lastNode.lat,lastNode.lon);
-  				NodePoint nnP = scaledXY(nextNode.lat,nextNode.lon);
-          g2d.setColor(Color.blue);
-          // g2d.fillOval((int)lnP.x, (int)lnP.y, 5, 5);
-          // g2d.setColor(Color.orange);
-  				g2d.fillOval((int)nnP.x-2, (int)nnP.y-2, 4, 4);
+					Node lastNode = v.getOriginNode();//osm.getNode(v.originNodeId);
+					Node nextNode = v.getDestinationNode();//osm.getNode(v.destinationNodeId);
+					NodePoint lnP = scaledXY(lastNode.lat,lastNode.lon);
+					NodePoint nnP = scaledXY(nextNode.lat,nextNode.lon);
+					g2d.setColor(Color.blue);
+					// g2d.fillOval((int)lnP.x, (int)lnP.y, 5, 5);
+					// g2d.setColor(Color.orange);
+					g2d.fillOval((int)nnP.x-2, (int)nnP.y-2, 4, 4);
 				}
 
 				g2d.setColor(Color.RED);
 
 				NodePoint p = null;
-				
+
 				if (v.isGoingForwardOnWay()) {
 					p = scaledXY(v.lat+streetSpacing+(v.getOnLaneNumber()*laneSpacing),v.lon+streetSpacing+(v.getOnLaneNumber()*laneSpacing));
 				}
 				else {
 					p = scaledXY(v.lat-streetSpacing-(v.getOnLaneNumber()*laneSpacing),v.lon-streetSpacing-(v.getOnLaneNumber()*laneSpacing));
 				}
-				
+
 				int size = 5;//(int)(((double)scale/100000.0) * 30);
 				if (v.flagForRemoval)
-				  g2d.setColor(Color.BLUE);
+					g2d.setColor(Color.BLUE);
 				g2d.fillOval((int)p.x - size/2, (int)p.y - size/2, size, size);
-				
-        if (showVehicleInfo) {
-          g2d.setFont(new Font("TimesRoman", Font.BOLD, 10));
-          
-          g2d.drawString("vin = " + v.vin, (int)p.x+4, (int)p.y-20);
-          g2d.drawString("lane = " + v.getOnLaneNumber() + " " + v.preparingFor, (int)p.x+4, (int)p.y-12);
-          g2d.drawString("micro: origin node id = " + v.getOriginNode() + " destination node id = " + v.getDestinationNode(), (int)p.x+4, (int)p.y-4);
-          g2d.drawString("navi: origin node id = " + d.navigation.getOrigin() + " destination node id = " + d.navigation.getDestination(), (int)p.x+4, (int)p.y+4);
-          g2d.drawString("state = " + v.state, (int)p.x+4, (int)p.y+12);
-        } 
-				
+
+				if (showVehicleInfo) {
+					g2d.setFont(new Font("TimesRoman", Font.BOLD, 10));
+
+					g2d.drawString("vin = " + v.vin, (int)p.x+4, (int)p.y-20);
+					g2d.drawString("lane = " + v.getOnLaneNumber() + " " + v.preparingFor, (int)p.x+4, (int)p.y-12);
+					g2d.drawString("micro: origin node id = " + v.getOriginNode() + " destination node id = " + v.getDestinationNode(), (int)p.x+4, (int)p.y-4);
+					g2d.drawString("navi: origin node id = " + d.navigation.getOrigin() + " destination node id = " + d.navigation.getDestination(), (int)p.x+4, (int)p.y+4);
+					g2d.drawString("state = " + v.state, (int)p.x+4, (int)p.y+12);
+				} 
+
 				if (showVehicleDebugTraces) {
-  				if (v.vehicleInFront != null) {
-  					g2d.setColor(Color.blue);
-  					NodePoint p1 = scaledXY(v.vehicleInFront.lat,v.vehicleInFront.lon);
-  					g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
-  				}
-  				if (v.vehicleBehind != null) {
-  					g2d.setColor(Color.red);
-  					NodePoint p1 = scaledXY(v.vehicleBehind.lat,v.vehicleBehind.lon);
-  					g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
-  				}
+					if (v.vehicleInFront != null) {
+						g2d.setColor(Color.blue);
+						NodePoint p1 = scaledXY(v.vehicleInFront.lat,v.vehicleInFront.lon);
+						g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
+					}
+					if (v.vehicleBehind != null) {
+						g2d.setColor(Color.red);
+						NodePoint p1 = scaledXY(v.vehicleBehind.lat,v.vehicleBehind.lon);
+						g2d.drawLine((int)p.x,(int)p.y,(int)p1.x,(int)p1.y);
+					}
 				}
 			}
 
@@ -779,29 +792,29 @@ public class AppWindow implements ActionListener{
 		}
 
 		public void paintComponent(Graphics g) {
-		  try {
-  			if (offsetX == -1)
-  				offsetX = (int)(getSize().getWidth()/2) - scale/2;
-  			if (offsetY == -1)
-  				offsetY = (int)(getSize().getHeight()/2) - scale/2;
+			try {
+				if (offsetX == -1)
+					offsetX = (int)(getSize().getWidth()/2) - scale/2;
+				if (offsetY == -1)
+					offsetY = (int)(getSize().getHeight()/2) - scale/2;
 
-  			super.paintComponent(g);
-			
-  			g.setColor(backgroundColor);
-  			g.fillRect(0,0,getWidth(),getHeight());
-			
-  			if (showMap) {
-    			paintMap(g);
-    			g.drawImage(map, 0, 0, null);
-  			}
-  			
-  			paintOverlay();
-  			g.drawImage(overlay, 0, 0, null);
-  		}
-  		catch (Exception e) {
-  		  e.printStackTrace();
-  		  System.exit(0);
-  		}
+				super.paintComponent(g);
+
+				g.setColor(backgroundColor);
+				g.fillRect(0,0,getWidth(),getHeight());
+
+				if (showMap) {
+					paintMap(g);
+					g.drawImage(map, 0, 0, null);
+				}
+
+				paintOverlay();
+				g.drawImage(overlay, 0, 0, null);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				System.exit(0);
+			}
 		}
 
 		@Override
@@ -809,7 +822,7 @@ public class AppWindow implements ActionListener{
 		{
 			return true;
 		}
-    
+
 		private NodePoint distanceFromPointInDirectionOfPoint(double fromLat, double fromLon, double toLat, double toLon, double d) {
 			double angle = -Math.atan2((toLat - fromLat), (toLon - fromLon));
 			angle = Math.toDegrees(angle);
