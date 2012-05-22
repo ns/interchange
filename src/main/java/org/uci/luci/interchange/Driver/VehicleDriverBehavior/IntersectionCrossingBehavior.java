@@ -8,7 +8,8 @@ import org.uci.luci.interchange.Intersections.*;
 public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
   private VehicleDriver vehicleDriver;
   private Vehicle vehicle;
-  double speed = Vehicle.DISTANCE_TO_CONSIDER_AS_SAME/100;
+  double speed = 25 * 1.609344; // km/h (30mph)
+  // double speed = Vehicle.DISTANCE_TO_CONSIDER_AS_SAME/100;
   
   public IntersectionCrossingBehavior(VehicleDriver d) {
     vehicleDriver = d;

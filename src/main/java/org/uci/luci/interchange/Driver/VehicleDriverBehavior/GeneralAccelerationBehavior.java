@@ -6,7 +6,8 @@ import org.uci.luci.interchange.Driver.*;
 public class GeneralAccelerationBehavior implements VehicleDriverBehavior {
   private VehicleDriver vehicleDriver;
   private Vehicle vehicle;
-  double speed = Vehicle.DISTANCE_TO_CONSIDER_AS_SAME/100;
+  double speed = 25 * 1.609344; // km/h (30mph)
+  // double speed = Vehicle.DISTANCE_TO_CONSIDER_AS_SAME/100;
   
   public GeneralAccelerationBehavior(VehicleDriver d) {
     vehicleDriver = d;

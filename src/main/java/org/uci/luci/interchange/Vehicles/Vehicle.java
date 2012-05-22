@@ -11,10 +11,12 @@ import org.uci.luci.interchange.Registry.*;
 import org.uci.luci.interchange.Util.*;
 
 public class Vehicle {
-  public static double DISTANCE_TO_CONSIDER_AS_SAME = 0.00002;
+  // public static double DISTANCE_TO_CONSIDER_AS_SAME = 0.00002;
+  public static double DISTANCE_TO_CONSIDER_AS_SAME;// = Utils.kmToProjectionPts(0.005, null, null); // ~16.4 feet
   
   public int vin;
   public double lat, lon;
+  public double x, y;
   public Vector2d velocity;
   private String originNodeId, destinationNodeId;
   // lanes are numbered 0-(lanes-1) with 0 being the left-most lane.
@@ -89,17 +91,36 @@ public class Vehicle {
     this.paused = false;
     this.lat = lat;
     this.lon = lon;
+    
+    x = Global.projection.convertLongToX(lon);
+    y = Global.projection.convertLatToY(lat);
+    
     setOriginNodeId(anOriginNodeId);
     // setDestinationNodeId(aDestinationNodeId);
     setOnLaneNumber(laneNumber);
+    
+    DISTANCE_TO_CONSIDER_AS_SAME = Utils.kmToProjectionPts(0.005, null, null);
   }
   
   public boolean isAtDestinationNode() {
+    // if (distanceToDestinationNode() < DISTANCE_TO_CONSIDER_AS_SAME || distanceBetweenDestinationAndOriginNode() < distanceFromOriginNode()) {
+      // System.out.println("reached dest");
+    // }
+    // else {
+      // System.out.println("d = " + distanceToDestinationNode() + ", dc = " + DISTANCE_TO_CONSIDER_AS_SAME);
+    // }
     return distanceToDestinationNode() < DISTANCE_TO_CONSIDER_AS_SAME;
   }
   
   public boolean isAtOriginNode() {
     return distanceFromOriginNode() < DISTANCE_TO_CONSIDER_AS_SAME;
+  }
+  
+  public double distanceBetweenDestinationAndOriginNode() {
+    Node nextNode = getDestinationNode();
+    Node lastNode = getOriginNode();
+    double d = Math.sqrt(Math.pow(lastNode.lat - nextNode.lat,2)+Math.pow(lastNode.lon - nextNode.lon,2));
+    return d;
   }
   
   public double distanceToDestinationNode() {
@@ -267,7 +288,7 @@ public class Vehicle {
       return -1;
     }
     else {
-      double d = Math.sqrt(Math.pow(lat - vehicleInFront.lat,2)+Math.pow(lon - vehicleInFront.lon,2));
+      double d = Math.sqrt(Math.pow(x - vehicleInFront.x,2)+Math.pow(y - vehicleInFront.y,2));
       return d;
     }
   }
@@ -342,44 +363,43 @@ public class Vehicle {
   
   // move by velocity in the right direction
   public void setVelocity(double speed) {
-    // System.out.format("setVelocity (%.8f)", speed);
-    // System.out.println();
+    velocity = Utils.getVelocityVector(angleOfTravel(), speed, getOriginNode(), getDestinationNode());
     
     
-    Node lastNode = getOriginNode();
-    Node nextNode = getDestinationNode();
-    
-    double oldC = distanceFromOriginNode();// Math.sqrt(Math.pow(lat - Double.valueOf(lastNode.lat),2)+Math.pow(lon - Double.valueOf(lastNode.lon),2));
-    double newC = (oldC + speed);
-    
-    double angle = angleOfTravel();
-    double deltaLat = Math.sin(angle)*newC;
-    double deltaLon = Math.cos(angle)*newC;
-    
-    // based on this we can negate deltaLat or deltaLon to the correct sign
-    if (Math.toDegrees(angle) < 0) {
-      deltaLat*=1;
-      deltaLon*=1;
-    }
-    else if (Math.toDegrees(angle) > 45) {
-      deltaLat*=-1;
-      deltaLon*=1;
-    }
-    else {
-      deltaLat*=-1;
-      deltaLon*=1;
-    }
-    
-    double newLat = lastNode.lat + deltaLat;
-    double newLon = lastNode.lon + deltaLon;
-    
-    velocity = new Vector2d(newLat-lat, newLon-lon);
+    // Node lastNode = getOriginNode();
+    // Node nextNode = getDestinationNode();
+    // 
+    // double oldC = distanceFromOriginNode();// Math.sqrt(Math.pow(lat - Double.valueOf(lastNode.lat),2)+Math.pow(lon - Double.valueOf(lastNode.lon),2));
+    // double newC = (oldC + speed);
+    // 
+    // double angle = angleOfTravel();
+    // double deltaLat = Math.sin(angle)*newC;
+    // double deltaLon = Math.cos(angle)*newC;
+    // 
+    // // based on this we can negate deltaLat or deltaLon to the correct sign
+    // if (Math.toDegrees(angle) < 0) {
+    //   deltaLat*=1;
+    //   deltaLon*=1;
+    // }
+    // else if (Math.toDegrees(angle) > 45) {
+    //   deltaLat*=-1;
+    //   deltaLon*=1;
+    // }
+    // else {
+    //   deltaLat*=-1;
+    //   deltaLon*=1;
+    // }
+    // 
+    // double newLat = lastNode.lat + deltaLat;
+    // double newLon = lastNode.lon + deltaLon;
+    // 
+    // velocity = new Vector2d(newLat-lat, newLon-lon);
   }
   
   public boolean isCollidingWith(Vehicle v) {
-    if (Math.abs(lat-v.lat) < 0.0000005 && Math.abs(lon-v.lon) < 0.0000005) {
-      return true;
-    }
+    // if (Math.abs(x-v.x) < 0.0000005 && Math.abs(y-v.y) < 0.0000005) {
+    //   return true;
+    // }
     return false;
   }
 }

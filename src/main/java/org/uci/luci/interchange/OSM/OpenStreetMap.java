@@ -30,6 +30,47 @@ public class OpenStreetMap {
 	public static String separator="__";
 	
 	public OsmAStarSearch AStar2;
+	Projection projection;
+	
+	public double projectedMinX = -1, projectedMinY = -1;
+	public double projectedMaxX = -1, projectedMaxY = -1;
+	
+	public double widthInKm, heightInKm;
+	public void projectUsingProjection(Projection p) {
+	  projection = p;
+	  
+	  for (Map.Entry<String, Node> entry : nodeHash.entrySet()) {
+			Node n = entry.getValue();
+	    n.x = projection.convertLongToX(n.lon);
+	    n.y = projection.convertLatToY(n.lat);
+	    
+	    if (projectedMinX == -1 || n.x < projectedMinX)
+	      projectedMinX = n.x;
+	    if (projectedMaxX == -1 || n.x > projectedMaxX)
+	      projectedMaxX = n.x;
+	    if (projectedMinY == -1 || n.y < projectedMinY)
+	      projectedMinY = n.y;
+	    if (projectedMaxY == -1 || n.y > projectedMaxY)
+	      projectedMaxY = n.y;
+		}
+		
+		
+		
+		widthInKm = Utils.distance(Double.valueOf(getMinlat()),
+                             Double.valueOf(getMinlon()),
+                             Double.valueOf(getMinlat()),
+                             Double.valueOf(getMaxlon()),
+                             'K');
+    
+    
+    
+    heightInKm = Utils.distance(Double.valueOf(getMinlat()),
+                            Double.valueOf(getMinlon()),
+                            Double.valueOf(getMaxlat()),
+                            Double.valueOf(getMinlon()),
+                            'K');
+    System.out.println("widthInKm = " + widthInKm + " heightInKm = " + heightInKm);
+	}
 	
 	public List<Node> nodes() {
 	  return new ArrayList<Node>(nodeHash.values());

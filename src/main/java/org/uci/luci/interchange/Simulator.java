@@ -30,7 +30,7 @@ public class Simulator extends Thread {
   int delay;
   
   public Simulator() throws InterruptedException {
-    delay = 10;
+    delay = 50;
     lastSimulatorStepTotalVehicles = 0;
     lastSimulatorStepTotalTime = 0;
     paused = false;
@@ -78,9 +78,10 @@ public class Simulator extends Thread {
         
         log("// simulator tick begin");
       
-        if (tick%2 == 1) {
+        if (tick%10 == 1) {
           log("\t// generating vehicle");
           // Vehicle v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("1575123787"));
+          
           Vehicle v = VehicleFactory.createVehicleAtRandomPoint();
           VehicleDriver d = VehicleDriverFactory.createVehicleDriver(v);
           try {
@@ -127,15 +128,33 @@ public class Simulator extends Thread {
             continue;
           }
         
-          Node lastNode = v.getOriginNode();
-          Node nextNode = v.getDestinationNode();
+          //           Node lastNode = v.getOriginNode();
+          //           Node nextNode = v.getDestinationNode();
+          //         
+          //           // System.out.println("v.velocity.x = " + v.velocity.x);
+          //           // System.out.println("v.velocity.y = " + v.velocity.y);
+          //           double newLat = v.lat + v.velocity.x;
+          //           double newLon = v.lon + v.velocity.y;
+          //         
+          //           v.lat = (double)newLat;
+          //           v.lon = (double)newLon;
+          //           
+          //           v.x = Global.projection.convertLongToX(v.lon);
+          // v.y = Global.projection.convertLatToY(v.lat);
         
-          double newLat = v.lat + v.velocity.x;
-          double newLon = v.lon + v.velocity.y;
+          // System.out.println("v("+v.x+","+v.y+") d("+v.velocity.x+","+v.velocity.y+")");
+          // System.out.println(v.lat + " , " + v.lon);
+          
+          v.lat = v.lat + v.velocity.x;
+          v.lon = v.lon + v.velocity.y;
         
-          v.lat = (double)newLat;
-          v.lon = (double)newLon;
+          // v.x = v.x + v.velocity.x;
+          // v.y = v.y + v.velocity.y;
+          
+          // v.lat = ;
+          // v.lon = ;
         }
+      
       
         log("\t// intersections.tick()");
         for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
@@ -175,6 +194,8 @@ public class Simulator extends Thread {
         lastSimulatorStepTotalVehicles = VehicleRegistry.allRegisteredVehicles().size();
         lastSimulatorStepTotalTime = duration;
       
+        System.out.println("intersections.tick() + " + tick);
+        
         if (delay >= 1)
           Thread.sleep(delay);
       }

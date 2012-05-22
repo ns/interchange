@@ -52,8 +52,8 @@ public class OsmHandler extends DefaultHandler{
     	    node.lat = Double.parseDouble(atts.getValue("lat"));
     	    node.id =atts.getValue("id");
     	    node.lon = Double.parseDouble(atts.getValue("lon"));
-    	    node.x = Global.projection.convertLongToX(node.lon);
-    	    node.y = Global.projection.convertLatToY(node.lat);
+          // node.x = Global.projection.convertLongToX(node.lon);
+          // node.y = Global.projection.convertLatToY(node.lat);
     		return;	
     	} else if(name.equals("relation")){
     		openStreetMap.addRelation();
