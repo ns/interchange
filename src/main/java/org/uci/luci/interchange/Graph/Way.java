@@ -26,6 +26,14 @@ public class Way {
     	return tags.size();
     }
     
+    public String tags() {
+      String sum = "";
+      for (Tag t : tags) {
+        sum = sum + " " + t.k + "=" + t.v;
+      }
+      return sum;
+    }
+    
     public boolean hasTag(String k, String v) {
       for (Tag t : tags) {
         if (t.k.equals(k) && t.v.equals(v))
@@ -59,38 +67,22 @@ public class Way {
     }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // simulator related
-    public ArrayList<Vehicle> vehiclesTraversing = new ArrayList<Vehicle>();
-    
-    public void tick() {
-      // for (Vehicle v : vehiclesTraversing) {
-      //   double velocity = v.velocity;
-      //   
-      //   // move by velocity in the right direction
-      //   Node nextNode = calculateNextNodeForVehicle(v);
-      //   
-      //   
-      //   
-      // }
+     // returns speeds in km/h
+    public double getSpeedLimit() {
+      if (hasTag("highway", "motorway") || hasTag("highway", "motorway_link")) {
+  	    return 60 * 1.609344;
+  	  }
+      else if (hasTag("highway", "primary")) {
+  	    return 55 * 1.609344;
+  	  }
+      else if (hasTag("highway", "secondary") || hasTag("highway", "tertiary")) {
+  	    return 30 * 1.609344;
+  	  }
+      else if (hasTag("highway", "residential")) {
+  	    return 25 * 1.609344;
+  	  }
+  	  else {
+  	    return 30 * 1.609344;
+  	  }
     }
-    
-    // private Node calculateNextNodeForVehicle(Vehicle v) {
-    //   for (String nId : nd) {
-    //   }
-    // }
 }

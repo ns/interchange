@@ -163,9 +163,11 @@ public class Utils {
     // double globalDistProj = Math.sqrt(Math.pow(Global.openStreetMap.projectedMaxX-Global.openStreetMap.projectedMinX,2)+Math.pow(Global.openStreetMap.projectedMaxY-Global.openStreetMap.projectedMinY,2));
     double globalDistEuc = Math.sqrt(Math.pow(Global.maxLat-Global.minLat,2)+Math.pow(Global.maxLon-Global.minLon,2));
     
+    // double ratio = globalDistProj/globalDistKm;
     double ratio = globalDistEuc/globalDistKm;
     
     speed = speed/(60*60);
+    // speed = speed/60; // 1/60th of a sec
     
     double c = ratio * speed;
     double deltaLat = Math.sin(angle)*c;

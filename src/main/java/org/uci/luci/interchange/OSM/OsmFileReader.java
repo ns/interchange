@@ -52,8 +52,9 @@ public class OsmFileReader {
       // assign our ErrorHandler
       xmlreader.setErrorHandler(osmErrorHandler);
 
-      // xmlInputStream = context.getResources().openRawResource(R.raw.milano);
       xmlInputStream = new FileInputStream("lib/uci.osm.xml");
+      // xmlInputStream = new FileInputStream("lib/NewYork.osm.xml");
+      // xmlInputStream = new FileInputStream("lib/nyc.osm.xml");
       // xmlInputStream = new FileInputStream("lib/paris_small.osm.xml");
 
       xmlreader.parse(new InputSource(xmlInputStream));

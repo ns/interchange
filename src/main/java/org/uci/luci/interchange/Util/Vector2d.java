@@ -7,4 +7,8 @@ public class Vector2d {
     this.x = x;
     this.y = y;
   }
+  
+  public double mag() {
+	  return Math.sqrt(Math.pow(x, 2)+Math.pow(y, 2));
+  }
 }

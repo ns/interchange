@@ -6,15 +6,18 @@ import org.uci.luci.interchange.Driver.*;
 public class GeneralAccelerationBehavior implements VehicleDriverBehavior {
   private VehicleDriver vehicleDriver;
   private Vehicle vehicle;
-  double speed = 25 * 1.609344; // km/h (30mph)
-  // double speed = Vehicle.DISTANCE_TO_CONSIDER_AS_SAME/100;
   
   public GeneralAccelerationBehavior(VehicleDriver d) {
     vehicleDriver = d;
     vehicle = vehicleDriver.vehicle;
   }
   
-  public void tick() {
-    vehicle.setVelocity(speed);
+  public String state() {
+    return "Accel to speed limit";
+  }
+  
+  public void tick(double simTime, double tickLength) {
+    double speedLimit = vehicle.getWay().getSpeedLimit();
+    vehicle.setAcceleration(VehicleUtils.determineNecessaryAcceleration(vehicle.speed(), speedLimit, 0.024384));
   }
 }

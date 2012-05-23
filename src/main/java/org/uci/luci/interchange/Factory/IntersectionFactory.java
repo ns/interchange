@@ -31,4 +31,10 @@ public class IntersectionFactory {
     IntersectionRegistry.registerIntersection(intersection);
     return intersection;
  	}
+ 	
+ 	public static HighwayRamp createHighwayRampForNode(Node n) {
+    HighwayRamp intersection = new HighwayRamp(n.id);
+    IntersectionRegistry.registerIntersection(intersection);
+    return intersection;
+ 	}
 }

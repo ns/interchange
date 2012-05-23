@@ -20,18 +20,13 @@ public class Oracle {
   // }
   
   public static void deregisterVehicleOrigin(Integer vin, String nodeId) {
-    // System.out.println("deregistering vehicle " + vin + " at " + nodeId);
-    
     if (originNodesToVehicles.get(nodeId) == null)
       originNodesToVehicles.put(nodeId, new ArrayList<String>());
-    
     ArrayList<String> vehicles = originNodesToVehicles.get(nodeId);
     vehicles.remove(vin+"");
   }
   
   public static void registerVehicleOrigin(Integer vin, String nodeId) {
-    // System.out.println("registering vehicle " + vin + " at " + nodeId);
-    
     if (originNodesToVehicles.get(nodeId) == null)
       originNodesToVehicles.put(nodeId, new ArrayList<String>());
     

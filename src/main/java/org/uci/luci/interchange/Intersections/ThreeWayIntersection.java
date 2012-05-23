@@ -7,6 +7,7 @@ import org.uci.luci.interchange.Vehicles.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 public class ThreeWayIntersection extends Intersection {
   String eastNodeId, westNodeId;
@@ -14,9 +15,14 @@ public class ThreeWayIntersection extends Intersection {
   
   boolean ewGreen = false;
   boolean nsGreen = false;
+  int switchInterval;
+  double lastFlip = -1;
   
   public ThreeWayIntersection(String rootNodeId) {
     super(rootNodeId);
+    Random randomGenerator = Utils.randomNumberGenerator();
+    switchInterval = 30;
+    lastFlip = -randomGenerator.nextInt(switchInterval);
     generateGroups();
   }
   
@@ -47,8 +53,8 @@ public class ThreeWayIntersection extends Intersection {
     return 2;
   }
   
-  public void tick(int tick) {
-    if (tick % 2000 == 0) {
+  public void tick(double simTime, double tickLength, int tick) {
+    if ((simTime-lastFlip) >= switchInterval) {
       if (nsGreen) {
         nsGreen = false;
         ewGreen = true;
@@ -57,6 +63,7 @@ public class ThreeWayIntersection extends Intersection {
         nsGreen = true;
         ewGreen = false;
       }
+      lastFlip = simTime;
     }
   }
   

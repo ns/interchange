@@ -12,7 +12,12 @@ public class ReachedDestinationBehavior implements VehicleDriverBehavior {
     vehicle = vehicleDriver.vehicle;
   }
   
-  public void tick() {
-    vehicle.setVelocity(0);
+  public void tick(double simTime, double tickLength) {
+	  System.out.println("reached destination setting velocity 0");
+    vehicle.setAcceleration(Vehicle.MAX_NEG_ACCELERATION);
+  }
+  
+  public String state() {
+    return "STOPPING";
   }
 }

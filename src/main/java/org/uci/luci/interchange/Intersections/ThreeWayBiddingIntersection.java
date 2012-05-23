@@ -53,7 +53,7 @@ public class ThreeWayBiddingIntersection extends Intersection {
     return 2;
   }
   
-  public void tick(int tick) {
+  public void tick(double simTime, double tickLength, int tick) {
     if (nsBidTotal() > ewBidTotal()) {
       ewGreen = false;
       nsGreen = true;

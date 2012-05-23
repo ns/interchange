@@ -15,6 +15,7 @@ public class App
         
         Global.openStreetMap = openStreetMap;
         Global.openStreetMap.purgeUnconnectedNodes();
+        Global.openStreetMap.mergeUnwantedNodes();
         Global.openStreetMap.projectUsingProjection(new MercatorProjection());
         IntersectionRegistry.generateIntersections();
         

@@ -36,11 +36,19 @@ public class IntersectionRegistry {
     
     for (Node n : nodes) {
       if (n.connectedNodes.size() > 2) {
+        
+        if (n.isHighwayNode()) {
+          IntersectionFactory.createHighwayRampForNode(n);
+          continue;
+        }
+        
         if (n.connectedNodes.size() == 3) {
-          IntersectionFactory.createThreeWayBiddingIntersectionForNode(n);
+          // IntersectionFactory.createThreeWayBiddingIntersectionForNode(n);
+          IntersectionFactory.createThreeWayIntersectionForNode(n);
         }
         else if (n.connectedNodes.size() == 4) {
-          IntersectionFactory.createFourWayBiddingIntersectionForNode(n);
+          // IntersectionFactory.createFourWayBiddingIntersectionForNode(n);
+          IntersectionFactory.createFourWayIntersectionForNode(n);
         }
         else {
           System.out.println("Node "+ n.id + " has " + n.connectedNodes.size() + " connections!");
