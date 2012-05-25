@@ -36,15 +36,17 @@ public class VehicleUtils {
 			return vehicle;
 		}
 	}
-	
-  // vf^2 = vi^2 + 2ad
-	public static double determineNecessaryAcceleration(double initialSpeed, double finalSpeed, double distance) {
-	  if (distance == 0 || Double.isNaN(distance))
-  	  return Double.MAX_VALUE;
-    double a = ((Math.pow(finalSpeed,2)-Math.pow(initialSpeed,2)) / (2 * distance)) / 3600;
-    if (Double.isNaN(a)) {
-      System.out.println("params is = " + initialSpeed + " finalSpeed = " + finalSpeed + " distance = " + distance);
-    }
-	  return a;
+
+	// vf^2 = vi^2 + 2ad
+	public static double determineNecessaryAcceleration(double initialSpeed,
+			double finalSpeed, double distance) {
+		if (distance == 0 || Double.isNaN(distance))
+			return Double.MAX_VALUE;
+		double a = ((Math.pow(finalSpeed, 2) - Math.pow(initialSpeed, 2)) / (2 * distance)) / 3600;
+		if (Double.isNaN(a)) {
+			System.out.println("params is = " + initialSpeed + " finalSpeed = "
+					+ finalSpeed + " distance = " + distance);
+		}
+		return a;
 	}
 }

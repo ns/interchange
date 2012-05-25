@@ -16,11 +16,11 @@ public class VehicleDriver {
 	// public Navigation navigation;
 
 	public int licence;
-  // double speed = 0.000001;
-  // double minSpeed = 0;
-  // double maxSpeed = 0.000002;
-  // double minimum_follow_distance = 10;
-  // double maximum_follow_distance = 20;
+	// double speed = 0.000001;
+	// double minSpeed = 0;
+	// double maxSpeed = 0.000002;
+	// double minimum_follow_distance = 10;
+	// double maximum_follow_distance = 20;
 
 	String nearbyIntersectionId = null;
 
@@ -166,9 +166,9 @@ public class VehicleDriver {
 						System.out.println(vehicle.vin
 								+ ": need to switch lanes to the left, on "
 								+ vehicle.getOnLaneNumber()
-								+ " (total lanes = "
-								+ (vehicle.getWay().lanes) + " total)");
-						
+								+ " (total lanes = " + (vehicle.getWay().lanes)
+								+ " total)");
+
 						// here we should check if there's a vehicle on the left
 						if (!vehicle.vehicleOnLeft()) {
 							// move over to the left
@@ -185,14 +185,15 @@ public class VehicleDriver {
 						System.out.println(vehicle.vin
 								+ ": need to switch lanes, on "
 								+ vehicle.getOnLaneNumber()
-								+ " (total lanes = "
-								+ (vehicle.getWay().lanes) + " total)");
-            
-            if (vehicle.getOnLaneNumber() > vehicle.getWay().lanes - 1) {
-              System.out.println("this should not have happened.");
-              vehicle.pause();
-            }
-            
+								+ " (total lanes = " + (vehicle.getWay().lanes)
+								+ " total)");
+
+						if (vehicle.getOnLaneNumber() > vehicle.getWay().lanes - 1) {
+							System.out
+									.println("this should not have happened.");
+							vehicle.pause();
+						}
+
 						// here we should check if there's a vehicle on the left
 						if (!vehicle.vehicleOnRight()) {
 							// move over to the right
@@ -240,8 +241,8 @@ public class VehicleDriver {
 	}
 
 	private void setState(String s) {
-	  if (state != null && state.equals(s))
-  	  return;
+		if (state != null && state.equals(s))
+			return;
 		state = s;
 		if (s.equals("general_acceleration")) {
 			activeBehavior = new GeneralAccelerationBehavior(this);

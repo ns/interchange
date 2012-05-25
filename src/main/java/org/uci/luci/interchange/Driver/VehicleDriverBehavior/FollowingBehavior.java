@@ -14,28 +14,30 @@ public class FollowingBehavior implements VehicleDriverBehavior {
 		vehicleDriver = d;
 		vehicle = vehicleDriver.vehicle;
 	}
-	
+
 	public String state() {
-    return "?";
-  }
+		return "Following";
+	}
 
 	public void tick(double simTime, double tickLength) {
 		double d = vehicle.getDistanceToVehicleInFront();
 		Vehicle vehicleInFront = vehicle.vehicleInFront;
 		try {
-		if (d == -1 || d > 0.2) { // 0.2 km
-	    double speedLimit = vehicle.getWay().getSpeedLimit();
-      vehicle.setAcceleration(VehicleUtils.determineNecessaryAcceleration(vehicle.speed(), speedLimit, 0.024384));
-	  }
-	  else {
-	    if (d < 0.009144) // 30 ft to km between cars
-		    vehicle.setAcceleration(Vehicle.MAX_NEG_ACCELERATION);
-	    else
-				vehicle.setAcceleration(VehicleUtils.determineNecessaryAcceleration(vehicle.speed(), vehicleInFront.speed(), d-0.009144));
+			if (d == -1 || d > 0.2) { // 0.2 km
+				double speedLimit = vehicle.getWay().getSpeedLimit();
+				vehicle.setAcceleration(VehicleUtils
+						.determineNecessaryAcceleration(vehicle.speed(),
+								speedLimit, 0.024384));
+			} else {
+				if (d < 0.009144) // 30 ft to km between cars
+					vehicle.setAcceleration(Vehicle.MAX_NEG_ACCELERATION);
+				else
+					vehicle.setAcceleration(VehicleUtils
+							.determineNecessaryAcceleration(vehicle.speed(),
+									vehicleInFront.speed(), d - 0.009144));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-	}
-	catch (Exception e) {
-	  e.printStackTrace();
-	}
 	}
 }

@@ -14,17 +14,18 @@ public class Vehicle {
 	private NodeTraversingMehanism nodeTraversingMehanism;
 	public int vin;
 	public double lat, lon;
-  // public double x, y;
-  
-  public static double MAX_ACCELERATION = 10; // 0-60mph in 10sec - in km/s^2
-  public static double MAX_NEG_ACCELERATION = -34.995; // 60-0mph in 120ft - in m/s^2
-  public static double MAX_SPEED = 80*1.609344; // 80mph
-  
-  public double acceleration;
-  // don't touch these, only actuate acceleration
-  private double speed; // in km/h
+	// public double x, y;
+
+	public static double MAX_ACCELERATION = 10; // 0-60mph in 10sec - in km/s^2
+	public static double MAX_NEG_ACCELERATION = -34.995; // 60-0mph in 120ft -
+															// in m/s^2
+	public static double MAX_SPEED = 80 * 1.609344; // 80mph
+
+	public double acceleration;
+	// don't touch these, only actuate acceleration
+	private double speed; // in km/h
 	public Vector2d velocity;
-	
+
 	// lanes are numbered 0-(lanes-1) with 0 being the left-most lane.
 	// the highest number is the lane on the right shoulder of the street
 	private int onLaneNumber;
@@ -37,7 +38,7 @@ public class Vehicle {
 	// this is how the car will traverse terrain - by default randomly but you
 	// can set this to something that actually routes the car to a destination.
 	public Navigation navigation;
-	
+
 	public double vehicleTotalWaitTime = 0;
 
 	public static double DISTANCE_TO_CONSIDER_AS_SAME = 0.003048;// in km
@@ -50,8 +51,8 @@ public class Vehicle {
 		this.lat = lat;
 		this.lon = lon;
 
-    // x = Global.projection.convertLongToX(lon);
-    // y = Global.projection.convertLatToY(lat);
+		// x = Global.projection.convertLongToX(lon);
+		// y = Global.projection.convertLatToY(lat);
 
 		setOriginNodeId(anOriginNodeId);
 		// setDestinationNodeId(aDestinationNodeId);
@@ -61,9 +62,9 @@ public class Vehicle {
 				nodeTraversingMehanism.getOriginNode().id);
 	}
 
-  public double speed() {
-    return speed;
-  }
+	public double speed() {
+		return speed;
+	}
 
 	public NodeTraversingMehanism getNodeTraversingMehanism() {
 		return nodeTraversingMehanism;
@@ -112,7 +113,7 @@ public class Vehicle {
 
 			if (nextNode != null) {
 				setDestinationNodeId(nextNode.id);
-				
+
 				if (getOnLaneNumber() > getWay().lanes - 1)
 					setOnLaneNumber(getWay().lanes - 1);
 			} else {
@@ -135,25 +136,25 @@ public class Vehicle {
 
 		return Math.toRadians(angle);
 	}
-	
+
 	public void setAcceleration(double acceleration) {
-	  if (acceleration > MAX_ACCELERATION)
-  	  this.acceleration = MAX_ACCELERATION;
-	  else if (acceleration < MAX_NEG_ACCELERATION)
-  	  this.acceleration = MAX_NEG_ACCELERATION;
-	  else
-  	  this.acceleration = acceleration;
+		if (acceleration > MAX_ACCELERATION)
+			this.acceleration = MAX_ACCELERATION;
+		else if (acceleration < MAX_NEG_ACCELERATION)
+			this.acceleration = MAX_NEG_ACCELERATION;
+		else
+			this.acceleration = acceleration;
 	}
-	
+
 	private void determineCurrentVelocity(double tickLength) {
-	  speed = speed + acceleration*tickLength;
-	  if (speed > MAX_SPEED)
-	    speed = MAX_SPEED;
-    else if (speed < 0 || speed < 0.01)
-      speed = 0;
-	  setVelocity(this.speed*tickLength);
+		speed = speed + acceleration * tickLength;
+		if (speed > MAX_SPEED)
+			speed = MAX_SPEED;
+		else if (speed < 0 || speed < 0.01)
+			speed = 0;
+		setVelocity(this.speed * tickLength);
 	}
-	
+
 	// move by velocity in the right direction
 	private void setVelocity(double speed) {
 		velocity = Utils.getVelocityVector(angleOfTravel(), speed,
@@ -214,15 +215,16 @@ public class Vehicle {
 	}
 
 	public boolean isAtDestinationNode() {
-    // return nodeTraversingMehanism.distanceToDestinationNode(lat, lon) < DISTANCE_TO_CONSIDER_AS_SAME;
-    // two checks now..
-    if (nodeTraversingMehanism.distanceToDestinationNode(lat, lon) < DISTANCE_TO_CONSIDER_AS_SAME) {
-      return true;
-    }
-    else if (nodeTraversingMehanism.distanceFromOriginNode(lat, lon) >= nodeTraversingMehanism.distanceBetweenDestinationAndOriginNode()) {
-      return true;
-    }
-    return false;
+		// return nodeTraversingMehanism.distanceToDestinationNode(lat, lon) <
+		// DISTANCE_TO_CONSIDER_AS_SAME;
+		// two checks now..
+		if (nodeTraversingMehanism.distanceToDestinationNode(lat, lon) < DISTANCE_TO_CONSIDER_AS_SAME) {
+			return true;
+		} else if (nodeTraversingMehanism.distanceFromOriginNode(lat, lon) >= nodeTraversingMehanism
+				.distanceBetweenDestinationAndOriginNode()) {
+			return true;
+		}
+		return false;
 	}
 
 	public boolean isAtOriginNode() {
@@ -310,9 +312,10 @@ public class Vehicle {
 		if (vehicleInFront == null)
 			return -1;
 		else
-			return Utils.distance(lat, lon, vehicleInFront.lat, vehicleInFront.lon, 'K');
+			return Utils.distance(lat, lon, vehicleInFront.lat,
+					vehicleInFront.lon, 'K');
 	}
-	
+
 	private void calculateVehicleInFront() {
 		Vehicle vehicle = null;
 
@@ -333,7 +336,7 @@ public class Vehicle {
 					|| !v.getDestinationNode().equals(getDestinationNode())
 					|| v.getOnLaneNumber() != getOnLaneNumber())
 				continue;
-			
+
 			if (nodeTraversingMehanism.distanceToDestinationNode(lat, lon) > v
 					.getNodeTraversingMehanism().distanceToDestinationNode(
 							v.lat, v.lon)) {
@@ -346,84 +349,95 @@ public class Vehicle {
 					vehicle = v;
 			}
 		}
-		
-    // check ahead
-    if (vehicle == null)
-      vehicle = closestVehicleToNode(nodeTraversingMehanism.getOriginNode(), nodeTraversingMehanism.getDestinationNode());
-    // vehicles = Oracle.vehiclesWithNodeAsOrigin(nodeTraversingMehanism.getDestinationNode().id);
-    // if (vehicles == null) {
-    //   vehicles = Oracle.vehiclesWithNodeAsOrigin(nodeTraversingMehanism.getDestinationNode().id);
-    // }
-    // 
-    // for (String vin : vehicles) {
-    //  Vehicle v = VehicleRegistry.getVehicle(vin);
-    // 
-    //  if (v == null) {
-    //    continue;
-    //  }
-    // 
-    //  if (v == this || v.getOnLaneNumber() != getOnLaneNumber())
-    //    continue;
-    //  
-    //  if (vehicle == null || Utils.distance(lat, lon, v.lat, v.lon, 'K') < Utils.distance(lat, lon, vehicle.lat, vehicle.lon, 'K')) {
-    //      vehicle = v;
-    //  }
-    // }
-		
 
-    // // check one node ahead
-    // if (vehicle == null) {
-    //  Node destNode = getDestinationNode();
-    //  if (destNode.connectedNodes.size() == 2) {
-    //    if (destNode.connectedNodes.get(0).equals(getOriginNode()))
-    //      vehicle = VehicleUtils
-    //          .findVehicleClosestToOriginNodeOnLane(destNode.id,
-    //              destNode.connectedNodes.get(1).id,
-    //              getOnLaneNumber());
-    //    else
-    //      vehicle = VehicleUtils
-    //          .findVehicleClosestToOriginNodeOnLane(destNode.id,
-    //              destNode.connectedNodes.get(0).id,
-    //              getOnLaneNumber());
-    //  }
-    // }
+		// check ahead
+		if (vehicle == null)
+			vehicle = closestVehicleToNode(
+					nodeTraversingMehanism.getOriginNode(),
+					nodeTraversingMehanism.getDestinationNode());
+		// vehicles =
+		// Oracle.vehiclesWithNodeAsOrigin(nodeTraversingMehanism.getDestinationNode().id);
+		// if (vehicles == null) {
+		// vehicles =
+		// Oracle.vehiclesWithNodeAsOrigin(nodeTraversingMehanism.getDestinationNode().id);
+		// }
+		//
+		// for (String vin : vehicles) {
+		// Vehicle v = VehicleRegistry.getVehicle(vin);
+		//
+		// if (v == null) {
+		// continue;
+		// }
+		//
+		// if (v == this || v.getOnLaneNumber() != getOnLaneNumber())
+		// continue;
+		//
+		// if (vehicle == null || Utils.distance(lat, lon, v.lat, v.lon, 'K') <
+		// Utils.distance(lat, lon, vehicle.lat, vehicle.lon, 'K')) {
+		// vehicle = v;
+		// }
+		// }
+
+		// // check one node ahead
+		// if (vehicle == null) {
+		// Node destNode = getDestinationNode();
+		// if (destNode.connectedNodes.size() == 2) {
+		// if (destNode.connectedNodes.get(0).equals(getOriginNode()))
+		// vehicle = VehicleUtils
+		// .findVehicleClosestToOriginNodeOnLane(destNode.id,
+		// destNode.connectedNodes.get(1).id,
+		// getOnLaneNumber());
+		// else
+		// vehicle = VehicleUtils
+		// .findVehicleClosestToOriginNodeOnLane(destNode.id,
+		// destNode.connectedNodes.get(0).id,
+		// getOnLaneNumber());
+		// }
+		// }
 
 		vehicleInFront = vehicle;
 	}
-	
+
 	private Vehicle closestVehicleToNode(Node from, Node n) {
-	  Node next = null;
-	  if (n.connectedNodes.size() == 2) {
-  	  int i = n.connectedNodes.indexOf(from);
-  	  next = n.connectedNodes.get(i == 0 ? 1 : 0);
-    }
-    
-	  List<String> vehicles = Oracle.vehiclesWithNodeAsOrigin(n.id);
-	  
-	  Vehicle vehicle = null;
-	  
-	  if (vehicles != null) {
-      for (String vin : vehicles) {
-       Vehicle v = VehicleRegistry.getVehicle(vin);
-    
-       if (v == null || v == this || v.getOnLaneNumber() != getOnLaneNumber() || !v.nodeTraversingMehanism.getDestinationNode().equals(next))
-         continue;
-     
-       if (vehicle == null || v.nodeTraversingMehanism.distanceFromOriginNode(v.lat, v.lon) < vehicle.nodeTraversingMehanism.distanceFromOriginNode(vehicle.lat, vehicle.lon))
-         vehicle = v;
-      }
-    }
-    
-    if (vehicle == null) {
-      if (n.connectedNodes.size() == 2) {
-        return closestVehicleToNode(n, next);
-      }
-      else {
-        return null;
-      }
-	  }
-	  
-	  return vehicle;
+		Node next = null;
+		if (n.connectedNodes.size() == 2) {
+			int i = n.connectedNodes.indexOf(from);
+			next = n.connectedNodes.get(i == 0 ? 1 : 0);
+		}
+
+		List<String> vehicles = Oracle.vehiclesWithNodeAsOrigin(n.id);
+
+		Vehicle vehicle = null;
+
+		if (vehicles != null) {
+			for (String vin : vehicles) {
+				Vehicle v = VehicleRegistry.getVehicle(vin);
+
+				if (v == null
+						|| v == this
+						|| v.getOnLaneNumber() != getOnLaneNumber()
+						|| !v.nodeTraversingMehanism.getDestinationNode()
+								.equals(next))
+					continue;
+
+				if (vehicle == null
+						|| v.nodeTraversingMehanism.distanceFromOriginNode(
+								v.lat, v.lon) < vehicle.nodeTraversingMehanism
+								.distanceFromOriginNode(vehicle.lat,
+										vehicle.lon))
+					vehicle = v;
+			}
+		}
+
+		if (vehicle == null) {
+			if (n.connectedNodes.size() == 2) {
+				return closestVehicleToNode(n, next);
+			} else {
+				return null;
+			}
+		}
+
+		return vehicle;
 	}
 
 	public void commit(double simTime, double tickLength) {
@@ -431,31 +445,31 @@ public class Vehicle {
 			System.out.println("skipping " + vin + " p = " + paused());
 			return;
 		}
-		
+
 		determineCurrentVelocity(tickLength);
 		Vector2d curVelocity = velocity;
-		
+
 		if (velocity.mag() > nodeTraversingMehanism.distanceToDestinationNode(
 				lat, lon)) {
 			if (nodeTraversingMehanism.distanceToDestinationNode(lat, lon) > DISTANCE_TO_CONSIDER_AS_SAME) {
 				// System.out
 				// .println("we're too far to consider same but too close that we're going to hop over");
 				// this is just temporary
-        lat = getDestinationNode().lat;
-        lon = getDestinationNode().lon;
+				lat = getDestinationNode().lat;
+				lon = getDestinationNode().lon;
 			}
 			return;
 		} else {
-      lat = lat + curVelocity.x;
-      lon = lon + curVelocity.y;
+			lat = lat + curVelocity.x;
+			lon = lon + curVelocity.y;
 		}
-		
+
 		trackStatistics(simTime, tickLength);
 	}
-	
+
 	public void trackStatistics(double simTime, double tickLength) {
-	  Way w = getWay();
-	  if (!paused() && w != null && speed < w.getSpeedLimit() * 0.9)
-  	  vehicleTotalWaitTime += tickLength;
+		Way w = getWay();
+		if (!paused() && w != null && speed < w.getSpeedLimit() * 0.9)
+			vehicleTotalWaitTime += tickLength;
 	}
 }

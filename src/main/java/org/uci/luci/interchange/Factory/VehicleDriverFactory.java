@@ -13,8 +13,8 @@ public class VehicleDriverFactory {
 		VehicleDriverRegistry.registerDriver(d);
 		return d;
 	}
-	
+
 	public static void destroyVehicleDriver(VehicleDriver d) {
-	  VehicleDriverRegistry.deregisterDriver(d);
+		VehicleDriverRegistry.deregisterDriver(d);
 	}
 }

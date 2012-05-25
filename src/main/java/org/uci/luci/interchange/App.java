@@ -5,10 +5,8 @@ import org.uci.luci.interchange.Registry.*;
 import org.uci.luci.interchange.UI.*;
 import org.uci.luci.interchange.Util.*;
 
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
-        SimulatorOptionsWindow options = new SimulatorOptionsWindow();
-    }
+public class App {
+	public static void main(String[] args) throws Exception {
+		SimulatorOptionsWindow options = new SimulatorOptionsWindow();
+	}
 }

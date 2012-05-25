@@ -370,16 +370,18 @@ public class Node extends AStarNode {
 		if (this == aNode)
 			return true;
 		if (aNode == null)
-		  return false;
-		return ((Node)aNode).id.equals(id);
+			return false;
+		return ((Node) aNode).id.equals(id);
 	}
-	
+
 	public boolean isHighwayNode() {
-	  for (Node cn : connectedNodes) {
-	    if (Oracle.wayBetweenNodes(id, cn.id).hasTag("highway", "motorway") || Oracle.wayBetweenNodes(id, cn.id).hasTag("highway", "motorway_link")) {
-	      return true;
-	    }
-	  }
-	  return false;
+		for (Node cn : connectedNodes) {
+			if (Oracle.wayBetweenNodes(id, cn.id).hasTag("highway", "motorway")
+					|| Oracle.wayBetweenNodes(id, cn.id).hasTag("highway",
+							"motorway_link")) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

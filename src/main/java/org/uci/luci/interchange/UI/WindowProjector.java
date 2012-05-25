@@ -16,49 +16,48 @@ public class WindowProjector {
 		this.bottom = bottom;
 		this.left = left;
 		this.right = right;
-		this.width = Math.abs(right-left);
-		this.height = Math.abs(bottom-top);
+		this.width = Math.abs(right - left);
+		this.height = Math.abs(bottom - top);
 	}
 
 	public NodePoint scaledXY(double x, double y) {
-    // y = bottom-y;
-       
-    x = (((double) x - (double) left) / width);
-    y = (((double) y - (double) top) / height);
-    
-    x = (x * scale) + offsetX;
-    y = (y * scale) - offsetY;
-    
-    y = scale-y;
-    
-    return new NodePoint(x, y);
+		// y = bottom-y;
+
+		x = (((double) x - (double) left) / width);
+		y = (((double) y - (double) top) / height);
+
+		x = (x * scale) + offsetX;
+		y = (y * scale) - offsetY;
+
+		y = scale - y;
+
+		return new NodePoint(x, y);
 	}
 
 	public NodePoint unscaleXY(int x, int y) {
-	  return unscaleXY((double)x, (double)y);
-  }
+		return unscaleXY((double) x, (double) y);
+	}
 
 	public NodePoint unscaleXY(double x, double y) {
-	  x = (x-offsetX) / scale ;
-    y = (-(y-scale)+offsetY) / scale;
-	  
-	  x = (x * width) + (double)left;
-    y = (y * height) + (double)top;
-    
-    // y = -(y - bottom);
-       
-    return new NodePoint(x, y);
-    
-    
-    // return new NodePoint(0,0);
-    // double pX = (x - offsetX) / (double) scale;
-    // double pY = (y - offsetY) / (double) scale;
-    // 
-    // double lat = (pY * (bottom - top)) + top;
-    // double lon = (pX * (right - left)) + left;
-    // 
-    //     // lat = lat + bottom;
-    //     
-    // return new NodePoint((double) lon, (double) lat);
+		x = (x - offsetX) / scale;
+		y = (-(y - scale) + offsetY) / scale;
+
+		x = (x * width) + (double) left;
+		y = (y * height) + (double) top;
+
+		// y = -(y - bottom);
+
+		return new NodePoint(x, y);
+
+		// return new NodePoint(0,0);
+		// double pX = (x - offsetX) / (double) scale;
+		// double pY = (y - offsetY) / (double) scale;
+		//
+		// double lat = (pY * (bottom - top)) + top;
+		// double lon = (pX * (right - left)) + left;
+		//
+		// // lat = lat + bottom;
+		//
+		// return new NodePoint((double) lon, (double) lat);
 	}
 }

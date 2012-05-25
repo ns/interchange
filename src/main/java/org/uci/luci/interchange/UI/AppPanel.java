@@ -58,15 +58,12 @@ public class AppPanel extends JPanel {
 	public boolean showVehicleInfo = false;
 	public boolean showVehicleDebugTraces = false;
 	public boolean showDistances = false;
-	
+
 	public AppPanel() {
 		this.osm = Global.openStreetMap;
 
-		windowProjector = new WindowProjector(
-		  osm.projectedMinY,
-		  osm.projectedMaxY,
-		  osm.projectedMinX,
-		  osm.projectedMaxX);
+		windowProjector = new WindowProjector(osm.projectedMinY,
+				osm.projectedMaxY, osm.projectedMinX, osm.projectedMaxX);
 
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		this.requestFocus();
@@ -146,17 +143,17 @@ public class AppPanel extends JPanel {
 					zoomMap(3);
 					break;
 				case 38: // up
-  				windowProjector.offsetY += 20;
-				  break;
+					windowProjector.offsetY += 20;
+					break;
 				case 40: // down
-    			windowProjector.offsetY -= 20;
-				  break;
+					windowProjector.offsetY -= 20;
+					break;
 				case 37: // left
-    			windowProjector.offsetX += 20;
-				  break;
+					windowProjector.offsetX += 20;
+					break;
 				case 39: // right
-    			windowProjector.offsetX -= 20;
-				  break;
+					windowProjector.offsetX -= 20;
+					break;
 				default:
 					System.out.println(e.getKeyCode());
 					break;
@@ -268,18 +265,16 @@ public class AppPanel extends JPanel {
 						g2d.setColor(Color.black);
 						g2d.drawLine((int) _last_np.x, (int) _last_np.y,
 								(int) _np.x, (int) _np.y);
-						
+
 						if (showDistances) {
 							// this will draw distances
 							g2d.setColor(Color.black);
-							double d = Utils.distance(_last_n.lat,
-									_last_n.lon, _n.lat, _n.lon, 'K');
+							double d = Utils.distance(_last_n.lat, _last_n.lon,
+									_n.lat, _n.lon, 'K');
 							g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
-							DecimalFormat twoDForm = new DecimalFormat(
-									"#.##");
-							g2d.drawString(
-									Double.valueOf(twoDForm.format(d))
-											+ " km",
+							DecimalFormat twoDForm = new DecimalFormat("#.##");
+							g2d.drawString(Double.valueOf(twoDForm.format(d))
+									+ " km",
 									(int) (_last_np.x + _np.x) / 2 + 4,
 									(int) (_last_np.y + _np.y) / 2 + 4);
 						}
@@ -345,85 +340,55 @@ public class AppPanel extends JPanel {
 		g2d.setBackground(new Color(255, 255, 255, 0));
 		g2d.clearRect(0, 0, getWidth(), getHeight());
 
+		g2d.setStroke(new BasicStroke(4f));
+		for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
 
+			String rootNodeId = i.getRootNodeId();
 
+			Node rootNode = osm.getNode(rootNodeId);
 
+			if (i instanceof HighwayRamp) {
+				continue;
+			}
 
+			// // || i instanceof ThreeWayBiddingIntersection
+			// if (i instanceof FourWayBiddingIntersection) {
+			// FourWayBiddingIntersection ii = (FourWayBiddingIntersection)i;
+			// NodePoint scaledRootNode = scaledXY(rootNode.lat,rootNode.lon);
+			// g2d.setColor(Color.black);
+			// g2d.drawString("n/s " + ii.nsBidTotal() + "; e/w " +
+			// ii.ewBidTotal(), (int)scaledRootNode.x+20,
+			// (int)scaledRootNode.y-20);
+			// }
 
-
-
-  	g2d.setStroke(new BasicStroke(4f));
-  	for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
-
-  		String rootNodeId = i.getRootNodeId();
-
-  		Node rootNode = osm.getNode(rootNodeId);
-
-      if (i instanceof HighwayRamp) {
-        continue;
-      }
-
-  		// // || i instanceof ThreeWayBiddingIntersection
-  		// if (i instanceof FourWayBiddingIntersection) {
-  		//   FourWayBiddingIntersection ii = (FourWayBiddingIntersection)i;
-  		//   NodePoint scaledRootNode = scaledXY(rootNode.lat,rootNode.lon);
-  		//   g2d.setColor(Color.black);
-  		//   g2d.drawString("n/s " + ii.nsBidTotal() + "; e/w " + ii.ewBidTotal(), (int)scaledRootNode.x+20, (int)scaledRootNode.y-20);
-  		// }
-
-  		for (Node connectedNode : rootNode.connectedNodes) {
-  			Way w = Oracle.wayBetweenNodes(rootNode.id, connectedNode.id);
+			for (Node connectedNode : rootNode.connectedNodes) {
+				Way w = Oracle.wayBetweenNodes(rootNode.id, connectedNode.id);
 
 				if (w.oneway) {
-					System.out.println("Warning: not drawing one way traffic lights");
-				}
-				else {
+					System.out
+							.println("Warning: not drawing one way traffic lights");
+				} else {
 					NodePoint rnP = scaledXY(rootNode.x, rootNode.y);
 
-					int light = i.getLightForWayOnLane(null, connectedNode.id, 0);
+					int light = i.getLightForWayOnLane(null, connectedNode.id,
+							0);
 
 					NodePoint ccPUS = distanceFromPointInDirectionOfPoint(
-							rootNode.x,
-							rootNode.y,
-							connectedNode.x,
-							connectedNode.y,
-							10
-					);
-					NodePoint cnP = scaledXY(ccPUS.x,ccPUS.y);
+							rootNode.x, rootNode.y, connectedNode.x,
+							connectedNode.y, 10);
+					NodePoint cnP = scaledXY(ccPUS.x, ccPUS.y);
 
 					if (light == 0) {
-						g2d.setColor(new Color(0,255,0,100));
-					}
-					else if (light == 2) {
-						g2d.setColor(new Color(255,0,0,100));
+						g2d.setColor(new Color(0, 255, 0, 100));
+					} else if (light == 2) {
+						g2d.setColor(new Color(255, 0, 0, 100));
 					}
 
-					g2d.drawLine((int)cnP.x,(int)cnP.y,(int)rnP.x,(int)rnP.y);
+					g2d.drawLine((int) cnP.x, (int) cnP.y, (int) rnP.x,
+							(int) rnP.y);
 				}
-  		}
-  	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			}
+		}
 
 		g2d.setStroke(new BasicStroke(1f));
 
@@ -439,76 +404,85 @@ public class AppPanel extends JPanel {
 				p = scaledXY(Global.projection.convertLongToX(v.lon),
 						Global.projection.convertLatToY(v.lat));
 			}
-			
+
 			int size = 5;
-			
+
 			g2d.setColor(Color.BLUE);
 			g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size, size);
-			
+
 			if (showVehicleInfo) {
-			  g2d.setColor(Color.BLACK);
+				g2d.setColor(Color.BLACK);
 				g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
-			  g2d.drawString("vin " + v.vin, (int)p.x+5, (int)p.y);
-			  g2d.drawString("origin " + v.navigation.getOrigin(), (int)p.x+5, (int)p.y+10);
-			  g2d.drawString("dest " + v.navigation.getDestination(), (int)p.x+5, (int)p.y+20);
-			  g2d.drawString("km/h " + v.speed(), (int)p.x+5, (int)p.y+30);
-			  g2d.drawString("km/s^2 " + v.acceleration, (int)p.x+5, (int)p.y+40);
-			  if (d.activeBehavior instanceof FollowingBehavior)
-  			  g2d.drawString("behavior Following", (int)p.x+5, (int)p.y+50);
-			  else if (d.activeBehavior instanceof GeneralAccelerationBehavior)
-  			  g2d.drawString("behavior General", (int)p.x+5, (int)p.y+50);
-			  else if (d.activeBehavior instanceof IntersectionCrossingBehavior)
-  			  g2d.drawString("behavior Intersection Crossing", (int)p.x+5, (int)p.y+50);
-			  else if (d.activeBehavior instanceof ReachedDestinationBehavior)
-  			  g2d.drawString("behavior Reached Destination", (int)p.x+5, (int)p.y+50);
-			  g2d.drawString("total delay (sec) " + v.vehicleTotalWaitTime, (int)p.x+5, (int)p.y+60);
-        g2d.drawString("behavior is " + d.activeBehavior.state(), (int)p.x+5, (int)p.y+70);
+				g2d.drawString("vin " + v.vin, (int) p.x + 5, (int) p.y);
+				g2d.drawString("origin " + v.navigation.getOrigin(),
+						(int) p.x + 5, (int) p.y + 10);
+				g2d.drawString("dest " + v.navigation.getDestination(),
+						(int) p.x + 5, (int) p.y + 20);
+				g2d.drawString("km/h " + v.speed(), (int) p.x + 5,
+						(int) p.y + 30);
+				g2d.drawString("km/s^2 " + v.acceleration, (int) p.x + 5,
+						(int) p.y + 40);
+				if (d.activeBehavior instanceof FollowingBehavior)
+					g2d.drawString("behavior Following", (int) p.x + 5,
+							(int) p.y + 50);
+				else if (d.activeBehavior instanceof GeneralAccelerationBehavior)
+					g2d.drawString("behavior General", (int) p.x + 5,
+							(int) p.y + 50);
+				else if (d.activeBehavior instanceof IntersectionCrossingBehavior)
+					g2d.drawString("behavior Intersection Crossing",
+							(int) p.x + 5, (int) p.y + 50);
+				else if (d.activeBehavior instanceof ReachedDestinationBehavior)
+					g2d.drawString("behavior Reached Destination",
+							(int) p.x + 5, (int) p.y + 50);
+				g2d.drawString("total delay (sec) " + v.vehicleTotalWaitTime,
+						(int) p.x + 5, (int) p.y + 60);
+				g2d.drawString("behavior is " + d.activeBehavior.state(),
+						(int) p.x + 5, (int) p.y + 70);
 			}
-			
+
 			if (showVehicleDebugTraces) {
-        Vehicle vehicleInFront = v.vehicleInFront;
-        if (vehicleInFront != null) {
-          NodePoint pp = scaledXY(
-              Global.projection.convertLongToX(vehicleInFront.lon),
-              Global.projection.convertLatToY(vehicleInFront.lat));
-          g2d.setColor(Color.BLUE);
-          g2d.drawLine((int) pp.x, (int) pp.y, (int) p.x, (int) p.y);
-        }
-			  
-			  
-			  
-        Node nextNode = v.getDestinationNode();
-        if (nextNode != null) {
-          NodePoint pp = scaledXY(
-              Global.projection.convertLongToX(nextNode.lon),
-              Global.projection.convertLatToY(nextNode.lat));
-          g2d.setColor(Color.RED);
-          g2d.fillOval((int) pp.x - size / 2, (int) pp.y - size / 2,
-              size, size);
-          // System.out.println("nextnode is " + nextNode.id);
-        }
+				Vehicle vehicleInFront = v.vehicleInFront;
+				if (vehicleInFront != null) {
+					NodePoint pp = scaledXY(
+							Global.projection
+									.convertLongToX(vehicleInFront.lon),
+							Global.projection.convertLatToY(vehicleInFront.lat));
+					g2d.setColor(Color.BLUE);
+					g2d.drawLine((int) pp.x, (int) pp.y, (int) p.x, (int) p.y);
+				}
 
-        Node prevNode = v.getOriginNode();
-        if (prevNode != null) {
-          NodePoint pp = scaledXY(
-              Global.projection.convertLongToX(prevNode.lon),
-              Global.projection.convertLatToY(prevNode.lat));
-          g2d.setColor(Color.ORANGE);
-          g2d.fillOval((int) pp.x - size / 2, (int) pp.y - size / 2,
-              size, size);
-        }
+				Node nextNode = v.getDestinationNode();
+				if (nextNode != null) {
+					NodePoint pp = scaledXY(
+							Global.projection.convertLongToX(nextNode.lon),
+							Global.projection.convertLatToY(nextNode.lat));
+					g2d.setColor(Color.RED);
+					g2d.fillOval((int) pp.x - size / 2, (int) pp.y - size / 2,
+							size, size);
+					// System.out.println("nextnode is " + nextNode.id);
+				}
 
-        Node destNode = Global.openStreetMap.getNode(v.navigation
-        .getDestination());
-        NodePoint ppd = scaledXY(
-        Global.projection.convertLongToX(destNode.lon),
-        Global.projection.convertLatToY(destNode.lat));
-        g2d.setColor(Color.RED);
-        g2d.drawLine((int) ppd.x, (int) ppd.y, (int) p.x, (int) p.y);
+				Node prevNode = v.getOriginNode();
+				if (prevNode != null) {
+					NodePoint pp = scaledXY(
+							Global.projection.convertLongToX(prevNode.lon),
+							Global.projection.convertLatToY(prevNode.lat));
+					g2d.setColor(Color.ORANGE);
+					g2d.fillOval((int) pp.x - size / 2, (int) pp.y - size / 2,
+							size, size);
+				}
+
+				Node destNode = Global.openStreetMap.getNode(v.navigation
+						.getDestination());
+				NodePoint ppd = scaledXY(
+						Global.projection.convertLongToX(destNode.lon),
+						Global.projection.convertLatToY(destNode.lat));
+				g2d.setColor(Color.RED);
+				g2d.drawLine((int) ppd.x, (int) ppd.y, (int) p.x, (int) p.y);
 			}
 		}
 	}
-	
+
 	private void paintHUD() throws Exception {
 		if (hud == null) {
 			hud = new BufferedImage(getWidth(), getHeight(),
@@ -524,50 +498,52 @@ public class AppPanel extends JPanel {
 
 		g2d.setBackground(new Color(255, 255, 255, 0));
 		g2d.clearRect(0, 0, getWidth(), getHeight());
-		
+
 		g2d.setColor(Color.BLACK);
 		g2d.setFont(new Font("TimesRoman", Font.BOLD, 18));
-		 DecimalFormat df = new DecimalFormat("#.##");
-		 if (Global.simulator.simulatorTime() > 0)
-  	  g2d.drawString("Simulator Time: " + df.format(Global.simulator.simulatorTime()), 10, 30);
-  	  else
-  	  g2d.drawString("Simulator Time: 0", 10, 30);
-  	  
-	  g2d.drawString("Total Vehicles: " + Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
-	  g2d.drawString("Total Vehicles: " + Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
+		DecimalFormat df = new DecimalFormat("#.##");
+		if (Global.simulator.simulatorTime() > 0)
+			g2d.drawString(
+					"Simulator Time: "
+							+ df.format(Global.simulator.simulatorTime()), 10,
+					30);
+		else
+			g2d.drawString("Simulator Time: 0", 10, 30);
+
+		g2d.drawString("Total Vehicles: "
+				+ Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
+		g2d.drawString("Total Vehicles: "
+				+ Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
 	}
-	
-		private NodePoint distanceFromPointInDirectionOfPoint(double fromLat, double fromLon,
-  		                                                      double toLat, double toLon, double d) {
-  			double angle = -Math.atan2((toLat - fromLat), (toLon - fromLon));
-  			angle = Math.toDegrees(angle);
-  			if (angle < 0)
-  				angle = 360 + angle;
-  			angle = Math.toRadians(angle);
-  			double deltaLat = Math.sin(angle)*d;
-  			double deltaLon = Math.cos(angle)*d;
 
-  			// based on this we can negate deltaLat or deltaLon to the correct sign
-  			if (Math.toDegrees(angle) < 0) {
-  				deltaLat*=1;
-  				deltaLon*=1;
-  			}
-  			else if (Math.toDegrees(angle) > 45) {
-  				deltaLat*=-1;
-  				deltaLon*=1;
-  			}
-  			else {
-  				deltaLat*=-1;
-  				deltaLon*=1;
-  			}
+	private NodePoint distanceFromPointInDirectionOfPoint(double fromLat,
+			double fromLon, double toLat, double toLon, double d) {
+		double angle = -Math.atan2((toLat - fromLat), (toLon - fromLon));
+		angle = Math.toDegrees(angle);
+		if (angle < 0)
+			angle = 360 + angle;
+		angle = Math.toRadians(angle);
+		double deltaLat = Math.sin(angle) * d;
+		double deltaLon = Math.cos(angle) * d;
 
-  			double newLat = fromLat + deltaLat;
-  			double newLon = fromLon + deltaLon;
+		// based on this we can negate deltaLat or deltaLon to the correct sign
+		if (Math.toDegrees(angle) < 0) {
+			deltaLat *= 1;
+			deltaLon *= 1;
+		} else if (Math.toDegrees(angle) > 45) {
+			deltaLat *= -1;
+			deltaLon *= 1;
+		} else {
+			deltaLat *= -1;
+			deltaLon *= 1;
+		}
 
-  			return new NodePoint(newLat, newLon);
-  		}
+		double newLat = fromLat + deltaLat;
+		double newLon = fromLon + deltaLon;
 
-  	
+		return new NodePoint(newLat, newLon);
+	}
+
 	public void paintComponent(Graphics g) {
 		try {
 			// if (offsetX == -1)
@@ -587,7 +563,7 @@ public class AppPanel extends JPanel {
 
 			paintOverlay();
 			g.drawImage(overlay, 0, 0, null);
-			
+
 			paintHUD();
 			g.drawImage(hud, 0, 0, null);
 		} catch (Exception e) {

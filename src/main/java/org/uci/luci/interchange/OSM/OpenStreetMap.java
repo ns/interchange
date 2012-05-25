@@ -58,17 +58,17 @@ public class OpenStreetMap {
 			if (projectedMaxY == -1 || n.y > projectedMaxY)
 				projectedMaxY = n.y;
 		}
-		
+
 		widthInKm = 1;
 
 		heightInKm = 1;
-    // widthInKm = Utils.distance(Double.valueOf(getMinlat()),
-    //    Double.valueOf(getMinlon()), Double.valueOf(getMinlat()),
-    //    Double.valueOf(getMaxlon()), 'K');
-    // 
-    // heightInKm = Utils.distance(Double.valueOf(getMinlat()),
-    //    Double.valueOf(getMinlon()), Double.valueOf(getMaxlat()),
-    //    Double.valueOf(getMinlon()), 'K');
+		// widthInKm = Utils.distance(Double.valueOf(getMinlat()),
+		// Double.valueOf(getMinlon()), Double.valueOf(getMinlat()),
+		// Double.valueOf(getMaxlon()), 'K');
+		//
+		// heightInKm = Utils.distance(Double.valueOf(getMinlat()),
+		// Double.valueOf(getMinlon()), Double.valueOf(getMaxlat()),
+		// Double.valueOf(getMinlon()), 'K');
 		System.out.println("widthInKm = " + widthInKm + " heightInKm = "
 				+ heightInKm);
 	}
@@ -239,15 +239,15 @@ public class OpenStreetMap {
 			// }
 			return;
 		}
-		
+
 		for (int i = 0; i < w.nd.size(); i++) {
 			Node n = getNode(w.nd.get(i));
 			if (n == null) {
-			  System.out.println("Not adding way " + w.tags());
-			  return;
+				System.out.println("Not adding way " + w.tags());
+				return;
 			}
 		}
-		
+
 		// if (w.hasTag("building", "yes")) {
 		// for (int i = 0; i < w.nd.size(); i++) {
 		// removeNode(w.nd.get(i));
@@ -292,10 +292,10 @@ public class OpenStreetMap {
 		for (int i = 0; i < w.nd.size(); i++) {
 			// System.out.println("\t" + i);
 			Node n = getNode(w.nd.get(i));
-			
+
 			if (n == null) {
-			  System.out.println("way " + w.tags());
-			  System.out.println("couldnt find node " + w.nd.get(i));
+				System.out.println("way " + w.tags());
+				System.out.println("couldnt find node " + w.nd.get(i));
 			}
 
 			n.way = w;

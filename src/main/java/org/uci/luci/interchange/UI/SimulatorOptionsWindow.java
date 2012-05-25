@@ -24,42 +24,44 @@ public class SimulatorOptionsWindow {
 	public boolean waiting = true;
 	public boolean TypeOfIntersection;
 	protected JFrame f;
-	
-	public SimulatorOptionsWindow() throws Exception
-	{
+
+	public SimulatorOptionsWindow() throws Exception {
 		f = new JFrame("Interchange");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.add(new OptionsWindow());
 		f.pack();
 		f.setVisible(true);
-		f.setLocationRelativeTo(null);	
+		f.setLocationRelativeTo(null);
 	}
-	
-	private class OptionsWindow extends JPanel implements ActionListener
-	{
+
+	private class OptionsWindow extends JPanel implements ActionListener {
 		JComboBox mapChoice;
 		JTextField simSpeed;
 		ButtonGroup intersectionType;
-		
-		public OptionsWindow() throws Exception
-		{
-			//Parses Lib Directory for all Files to list as OSM
+
+		public OptionsWindow() throws Exception {
+			// Parses Lib Directory for all Files to list as OSM
 			File dir = new File("lib");
-			String[] maps = dir.list(new FilenameFilter(){public boolean accept(File arg0, String arg1){if(arg1.contains(".osm.xml"))return true;return false;}});
+			String[] maps = dir.list(new FilenameFilter() {
+				public boolean accept(File arg0, String arg1) {
+					if (arg1.contains(".osm.xml"))
+						return true;
+					return false;
+				}
+			});
 			if (maps == null) {
 				throw new Exception();
 			}
 			this.add(new JLabel("Map to Simulate"));
 			mapChoice = new JComboBox(maps);
 			this.add(mapChoice);
-			
-			
-			//Speed for Simulator Default is 10
+
+			// Speed for Simulator Default is 10
 			this.add(new JLabel("Simulator Speed"));
-			simSpeed = new JTextField("10",2);
+			simSpeed = new JTextField("10", 2);
 			this.add(simSpeed);
-			
-			//Traditional vs Interchange
+
+			// Traditional vs Interchange
 			intersectionType = new ButtonGroup();
 			JRadioButton t = new JRadioButton("Traditional");
 			t.setActionCommand("Traditional");
@@ -70,42 +72,38 @@ public class SimulatorOptionsWindow {
 			this.add(t);
 			t.setSelected(true);
 			intersectionType.add(t);
-			
-			
-			
-			
+
 			JButton subButton = new JButton("Start Simulation");
 			subButton.addActionListener(this);
 			this.add(subButton);
 		}
 
 		public void actionPerformed(ActionEvent arg0) {
-		
-			if(arg0.getActionCommand().equals("Start Simulation"))
-			{
-				if(submitValues())
+
+			if (arg0.getActionCommand().equals("Start Simulation")) {
+				if (submitValues())
 					f.setVisible(false);
 			}
 		}
-		
-		public boolean submitValues()
-		{
-      String map = (String) mapChoice.getSelectedItem();
-      if(map.equals(""))
-      {
-       JOptionPane.showMessageDialog(this, "Please Select a valid map file");
-       return false;
-      }
-      
-		  try {
-		    int simulationSpeed = Integer.parseInt(simSpeed.getText());
-		    String intersectionsType = intersectionType.getSelection().getActionCommand();
-  		  SimulationFactory.runSimulation(map, simulationSpeed, intersectionsType);
-		  }
-		  catch (Exception e) {
-		    e.printStackTrace();
-		  }
-      
+
+		public boolean submitValues() {
+			String map = (String) mapChoice.getSelectedItem();
+			if (map.equals("")) {
+				JOptionPane.showMessageDialog(this,
+						"Please Select a valid map file");
+				return false;
+			}
+
+			try {
+				int simulationSpeed = Integer.parseInt(simSpeed.getText());
+				String intersectionsType = intersectionType.getSelection()
+						.getActionCommand();
+				SimulationFactory.runSimulation(map, simulationSpeed,
+						intersectionsType);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			return true;
 		}
 	}

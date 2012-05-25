@@ -43,10 +43,11 @@ public class NodeTraversingMehanism {
 	public double distanceBetweenDestinationAndOriginNode() {
 		Node nextNode = getDestinationNode();
 		Node lastNode = getOriginNode();
-    // double d = Math.sqrt(Math.pow(lastNode.lat - nextNode.lat, 2)
-    //    + Math.pow(lastNode.lon - nextNode.lon, 2));
-    // return d;
-    return Utils.distance(nextNode.lat, nextNode.lon, lastNode.lat, lastNode.lon, 'K');
+		// double d = Math.sqrt(Math.pow(lastNode.lat - nextNode.lat, 2)
+		// + Math.pow(lastNode.lon - nextNode.lon, 2));
+		// return d;
+		return Utils.distance(nextNode.lat, nextNode.lon, lastNode.lat,
+				lastNode.lon, 'K');
 	}
 
 	// public double distanceToDestinationNode() {
@@ -94,19 +95,19 @@ public class NodeTraversingMehanism {
 	}
 
 	public double distanceToDestinationNode(double lat, double lon) {
-    Node nextNode = getDestinationNode();
-    // double d = Math.sqrt(Math.pow(lat - nextNode.lat, 2)
-    //    + Math.pow(lon - nextNode.lon, 2));
-    // return d;
-    return Utils.distance(lat, lon, nextNode.lat, nextNode.lon, 'K');
+		Node nextNode = getDestinationNode();
+		// double d = Math.sqrt(Math.pow(lat - nextNode.lat, 2)
+		// + Math.pow(lon - nextNode.lon, 2));
+		// return d;
+		return Utils.distance(lat, lon, nextNode.lat, nextNode.lon, 'K');
 	}
 
 	public double distanceFromOriginNode(double lat, double lon) {
-    Node lastNode = getOriginNode();
-    // double d = Math.sqrt(Math.pow(lat - lastNode.lat, 2)
-    //    + Math.pow(lon - lastNode.lon, 2));
-    // return d;
-    return Utils.distance(lat, lon, lastNode.lat, lastNode.lon, 'K');
+		Node lastNode = getOriginNode();
+		// double d = Math.sqrt(Math.pow(lat - lastNode.lat, 2)
+		// + Math.pow(lon - lastNode.lon, 2));
+		// return d;
+		return Utils.distance(lat, lon, lastNode.lat, lastNode.lon, 'K');
 	}
 
 	// private Node randomConnectedNode(Node n, Node excludeNode) {

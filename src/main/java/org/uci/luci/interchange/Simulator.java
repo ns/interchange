@@ -30,13 +30,13 @@ public class Simulator extends Thread {
 	int delay;
 	int simulatorTicksSinceCheck;
 	long simulatorTimeSinceCheck;
-	double tickLength = 1.0/60.0; // 1/60th of a sec
+	double tickLength = 1.0 / 60.0; // 1/60th of a sec
 	double simulatorTime = 0;
-	
-  public double simulatorTime() {
-    return simulatorTime;
-  }
-  
+
+	public double simulatorTime() {
+		return simulatorTime;
+	}
+
 	public Simulator() throws InterruptedException {
 		delay = 10;
 		lastSimulatorStepTotalVehicles = 0;
@@ -90,24 +90,25 @@ public class Simulator extends Thread {
 			int tick = 0;
 			simulatorTimeSinceCheck = System.nanoTime();
 
-      for (int i = 0; i < 100; i++) {
-       log("\t// generating vehicle");
-       Vehicle v = null;
-       VehicleDriver d = null;
-       try {
-                // v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
-                v = VehicleFactory.createVehicleAtRandomPoint();
-                d = VehicleDriverFactory.createVehicleDriver(v);
-                d.pickRandomDestinationAndGo();
-                // d.setDestinationAndGo("249586091");
-       } catch (NoPathToDestinationException e) {
-         if (d != null)
-           VehicleDriverFactory.destroyVehicleDriver(d);
-         if (v != null)
-           VehicleFactory.destroyVehicle(v);
-       }
-       System.out.println(i);
-      }
+			for (int i = 0; i < 100; i++) {
+				log("\t// generating vehicle");
+				Vehicle v = null;
+				VehicleDriver d = null;
+				try {
+					// v =
+					// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
+					v = VehicleFactory.createVehicleAtRandomPoint();
+					d = VehicleDriverFactory.createVehicleDriver(v);
+					d.pickRandomDestinationAndGo();
+					// d.setDestinationAndGo("249586091");
+				} catch (NoPathToDestinationException e) {
+					if (d != null)
+						VehicleDriverFactory.destroyVehicleDriver(d);
+					if (v != null)
+						VehicleFactory.destroyVehicle(v);
+				}
+				System.out.println(i);
+			}
 
 			while (true) {
 				if (paused) {
@@ -123,24 +124,25 @@ public class Simulator extends Thread {
 
 				log("// simulator tick begin");
 
-        // if (tick % 500 == 1) {
-        //   log("\t// generating vehicle");
-        //   Vehicle v = null;
-        //   VehicleDriver d = null;
-        //   try {
-        //     v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("123068182"));
-        //     // v = VehicleFactory.createVehicleAtRandomPoint();
-        // 
-        //     d = VehicleDriverFactory.createVehicleDriver(v);
-        //     d.setDestinationAndGo("122959098");
-        //     // d.pickRandomDestinationAndGo();
-        //   } catch (NoPathToDestinationException e) {
-        //     if (d != null)
-        //       VehicleDriverFactory.destroyVehicleDriver(d);
-        //     if (v != null)
-        //       VehicleFactory.destroyVehicle(v);
-        //   }
-        // }
+				// if (tick % 500 == 1) {
+				// log("\t// generating vehicle");
+				// Vehicle v = null;
+				// VehicleDriver d = null;
+				// try {
+				// v =
+				// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("123068182"));
+				// // v = VehicleFactory.createVehicleAtRandomPoint();
+				//
+				// d = VehicleDriverFactory.createVehicleDriver(v);
+				// d.setDestinationAndGo("122959098");
+				// // d.pickRandomDestinationAndGo();
+				// } catch (NoPathToDestinationException e) {
+				// if (d != null)
+				// VehicleDriverFactory.destroyVehicleDriver(d);
+				// if (v != null)
+				// VehicleFactory.destroyVehicle(v);
+				// }
+				// }
 
 				log("\t// drivers.tick()");
 				for (VehicleDriver d : VehicleDriverRegistry
@@ -219,7 +221,7 @@ public class Simulator extends Thread {
 				lastSimulatorStepTotalTime = duration;
 
 				// System.out.println("intersections.tick() + " + tick);
-				
+
 				simulatorTime += tickLength;
 
 				if (delay >= 1)
