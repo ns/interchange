@@ -11,37 +11,30 @@ import org.uci.luci.interchange.Registry.*;
 import org.uci.luci.interchange.Util.*;
 
 public class Vehicle {
-	private NodeTraversingMehanism nodeTraversingMehanism;
-	public int vin;
-	public double lat, lon;
-	// public double x, y;
-
+	public static double DISTANCE_TO_CONSIDER_AS_SAME = 0.003048;// in km
 	public static double MAX_ACCELERATION = 10; // 0-60mph in 10sec - in km/s^2
 	public static double MAX_NEG_ACCELERATION = -34.995; // 60-0mph in 120ft -
 															// in m/s^2
 	public static double MAX_SPEED = 80 * 1.609344; // 80mph
-
+	private NodeTraversingMehanism nodeTraversingMehanism;
+	public int vin;
+	public double lat, lon;
+	// public double x, y;
 	public double acceleration;
 	// don't touch these, only actuate acceleration
 	private double speed; // in km/h
 	public Vector2d velocity;
-
 	// lanes are numbered 0-(lanes-1) with 0 being the left-most lane.
 	// the highest number is the lane on the right shoulder of the street
 	private int onLaneNumber;
 	public String state = "";
 	boolean paused;
 	public boolean flagForRemoval = false;
-	public String preparingFor = "";
 	public Vehicle vehicleBehind, vehicleInFront;
-
 	// this is how the car will traverse terrain - by default randomly but you
 	// can set this to something that actually routes the car to a destination.
 	public Navigation navigation;
-
 	public double vehicleTotalWaitTime = 0;
-
-	public static double DISTANCE_TO_CONSIDER_AS_SAME = 0.003048;// in km
 
 	public Vehicle(double lat, double lon, String anOriginNodeId, int laneNumber)
 			throws NoPathToDestinationException {
@@ -58,8 +51,7 @@ public class Vehicle {
 		// setDestinationNodeId(aDestinationNodeId);
 		setOnLaneNumber(laneNumber);
 
-		this.navigation = new RandomNavigation(
-				nodeTraversingMehanism.getOriginNode().id);
+		this.navigation = null;
 	}
 
 	public double speed() {
@@ -131,9 +123,6 @@ public class Vehicle {
 		angle = Math.toDegrees(angle);
 		if (angle < 0)
 			angle = 360 + angle;
-
-		// System.out.println("angle = " + angle);
-
 		return Math.toRadians(angle);
 	}
 
@@ -239,32 +228,6 @@ public class Vehicle {
 		return nodeTraversingMehanism.getDestinationNode();
 	}
 
-	private void calculateVehicleBehind() {
-		Vehicle vehicle = null;
-
-		for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
-			// Vehicle v = entry.getValue();
-
-			if (this == v)
-				continue;
-
-			if (v.nodeTraversingMehanism.getOriginNode()
-					.equals(getOriginNode())) {
-				// at least on the same way, the way we can check if this
-				// vehicle is
-				// in behind us is by checking how far both vehicles are from
-				// their
-				// destinationNode
-				if (nodeTraversingMehanism.distanceToDestinationNode(lat, lon) < v.nodeTraversingMehanism
-						.distanceToDestinationNode(lat, lon)) {
-					vehicle = v;
-				}
-			}
-		}
-
-		vehicleBehind = vehicle;
-	}
-
 	public Intersection getNextIntersection() {
 		Node destNode = Global.openStreetMap.getNode(nodeTraversingMehanism
 				.getDestinationNode().id);
@@ -355,45 +318,6 @@ public class Vehicle {
 			vehicle = closestVehicleToNode(
 					nodeTraversingMehanism.getOriginNode(),
 					nodeTraversingMehanism.getDestinationNode());
-		// vehicles =
-		// Oracle.vehiclesWithNodeAsOrigin(nodeTraversingMehanism.getDestinationNode().id);
-		// if (vehicles == null) {
-		// vehicles =
-		// Oracle.vehiclesWithNodeAsOrigin(nodeTraversingMehanism.getDestinationNode().id);
-		// }
-		//
-		// for (String vin : vehicles) {
-		// Vehicle v = VehicleRegistry.getVehicle(vin);
-		//
-		// if (v == null) {
-		// continue;
-		// }
-		//
-		// if (v == this || v.getOnLaneNumber() != getOnLaneNumber())
-		// continue;
-		//
-		// if (vehicle == null || Utils.distance(lat, lon, v.lat, v.lon, 'K') <
-		// Utils.distance(lat, lon, vehicle.lat, vehicle.lon, 'K')) {
-		// vehicle = v;
-		// }
-		// }
-
-		// // check one node ahead
-		// if (vehicle == null) {
-		// Node destNode = getDestinationNode();
-		// if (destNode.connectedNodes.size() == 2) {
-		// if (destNode.connectedNodes.get(0).equals(getOriginNode()))
-		// vehicle = VehicleUtils
-		// .findVehicleClosestToOriginNodeOnLane(destNode.id,
-		// destNode.connectedNodes.get(1).id,
-		// getOnLaneNumber());
-		// else
-		// vehicle = VehicleUtils
-		// .findVehicleClosestToOriginNodeOnLane(destNode.id,
-		// destNode.connectedNodes.get(0).id,
-		// getOnLaneNumber());
-		// }
-		// }
 
 		vehicleInFront = vehicle;
 	}
@@ -449,12 +373,11 @@ public class Vehicle {
 		determineCurrentVelocity(tickLength);
 		Vector2d curVelocity = velocity;
 
-		if (velocity.mag() > nodeTraversingMehanism.distanceToDestinationNode(
-				lat, lon)) {
-			if (nodeTraversingMehanism.distanceToDestinationNode(lat, lon) > DISTANCE_TO_CONSIDER_AS_SAME) {
-				// System.out
-				// .println("we're too far to consider same but too close that we're going to hop over");
-				// this is just temporary
+		double distToDestination = nodeTraversingMehanism
+				.distanceToDestinationNode(lat, lon);
+
+		if (velocity.mag() > distToDestination) {
+			if (distToDestination > DISTANCE_TO_CONSIDER_AS_SAME) {
 				lat = getDestinationNode().lat;
 				lon = getDestinationNode().lon;
 			}

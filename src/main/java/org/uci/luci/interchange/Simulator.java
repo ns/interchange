@@ -50,12 +50,12 @@ public class Simulator extends Thread {
 				System.out.println("Simulator performance");
 
 				System.out.println("\tFree memory: "
-						+ humanReadableByteCount(Runtime.getRuntime()
+						+ Utils.humanReadableByteCount(Runtime.getRuntime()
 								.freeMemory(), false));
 				System.out
 						.println("\tMaximum memory: "
 								+ (Runtime.getRuntime().maxMemory() == Long.MAX_VALUE ? "no limit"
-										: humanReadableByteCount(Runtime
+										: Utils.humanReadableByteCount(Runtime
 												.getRuntime().maxMemory(),
 												false)));
 				System.out.println("\t" + lastSimulatorStepTotalVehicles
@@ -85,30 +85,128 @@ public class Simulator extends Thread {
 		new Timer(2000, taskPerformer).start();
 	}
 
+	public void initPhase() {
+		for (int i = 0; i < 100; i++) {
+			log("\t// generating vehicle");
+			Vehicle v = null;
+			VehicleDriver d = null;
+			try {
+				// v =
+				// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
+				v = VehicleFactory.createVehicleAtRandomPoint();
+				d = VehicleDriverFactory.createVehicleDriver(v);
+				d.pickRandomDestinationAndGo();
+				// d.setDestinationAndGo("249586091");
+			} catch (NoPathToDestinationException e) {
+				if (d != null)
+					VehicleDriverFactory.destroyVehicleDriver(d);
+				if (v != null)
+					VehicleFactory.destroyVehicle(v);
+			}
+			System.out.println(i);
+		}
+	}
+
+	public void generateVehiclesPhase(int tick) {
+		// if (tick % 500 == 1) {
+		// log("\t// generating vehicle");
+		// Vehicle v = null;
+		// VehicleDriver d = null;
+		// try {
+		// v =
+		// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("123068182"));
+		// // v = VehicleFactory.createVehicleAtRandomPoint();
+		//
+		// d = VehicleDriverFactory.createVehicleDriver(v);
+		// d.setDestinationAndGo("122959098");
+		// // d.pickRandomDestinationAndGo();
+		// } catch (NoPathToDestinationException e) {
+		// if (d != null)
+		// VehicleDriverFactory.destroyVehicleDriver(d);
+		// if (v != null)
+		// VehicleFactory.destroyVehicle(v);
+		// }
+		// }
+	}
+
+	public void vehicleDriversTickPhase(int tick) {
+		log("\t// drivers.tick()");
+		for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
+			if (d.vehicle.paused())
+				continue;
+
+			try {
+				d.tick(simulatorTime, tickLength, tick);
+			} catch (Exception e) {
+				log("\tCrash for v = " + d.vehicle.vin + " license = "
+						+ d.licence);
+				for (VehicleDriver dd : VehicleDriverRegistry
+						.allLicensedDrivers()) {
+					log("\t\ttick v = " + dd.vehicle.vin + " license = "
+							+ dd.licence);
+				}
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+	}
+
+	public void intersectionTickPhase(int tick) {
+		log("\t// intersections.tick()");
+		for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
+			i.tick(simulatorTime, tickLength, tick);
+		}
+	}
+
+	public void commitPhase(int tick) {
+		log("\t// moving vehicles");
+		for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
+			v.commit(simulatorTime, tickLength);
+		}
+	}
+
+	public void purgePhase(int tick) {
+		log("\t// removing flagged vehicles");
+		for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
+			if (d.vehicle.flagForRemoval) {
+				log("removing vehicle " + d.vehicle.vin);
+				Vehicle vv = d.vehicle;
+
+				VehicleDriverFactory.destroyVehicleDriver(d);
+				VehicleFactory.destroyVehicle(d.vehicle);
+
+				if (VehicleRegistry.allRegisteredVehicles().contains(vv)) {
+					log("clearly this doesn't work");
+				}
+
+				for (VehicleDriver dx : VehicleDriverRegistry
+						.allLicensedDrivers()) {
+					// if
+					// (VehicleDriverRegistry.allLicensedDrivers().contains(d))
+					// {
+					if (d.licence == dx.licence)
+						log("clearly this doesn't work (d)");
+				}
+
+				log("removed vehicle " + vv.vin);
+			}
+		}
+	}
+
+	public void collisionTestPhase(int tick) {
+		// log("\t// collision test");
+		// List<Vehicle> collisions =
+		// VehicleCollisionChecker.checkCollisions(VehicleRegistry.allRegisteredVehicles());
+		// for (Vehicle v : collisions)
+		// v.pause();
+	}
+
 	public void run() {
 		try {
 			int tick = 0;
 			simulatorTimeSinceCheck = System.nanoTime();
 
-			for (int i = 0; i < 100; i++) {
-				log("\t// generating vehicle");
-				Vehicle v = null;
-				VehicleDriver d = null;
-				try {
-					// v =
-					// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
-					v = VehicleFactory.createVehicleAtRandomPoint();
-					d = VehicleDriverFactory.createVehicleDriver(v);
-					d.pickRandomDestinationAndGo();
-					// d.setDestinationAndGo("249586091");
-				} catch (NoPathToDestinationException e) {
-					if (d != null)
-						VehicleDriverFactory.destroyVehicleDriver(d);
-					if (v != null)
-						VehicleFactory.destroyVehicle(v);
-				}
-				System.out.println(i);
-			}
+			initPhase();
 
 			while (true) {
 				if (paused) {
@@ -122,105 +220,18 @@ public class Simulator extends Thread {
 				long startTime = System.nanoTime();
 				long endTime;
 
-				log("// simulator tick begin");
-
-				// if (tick % 500 == 1) {
-				// log("\t// generating vehicle");
-				// Vehicle v = null;
-				// VehicleDriver d = null;
-				// try {
-				// v =
-				// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("123068182"));
-				// // v = VehicleFactory.createVehicleAtRandomPoint();
-				//
-				// d = VehicleDriverFactory.createVehicleDriver(v);
-				// d.setDestinationAndGo("122959098");
-				// // d.pickRandomDestinationAndGo();
-				// } catch (NoPathToDestinationException e) {
-				// if (d != null)
-				// VehicleDriverFactory.destroyVehicleDriver(d);
-				// if (v != null)
-				// VehicleFactory.destroyVehicle(v);
-				// }
-				// }
-
-				log("\t// drivers.tick()");
-				for (VehicleDriver d : VehicleDriverRegistry
-						.allLicensedDrivers()) {
-					if (d.vehicle.paused())
-						continue;
-
-					try {
-						d.tick(simulatorTime, tickLength, tick);
-					} catch (Exception e) {
-						log("\tCrash for v = " + d.vehicle.vin + " license = "
-								+ d.licence);
-						for (VehicleDriver dd : VehicleDriverRegistry
-								.allLicensedDrivers()) {
-							log("\t\ttick v = " + dd.vehicle.vin
-									+ " license = " + dd.licence);
-						}
-						e.printStackTrace();
-						System.exit(1);
-					}
-				}
-
-				log("\t// intersections.tick()");
-				for (Intersection i : IntersectionRegistry
-						.allRegisteredIntersections()) {
-					i.tick(simulatorTime, tickLength, tick);
-				}
-
-				log("\t// moving vehicles");
-				for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
-					v.commit(simulatorTime, tickLength);
-
-					// Vector2d curVelocity = v.velocity;
-					// v.lat = v.lat + curVelocity.x;
-					// v.lon = v.lon + curVelocity.y;
-				}
-
-				// log("\t// collision test");
-				// List<Vehicle> collisions =
-				// VehicleCollisionChecker.checkCollisions(VehicleRegistry.allRegisteredVehicles());
-				// for (Vehicle v : collisions)
-				// v.pause();
-
-				log("\t// removing flagged vehicles");
-				for (VehicleDriver d : VehicleDriverRegistry
-						.allLicensedDrivers()) {
-					if (d.vehicle.flagForRemoval) {
-						log("removing vehicle " + d.vehicle.vin);
-						Vehicle vv = d.vehicle;
-
-						VehicleDriverFactory.destroyVehicleDriver(d);
-						VehicleFactory.destroyVehicle(d.vehicle);
-
-						if (VehicleRegistry.allRegisteredVehicles()
-								.contains(vv)) {
-							log("clearly this doesn't work");
-						}
-
-						for (VehicleDriver dx : VehicleDriverRegistry
-								.allLicensedDrivers()) {
-							// if
-							// (VehicleDriverRegistry.allLicensedDrivers().contains(d))
-							// {
-							if (d.licence == dx.licence)
-								log("clearly this doesn't work (d)");
-						}
-
-						log("removed vehicle " + vv.vin);
-					}
-				}
+				generateVehiclesPhase(tick);
+				vehicleDriversTickPhase(tick);
+				intersectionTickPhase(tick);
+				commitPhase(tick);
+				collisionTestPhase(tick);
+				purgePhase(tick);
 
 				endTime = System.nanoTime();
 				long duration = endTime - startTime;
 				lastSimulatorStepTotalVehicles = VehicleRegistry
 						.allRegisteredVehicles().size();
 				lastSimulatorStepTotalTime = duration;
-
-				// System.out.println("intersections.tick() + " + tick);
 
 				simulatorTime += tickLength;
 
@@ -230,16 +241,6 @@ public class Simulator extends Thread {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static String humanReadableByteCount(long bytes, boolean si) {
-		int unit = si ? 1000 : 1024;
-		if (bytes < unit)
-			return bytes + " B";
-		int exp = (int) (Math.log(bytes) / Math.log(unit));
-		String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1)
-				+ (si ? "" : "i");
-		return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 
 	public void pause() {

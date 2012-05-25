@@ -9,31 +9,16 @@ import org.uci.luci.interchange.Exception.*;
 
 import java.util.ArrayList;
 
-// the driver looks at the gauges in the vehicle and actuates the car's
-// velocity based on relevant factors
 public class VehicleDriver {
 	public Vehicle vehicle;
-	// public Navigation navigation;
-
 	public int licence;
-	// double speed = 0.000001;
-	// double minSpeed = 0;
-	// double maxSpeed = 0.000002;
-	// double minimum_follow_distance = 10;
-	// double maximum_follow_distance = 20;
-
 	String nearbyIntersectionId = null;
+	private String state;
+	public VehicleDriverBehavior activeBehavior;
 
 	public VehicleDriver(Vehicle vehicle) {
 		this.vehicle = vehicle;
-		configureDriverBehavior();
-		// this.navigation = new Navigation(vehicle.getOriginNode().id);
-	}
-
-	public void navTick() {
-		// if (vehicle.state.equals("reached_intersection")) {
-		// System.out.println("we have to do something!");
-		// }
+		setState("general_acceleration");
 	}
 
 	public void pickRandomDestinationAndGo()
@@ -90,68 +75,7 @@ public class VehicleDriver {
 		return d2V != -1;
 	}
 
-	String preparingFor = "";
-
-	private void actuateVelocity() {
-		processIntersectionEvents();
-
-		boolean isNearIntersection = isNearIntersection();
-		boolean isNearVehicle = isNearVehicle();
-
-		// no intersection/too far away from intersection AND no vehicle in
-		// front
-		if (!isNearIntersection && !isNearVehicle) {
-			setState("general_acceleration");
-		} else if (isNearVehicle && isNearIntersection) {
-			double d2V = vehicle.getDistanceToVehicleInFront();
-			double d2I = vehicle.getDistanceToNextIntersection();
-
-			if (d2V > d2I)
-				setState("crossing_intersection");
-			else
-				setState("following_vehicle");
-		} else if (isNearVehicle) {
-			setState("following_vehicle");
-		} else if (isNearIntersection) {
-			setState("crossing_intersection");
-		}
-
-		// check if we're at the destination
-
-		// Node dest =
-		// Global.openStreetMap.getNode(navigation.getDestination());
-		// double dist =
-		// Math.sqrt(Math.pow(vehicle.lat-dest.lat,2)+Math.pow(vehicle.lon-dest.lon,2));
-		// if (dist < Vehicle.DISTANCE_TO_CONSIDER_AS_SAME &&
-		// vehicle.getDestinationNode().id.equals(navigation.getDestination()))
-		// {
-		// System.out.println("reached_destination");
-		// setState("reached_destination");
-		// System.out.println()
-		// }
-
-		if (vehicle.getDestinationNode().id.equals(vehicle.navigation
-				.getDestination())) {
-			if (vehicle.isAtDestinationNode()) {
-				setState("reached_destination");
-			}
-			// else {
-			// System.out.format("almost dest (%.8f)",
-			// vehicle.distanceToDestinationNode());
-			// System.out.println();
-			// }
-		} else if (vehicle.getOriginNode().id.equals(vehicle.navigation
-				.getDestination())) {
-			if (vehicle.isAtOriginNode()) {
-				setState("reached_destination");
-			}
-			// else {
-			// System.out.format("almost dest (%.8f)",
-			// vehicle.distanceFromOriginNode());
-			// System.out.println();
-			// }
-		}
-
+	private void handleLaneSwitching() {
 		Intersection ii = vehicle.getNextIntersection();
 		if (ii != null) {
 			Node nextNode = vehicle.navigation.nextNodeOnPath(vehicle
@@ -159,8 +83,6 @@ public class VehicleDriver {
 			if (nextNode != null) {
 				if (ii.isLeftTurn(vehicle.getOriginNode().id, nextNode.id)) {
 					// car needs to be in left lane
-
-					vehicle.preparingFor = "left";
 
 					if (vehicle.getOnLaneNumber() != 0) {
 						System.out.println(vehicle.vin
@@ -179,7 +101,6 @@ public class VehicleDriver {
 					}
 				} else if (ii.isRightTurn(vehicle.getOriginNode().id,
 						nextNode.id)) {
-					vehicle.preparingFor = "right";
 					// car needs to be in right lane
 					if (vehicle.getOnLaneNumber() != vehicle.getWay().lanes - 1) {
 						System.out.println(vehicle.vin
@@ -205,8 +126,42 @@ public class VehicleDriver {
 				}
 			}
 		}
+	}
 
-		vehicle.preparingFor = "";
+	private void determineBehavior() {
+		boolean isNearIntersection = isNearIntersection();
+		boolean isNearVehicle = isNearVehicle();
+
+		// no intersection/too far away from intersection AND no vehicle in
+		// front
+		if (!isNearIntersection && !isNearVehicle) {
+			setState("general_acceleration");
+		} else if (isNearVehicle && isNearIntersection) {
+			double d2V = vehicle.getDistanceToVehicleInFront();
+			double d2I = vehicle.getDistanceToNextIntersection();
+
+			if (d2V > d2I)
+				setState("crossing_intersection");
+			else
+				setState("following_vehicle");
+		} else if (isNearVehicle) {
+			setState("following_vehicle");
+		} else if (isNearIntersection) {
+			setState("crossing_intersection");
+		}
+
+		// check if we're at the destination
+		if (vehicle.getDestinationNode().id.equals(vehicle.navigation
+				.getDestination())) {
+			if (vehicle.isAtDestinationNode()) {
+				setState("reached_destination");
+			}
+		} else if (vehicle.getOriginNode().id.equals(vehicle.navigation
+				.getDestination())) {
+			if (vehicle.isAtOriginNode()) {
+				setState("reached_destination");
+			}
+		}
 	}
 
 	// this is called per-simulator tick which currently represents 1sec
@@ -214,21 +169,11 @@ public class VehicleDriver {
 	public void tick(double simTime, double tickLength, int tick) {
 		// this *must* be called first see vehicle.tick() for more info
 		vehicle.tick(simTime, tickLength, tick);
-
-		// here we make any changes to the vehicles meta-navigation system
-		// e.g. change destination, choose alternate routes, calculate expected
-		// delay, etc
-		navTick();
-
-		// here we determine the velocity of the vehicle based on a number of
-		// factors
-		actuateVelocity();
-
+		determineBehavior();
+		handleLaneSwitching();
 		behave(simTime, tickLength);
+		processIntersectionEvents();
 	}
-
-	private String state;
-	public VehicleDriverBehavior activeBehavior;
 
 	public String getState() {
 		return state;
@@ -253,10 +198,6 @@ public class VehicleDriver {
 		} else if (s.equals("reached_destination")) {
 			activeBehavior = new ReachedDestinationBehavior(this);
 		}
-	}
-
-	private void configureDriverBehavior() {
-		setState("general_acceleration");
 	}
 
 	private void behave(double simTime, double tickLength) {
