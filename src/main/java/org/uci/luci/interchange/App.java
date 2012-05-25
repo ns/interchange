@@ -9,20 +9,6 @@ public class App
 {
     public static void main( String[] args ) throws Exception
     {
-        OsmFileReader osmFileReader = new OsmFileReader();
-        osmFileReader.parseStructure();
-        OpenStreetMap openStreetMap = osmFileReader.osmHandler.openStreetMap;
-        
-        Global.openStreetMap = openStreetMap;
-        Global.openStreetMap.purgeUnconnectedNodes();
-        Global.openStreetMap.mergeUnwantedNodes();
-        Global.openStreetMap.projectUsingProjection(new MercatorProjection());
-        IntersectionRegistry.generateIntersections();
-        
-        AppWindow appWindow = new AppWindow();
-        
-        Simulator simulator = new Simulator();
-        Global.simulator = simulator;
-        simulator.start();
+        SimulatorOptionsWindow options = new SimulatorOptionsWindow();
     }
 }

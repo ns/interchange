@@ -429,7 +429,6 @@ public class AppPanel extends JPanel {
 
 		for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
 			Vehicle v = d.vehicle;
-			g2d.setColor(Color.BLUE);
 
 			NodePoint p = null;
 
@@ -442,9 +441,8 @@ public class AppPanel extends JPanel {
 			}
 			
 			int size = 5;
-			if (v.flagForRemoval)
-				g2d.setColor(Color.BLUE);
-
+			
+			g2d.setColor(Color.BLUE);
 			g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size, size);
 			
 			if (showVehicleInfo) {

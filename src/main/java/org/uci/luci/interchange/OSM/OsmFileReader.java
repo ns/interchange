@@ -22,7 +22,9 @@ public class OsmFileReader {
 	public String SAXError = "";
 	public String GeneralError = "";
 	
-	public OsmFileReader(){
+	public OsmFileReader(String mapFile){
+	  xmlfile = "lib/"+mapFile;
+	  
 		// instantiate our handler
     osmHandler = new OsmHandler();
     // instantiate our error handler
@@ -52,10 +54,7 @@ public class OsmFileReader {
       // assign our ErrorHandler
       xmlreader.setErrorHandler(osmErrorHandler);
 
-      xmlInputStream = new FileInputStream("lib/uci.osm.xml");
-      // xmlInputStream = new FileInputStream("lib/NewYork.osm.xml");
-      // xmlInputStream = new FileInputStream("lib/nyc.osm.xml");
-      // xmlInputStream = new FileInputStream("lib/paris_small.osm.xml");
+      xmlInputStream = new FileInputStream(xmlfile);
 
       xmlreader.parse(new InputSource(xmlInputStream));
       osmHandler.isLoaded=true;

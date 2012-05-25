@@ -68,14 +68,14 @@ public class AppWindow implements ActionListener {
 		sim.add(makeMenuItem("Stop"));
 		sim.add(makeMenuItem("Reset"));
 		sim.addSeparator();
-		sim.add(makeMenuItem("Speed Up"));
-		sim.add(makeMenuItem("Slow Down"));
+		sim.add(makeMenuItem("Speed Up\t -"));
+		sim.add(makeMenuItem("Slow Down\t = or +"));
 
 		JMenu view = new JMenu("View");
 		view.setMnemonic(KeyEvent.VK_V);
 		view.add(makeMenuItem("Center Map"));
-		view.add(makeMenuItem("Zoom In"));
-		view.add(makeMenuItem("Zoom Out"));
+		view.add(makeMenuItem("Zoom In\t\t ["));
+		view.add(makeMenuItem("Zoom Out\t ]"));
 		view.addSeparator();
 		view.add(makeMenuItem("Use White Background"));
 		view.add(makeMenuItem("Use Black Background"));
@@ -118,15 +118,15 @@ public class AppWindow implements ActionListener {
 				// Global.simulator.resetSimulator();
 			} else if (command.equals("Toggle Vehicle Traces")) {
 				appPanel.showVehicleDebugTraces = !appPanel.showVehicleDebugTraces;
-			} else if (command.equals("Slow Down")) {
+			} else if (command.equals("Speed Up\t = or +")) {
 				Global.simulator.changeSpeed(+10);
-			} else if (command.equals("Slow Down")) {
+			} else if (command.equals("Slow Down\t -")) {
 				Global.simulator.changeSpeed(-10);
-			} else if (command.equals("Zoom In")) {
+			} else if (command.equals("Zoom In\t\t ]")) {
 				System.out.println("here");
 				appPanel.zoomMap(+10);
 				// myPanel.centerMap();
-			} else if (command.equals("Zoom Out")) {
+			} else if (command.equals("Zoom Out\t [")) {
 				appPanel.zoomMap(-10);
 				// myPanel.centerMap();
 			} else if (command.equals("Center Map")) {

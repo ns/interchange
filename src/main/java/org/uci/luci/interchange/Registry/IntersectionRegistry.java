@@ -31,7 +31,7 @@ public class IntersectionRegistry {
 	  return new ArrayList<Intersection>(intersectionHash.values());
 	}
 	
-	public static void generateIntersections() {
+	public static void generateTraditionalIntersections() {
     List<Node> nodes = Global.openStreetMap.nodes();
     
     for (Node n : nodes) {
@@ -43,12 +43,34 @@ public class IntersectionRegistry {
         }
         
         if (n.connectedNodes.size() == 3) {
-          // IntersectionFactory.createThreeWayBiddingIntersectionForNode(n);
           IntersectionFactory.createThreeWayIntersectionForNode(n);
         }
         else if (n.connectedNodes.size() == 4) {
-          // IntersectionFactory.createFourWayBiddingIntersectionForNode(n);
           IntersectionFactory.createFourWayIntersectionForNode(n);
+        }
+        else {
+          System.out.println("Node "+ n.id + " has " + n.connectedNodes.size() + " connections!");
+        }
+      }
+    }
+  }
+  
+	public static void generateBiddingIntersections() {
+    List<Node> nodes = Global.openStreetMap.nodes();
+    
+    for (Node n : nodes) {
+      if (n.connectedNodes.size() > 2) {
+        
+        if (n.isHighwayNode()) {
+          IntersectionFactory.createHighwayRampForNode(n);
+          continue;
+        }
+        
+        if (n.connectedNodes.size() == 3) {
+          IntersectionFactory.createThreeWayBiddingIntersectionForNode(n);
+        }
+        else if (n.connectedNodes.size() == 4) {
+          IntersectionFactory.createFourWayBiddingIntersectionForNode(n);
         }
         else {
           System.out.println("Node "+ n.id + " has " + n.connectedNodes.size() + " connections!");
