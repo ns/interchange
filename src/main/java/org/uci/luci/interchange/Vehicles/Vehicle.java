@@ -39,6 +39,7 @@ public class Vehicle {
 	// cached
 	private Intersection nextIntersection;
 	private double distanceToNextIntersection;
+	private Node nodeAfterNextIntersection;
 	private Vehicle vehicleInFront;
 	private double distanceToVehicleInFront;
 	private boolean arrivedAtDestination;
@@ -264,6 +265,10 @@ public class Vehicle {
 		return distanceToNextIntersection;
 	}
 	
+	public Node getNodeAfterNextIntersection() {
+	  return nodeAfterNextIntersection;
+	}
+	
 	private void _getNextIntersection() {
 		Node destNode = Global.openStreetMap.getNode(nodeTraversingMehanism
 				.getDestinationNode().id);
@@ -271,7 +276,8 @@ public class Vehicle {
 		if (destNode.connectedNodes.size() > 2) {
 			nextIntersection = IntersectionRegistry.getIntersectionAtNode(destNode);
 			distanceToNextIntersection = nodeTraversingMehanism.distanceToDestinationNode(lat, lon);
-			
+			nodeAfterNextIntersection = navigation.nextNodeOnPath(nodeTraversingMehanism.getDestinationNode().id);
+  		
 			if (nextIntersection == null) {
 				pause();
 				System.out.println("nextIntersection = " + nextIntersection);
@@ -282,16 +288,19 @@ public class Vehicle {
 		else if (destNode.connectedNodes.size() == 2) {
 			nextIntersection = null;
 			distanceToNextIntersection = Double.MAX_VALUE;
+			nodeAfterNextIntersection = null;
 		}
 		// this is the end of the road
 		else if (destNode.connectedNodes.size() == 1) {
 			nextIntersection = null;
 			distanceToNextIntersection = -1;
+			nodeAfterNextIntersection = null;
 		}
 		else {
 			System.out.println("this also shouldn't happen...");
 			nextIntersection = null;
 			distanceToNextIntersection = -1;
+			nodeAfterNextIntersection = null;
 		}
 	}
 

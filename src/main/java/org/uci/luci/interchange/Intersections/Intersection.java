@@ -32,17 +32,13 @@ public abstract class Intersection {
 	}
 
 	// 0 = green, 1 = yellow, 2 = red
-	public int getLightForWayOnLane(Way w, String originNodeId, int lane) {
-		// System.out.println("w " + w + " lane = " + lane);
-		return 0;
+	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
+		return LightFSM.LIGHT.RED;
 	}
+	
+	public abstract String getState();
 
 	public abstract boolean isLeftTurn(String fromNodeId, String toNodeId);
 
 	public abstract boolean isRightTurn(String fromNodeId, String toNodeId);
-
-	// public List<Node> connectingNodes() {
-	// Node root = Global.openStreetMap.getNode(rootNodeId);
-	// return root.connectedNodes;
-	// }
 }

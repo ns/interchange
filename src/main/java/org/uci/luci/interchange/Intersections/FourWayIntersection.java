@@ -15,16 +15,19 @@ public class FourWayIntersection extends Intersection {
 
 	boolean ewGreen = false;
 	boolean nsGreen = false;
-
+	
 	int switchInterval;
 	double lastFlip = -1;
-
+	
+	private LightFSM lightFSM;
+	
 	public FourWayIntersection(String rootNodeId) {
 		super(rootNodeId);
 		Random randomGenerator = Utils.randomNumberGenerator();
 		switchInterval = 30;
 		lastFlip = -randomGenerator.nextInt(switchInterval);
 		generateGroups();
+		lightFSM = new LightFSM(30, 5, 10, 5);
 	}
 
 	private void generateGroups() {
@@ -40,18 +43,55 @@ public class FourWayIntersection extends Intersection {
 		eastNodeId = connectedNodes.get(0).id;
 		westNodeId = connectedNodes.get(1).id;
 	}
+	
+  // public int getLightForWayOnLane(Way w, String originNodeId, int lane) {
+  //   if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
+  //    return ewGreen ? 0 : 2;
+  //  } else if (originNodeId.equals(northNodeId) || originNodeId.equals(southNodeId)) {
+  //    return nsGreen ? 0 : 2;
+  //  } else {
+  //    System.out.println("no equals, called with originNodeId = " + originNodeId);
+  //  }
+  //  return 2;
+  // }
+
+	public String getState() {
+	  return lightFSM.getState();
+	}
 
 	// 0 = green, 1 = yellow, 2 = red
 	// public int getLightForWayOnLane(Way w, int lane) {
-	public int getLightForWayOnLane(Way w, String originNodeId, int lane) {
-		if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
-			return ewGreen ? 0 : 2;
-		} else if (originNodeId.equals(northNodeId) || originNodeId.equals(southNodeId)) {
-			return nsGreen ? 0 : 2;
-		} else {
-			System.out.println("no equals, called with originNodeId = " + originNodeId);
-		}
-		return 2;
+	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
+	  if (toNodeId == null) {
+      if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
+  	    return lightFSM.getLightForThrough1();
+      } else if (originNodeId.equals(northNodeId) || originNodeId.equals(southNodeId)) {
+  	    return lightFSM.getLightForThrough2();
+      } else {
+        return LightFSM.LIGHT.RED;
+      }
+	  }
+	  else {
+	    if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
+    	  if (isLeftTurn(originNodeId, toNodeId)) {
+    	    return lightFSM.getLightForLefts1();
+    	  } else if (isRightTurn(originNodeId, toNodeId)) {
+    	    return lightFSM.getLightForRights1();
+        } else {
+    	    return lightFSM.getLightForThrough1();
+    	  }
+      } else if (originNodeId.equals(northNodeId) || originNodeId.equals(southNodeId)) {
+    	  if (isLeftTurn(originNodeId, toNodeId)) {
+    	    return lightFSM.getLightForLefts2();
+    	  } else if (isRightTurn(originNodeId, toNodeId)) {
+    	    return lightFSM.getLightForRights2();
+        } else {
+    	    return lightFSM.getLightForThrough2();
+    	  }
+      } else {
+        return LightFSM.LIGHT.RED;
+      }
+	  }
 	}
 
 	public void tick(double simTime, double tickLength, int tick) {
@@ -65,6 +105,8 @@ public class FourWayIntersection extends Intersection {
 			}
 			lastFlip = simTime;
 		}
+		
+		lightFSM.tick(simTime, tickLength, tick);
 	}
 
 	public void vehicleIsApproaching(Vehicle v) {
@@ -79,13 +121,14 @@ public class FourWayIntersection extends Intersection {
 	public void vehicleIsLeaving(Vehicle v) {
 		// System.out.println("v " + v.vin + " is leaving " + id);
 	}
-
+	
 	public boolean isLeftTurn(String fromNodeId, String toNodeId) {
 		Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
 		Node node1 = Global.openStreetMap.getNode(fromNodeId);
 		Node node2 = Global.openStreetMap.getNode(toNodeId);
 		double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1,
 				node2);
+		System.out.println("angle = " + Math.toDegrees(angle));
 		if (Math.toDegrees(angle) < -45 && Math.toDegrees(angle) > -135)
 			return true;
 		return false;
@@ -97,6 +140,7 @@ public class FourWayIntersection extends Intersection {
 		Node node2 = Global.openStreetMap.getNode(toNodeId);
 		double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1,
 				node2);
+		System.out.println("angle = " + Math.toDegrees(angle));
 		if (Math.toDegrees(angle) > 45 && Math.toDegrees(angle) < 135)
 			return true;
 		return false;

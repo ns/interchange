@@ -361,6 +361,8 @@ public class AppPanel extends JPanel {
 			// (int)scaledRootNode.y-20);
 			// }
 
+			NodePoint rnP = scaledXY(rootNode.x, rootNode.y);
+			
 			for (Node connectedNode : rootNode.connectedNodes) {
 				Way w = Oracle.wayBetweenNodes(rootNode.id, connectedNode.id);
 
@@ -368,19 +370,18 @@ public class AppPanel extends JPanel {
 					System.out
 							.println("Warning: not drawing one way traffic lights");
 				} else {
-					NodePoint rnP = scaledXY(rootNode.x, rootNode.y);
-
-					int light = i.getLightForWayOnLane(null, connectedNode.id,
-							0);
+					LightFSM.LIGHT light = i.getLightForWayOnLane(null, connectedNode.id, null, 0);
 
 					NodePoint ccPUS = distanceFromPointInDirectionOfPoint(
 							rootNode.x, rootNode.y, connectedNode.x,
 							connectedNode.y, 10);
 					NodePoint cnP = scaledXY(ccPUS.x, ccPUS.y);
 
-					if (light == 0) {
+					if (light == LightFSM.LIGHT.GREEN) {
 						g2d.setColor(new Color(0, 255, 0, 100));
-					} else if (light == 2) {
+					} else if (light == LightFSM.LIGHT.YELLOW) {
+						g2d.setColor(new Color(255, 255, 0, 100));
+					} else if (light == LightFSM.LIGHT.RED) {
 						g2d.setColor(new Color(255, 0, 0, 100));
 					}
 
@@ -388,6 +389,10 @@ public class AppPanel extends JPanel {
 							(int) rnP.y);
 				}
 			}
+			
+			g2d.setColor(Color.BLACK);
+			g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
+			g2d.drawString(i.getState(), (int) rnP.x + 5, (int) rnP.y - 5);
 		}
 
 		g2d.setStroke(new BasicStroke(1f));

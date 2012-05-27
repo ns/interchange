@@ -16,18 +16,19 @@ public class HighwayRamp extends Intersection {
 
 	// 0 = green, 1 = yellow, 2 = red
 	// public int getLightForWayOnLane(Way w, int lane) {
-	public int getLightForWayOnLane(Way w, String originNodeId, int lane) {
-		return 0;
+	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
+	  return LightFSM.LIGHT.GREEN;
+	}
+	
+	public String getState() {
+	  return "Green";
 	}
 
-	public void tick(double simTime, double tickLength, int tick) {
-	}
+	public void tick(double simTime, double tickLength, int tick) {}
 
-	public void vehicleIsApproaching(Vehicle v) {
-	}
+	public void vehicleIsApproaching(Vehicle v) {}
 
-	public void vehicleIsLeaving(Vehicle v) {
-	}
+	public void vehicleIsLeaving(Vehicle v) {}
 
 	public boolean isLeftTurn(String fromNodeId, String toNodeId) {
 		return false;

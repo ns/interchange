@@ -24,40 +24,53 @@ public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
 	}
 
 	public void tick(double simTime, double tickLength) {
-		// System.out.println("IntersectionCrossingBehavior tick");
 		Intersection i = vehicle.getNextIntersection();
 		double d2I = vehicle.getDistanceToNextIntersection();
 
 		if (i == null) {
-			System.out.println("we're near an intersection but we don't know which yet. d="+d2I);
+			System.out.println("we're near an intersection but we don't know which yet. d = "+d2I);
 			vehicle.setAcceleration(0);
 			state = "maintaining speed";
 		} else {
 			// we're at the intersection
-			int light = i.getLightForWayOnLane(null,
-					vehicle.getOriginNode().id, vehicle.getOnLaneNumber());
-
+			LightFSM.LIGHT light = LightFSM.LIGHT.GREEN;
+			
+		  String directionalHint = "(?)";
+		  
+			if (vehicle.getNodeAfterNextIntersection() != null) {
+  			light = i.getLightForWayOnLane(null, vehicle.getOriginNode().id,
+  			  vehicle.getNodeAfterNextIntersection().id, vehicle.getOnLaneNumber());
+  		  boolean isLeft = i.isLeftTurn(vehicle.getOriginNode().id, vehicle.getNodeAfterNextIntersection().id);
+  		  boolean isRight = i.isRightTurn(vehicle.getOriginNode().id, vehicle.getNodeAfterNextIntersection().id);
+  		  if (isLeft)
+  		    directionalHint = "(Left)";
+  		  else if (isRight)
+  		    directionalHint = "(Right)";
+  		  else
+  		    directionalHint = "(Through)";
+		  }
+		  
+		  
 			// green
-			if (light == 0) {
+			if (light == LightFSM.LIGHT.GREEN) {
 				double speedLimit = vehicle.getWay().getSpeedLimit();
 				vehicle.setAcceleration(VehicleUtils
 						.determineNecessaryAcceleration(vehicle.speed(),
 								speedLimit, 0.1524));
-				state = "accel to speed limit";
+				state = "accel to speed limit " + directionalHint;
 			}
 			// yellow
-			else if (light == 1) {
-				System.out.println("yellow light");
+			else if (light == LightFSM.LIGHT.YELLOW) {
 				vehicle.setAcceleration(VehicleUtils
 						.determineNecessaryAcceleration(vehicle.speed(), 20,
 								d2I));
-				state = "accel to 20 km/h";
+				state = "accel to 20 km/h " + directionalHint;
 			}
 			// red and we're
-			else if (light == 2) {
+			else if (light == LightFSM.LIGHT.RED) {
 				if (d2I > DISTANCE_BEFORE_REACTING_TO_INTERSECTION) {
 					vehicle.setAcceleration(0);
-					state = "maintaining speed, far from light";
+					state = "maintaining speed, far from light " + directionalHint;
 				} else {
 					if (d2I < 0.01524)
 						vehicle.setAcceleration(Vehicle.MAX_NEG_ACCELERATION);
@@ -65,7 +78,7 @@ public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
 						vehicle.setAcceleration(VehicleUtils
 								.determineNecessaryAcceleration(
 										vehicle.speed(), 0, d2I - 0.01524));
-					state = "accel to 0";
+					state = "accel to 0 " + directionalHint;
 				}
 			}
 

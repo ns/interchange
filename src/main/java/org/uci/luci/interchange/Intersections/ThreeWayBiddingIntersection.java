@@ -38,19 +38,24 @@ public class ThreeWayBiddingIntersection extends Intersection {
 		connectedNodes.remove(g1.get(1));
 		northNodeId = connectedNodes.get(0).id;
 	}
+	
+	public String getState() {
+	  return "?";
+	}
 
 	// 0 = green, 1 = yellow, 2 = red
 	// public int getLightForWayOnLane(Way w, int lane) {
-	public int getLightForWayOnLane(Way w, String originNodeId, int lane) {
-		if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
-			return ewGreen ? 0 : 2;
-		} else if (originNodeId.equals(northNodeId)) {
-			return nsGreen ? 0 : 2;
-		} else {
-			System.out.println("no equals");
-		}
-
-		return 2;
+	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
+	  return LightFSM.LIGHT.RED;
+    // if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
+    //  return ewGreen ? 0 : 2;
+    // } else if (originNodeId.equals(northNodeId)) {
+    //  return nsGreen ? 0 : 2;
+    // } else {
+    //  System.out.println("no equals");
+    // }
+    // 
+    // return 2;
 	}
 
 	public void tick(double simTime, double tickLength, int tick) {
