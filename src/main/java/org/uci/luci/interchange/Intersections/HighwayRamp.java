@@ -29,12 +29,4 @@ public class HighwayRamp extends Intersection {
 	public void vehicleIsApproaching(Vehicle v) {}
 
 	public void vehicleIsLeaving(Vehicle v) {}
-
-	public boolean isLeftTurn(String fromNodeId, String toNodeId) {
-		return false;
-	}
-
-	public boolean isRightTurn(String fromNodeId, String toNodeId) {
-		return false;
-	}
 }

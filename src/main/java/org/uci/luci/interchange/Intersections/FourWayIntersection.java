@@ -121,28 +121,4 @@ public class FourWayIntersection extends Intersection {
 	public void vehicleIsLeaving(Vehicle v) {
 		// System.out.println("v " + v.vin + " is leaving " + id);
 	}
-	
-	public boolean isLeftTurn(String fromNodeId, String toNodeId) {
-		Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
-		Node node1 = Global.openStreetMap.getNode(fromNodeId);
-		Node node2 = Global.openStreetMap.getNode(toNodeId);
-		double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1,
-				node2);
-		System.out.println("angle = " + Math.toDegrees(angle));
-		if (Math.toDegrees(angle) < -45 && Math.toDegrees(angle) > -135)
-			return true;
-		return false;
-	}
-
-	public boolean isRightTurn(String fromNodeId, String toNodeId) {
-		Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
-		Node node1 = Global.openStreetMap.getNode(fromNodeId);
-		Node node2 = Global.openStreetMap.getNode(toNodeId);
-		double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1,
-				node2);
-		System.out.println("angle = " + Math.toDegrees(angle));
-		if (Math.toDegrees(angle) > 45 && Math.toDegrees(angle) < 135)
-			return true;
-		return false;
-	}
 }

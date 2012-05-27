@@ -28,9 +28,11 @@ public class Utils {
 
 	public static double angleBetweenNodesWithCenterNode(Node centerNode,
 			Node node1, Node node2) {
-		double angle = Utils.angleBetween2Lines(centerNode.lon, centerNode.lat,
-				node1.lon, node1.lat, centerNode.lon, centerNode.lat,
-				node2.lon, node2.lat);
+		double angle = Utils.angleBetween2Lines(node1.lat, node1.lon, centerNode.lat, centerNode.lon,
+		    node2.lat, node2.lon, centerNode.lat, centerNode.lon);
+    // double angle = Utils.angleBetween2Lines(centerNode.lon, centerNode.lat,
+    //    node1.lon, node1.lat, centerNode.lon, centerNode.lat,
+    //    node2.lon, node2.lat);
 		// System.out.println("\tangle = " + Math.toDegrees(angle));
 		return angle;
 	}

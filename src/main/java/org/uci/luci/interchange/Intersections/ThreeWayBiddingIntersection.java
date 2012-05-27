@@ -103,26 +103,4 @@ public class ThreeWayBiddingIntersection extends Intersection {
 		nsBids.remove(v.vin + "");
 		ewBids.remove(v.vin + "");
 	}
-
-	public boolean isLeftTurn(String fromNodeId, String toNodeId) {
-		Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
-		Node node1 = Global.openStreetMap.getNode(fromNodeId);
-		Node node2 = Global.openStreetMap.getNode(toNodeId);
-		double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1,
-				node2);
-		if (Math.toDegrees(angle) < -45 && Math.toDegrees(angle) > -135)
-			return true;
-		return false;
-	}
-
-	public boolean isRightTurn(String fromNodeId, String toNodeId) {
-		Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
-		Node node1 = Global.openStreetMap.getNode(fromNodeId);
-		Node node2 = Global.openStreetMap.getNode(toNodeId);
-		double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1,
-				node2);
-		if (Math.toDegrees(angle) > 45 && Math.toDegrees(angle) < 135)
-			return true;
-		return false;
-	}
 }

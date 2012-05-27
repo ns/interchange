@@ -36,9 +36,31 @@ public abstract class Intersection {
 		return LightFSM.LIGHT.RED;
 	}
 	
+	public double angle(String fromNodeId, String toNodeId) {
+	  Node rootNode = Global.openStreetMap.getNode(getRootNodeId());
+		Node node1 = Global.openStreetMap.getNode(fromNodeId);
+		Node node2 = Global.openStreetMap.getNode(toNodeId);
+		double angle = Utils.angleBetweenNodesWithCenterNode(rootNode, node1, node2);
+		return Math.toDegrees(angle);
+	}
+	
 	public abstract String getState();
 
-	public abstract boolean isLeftTurn(String fromNodeId, String toNodeId);
+	public boolean isLeftTurn(String fromNodeId, String toNodeId) {
+    double angle = angle(fromNodeId, toNodeId);
+		if (angle > 225 && angle < 315)
+		  return true;
+		if (angle < -45 && angle > -135)
+			return true;
+		return false;
+	}
 
-	public abstract boolean isRightTurn(String fromNodeId, String toNodeId);
+	public boolean isRightTurn(String fromNodeId, String toNodeId) {
+	  double angle = angle(fromNodeId, toNodeId);
+		if (angle < -225 && angle > -315)
+		  return true;
+		if (angle > 45 && angle < 135)
+			return true;
+		return false;
+	}
 }

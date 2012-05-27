@@ -154,6 +154,21 @@ public class AppPanel extends JPanel {
 				case 39: // right
 					windowProjector.offsetX -= 20;
 					break;
+				case (int)'V':
+				  showVehicleInfo = !showVehicleInfo;
+				  break;
+				case (int)'M':
+				  showMap = !showMap;
+				  break;
+				case (int)'D':
+				  showDistances = !showDistances;
+				  break;
+				case (int)'T':
+				  showVehicleDebugTraces = !showVehicleDebugTraces;
+				  break;
+				case (int)'N':
+				  showAllNodes = !showAllNodes;
+				  break;
 				default:
 					System.out.println(e.getKeyCode());
 					break;
@@ -456,6 +471,10 @@ public class AppPanel extends JPanel {
 						(int) p.x + 5, (int) p.y + 60);
 				g2d.drawString("behavior is " + d.activeBehavior.state(),
 						(int) p.x + 5, (int) p.y + 70);
+				if (v.getNextIntersection() != null && v.getOriginNode() != null && v.getNodeAfterNextIntersection() != null) {
+  				g2d.drawString("angle to intersection " + v.getNextIntersection().angle(v.getOriginNode().id, v.getNodeAfterNextIntersection().id),
+  						(int) p.x + 5, (int) p.y + 80);
+				}
 			}
 
 			if (showVehicleDebugTraces) {

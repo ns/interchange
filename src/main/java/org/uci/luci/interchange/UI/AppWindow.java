@@ -81,13 +81,13 @@ public class AppWindow implements ActionListener {
 		view.add(makeMenuItem("Use Black Background"));
 		view.addSeparator();
 		view.add(makeMenuItem("Toggle Place Names"));
-		view.add(makeMenuItem("Toggle Vehicle Info"));
+		view.add(makeMenuItem("Toggle Vehicle Info\t v"));
 
 		JMenu debug = new JMenu("Debug");
-		debug.add(makeMenuItem("Toggle Vehicle Traces"));
-		debug.add(makeMenuItem("Toggle Infrastructure Map"));
-		debug.add(makeMenuItem("Toggle Nodes"));
-		debug.add(makeMenuItem("Toggle Distances"));
+		debug.add(makeMenuItem("Toggle Vehicle Traces\t t"));
+		debug.add(makeMenuItem("Toggle Infrastructure Map\t m"));
+		debug.add(makeMenuItem("Toggle Nodes\t n"));
+		debug.add(makeMenuItem("Toggle Distances\t d"));
 
 		menubar.add(sim);
 		menubar.add(view);
@@ -116,7 +116,7 @@ public class AppWindow implements ActionListener {
 				Global.simulator.pause();
 			} else if (command.equals("Reset")) {
 				// Global.simulator.resetSimulator();
-			} else if (command.equals("Toggle Vehicle Traces")) {
+			} else if (command.equals("Toggle Vehicle Traces\t t")) {
 				appPanel.showVehicleDebugTraces = !appPanel.showVehicleDebugTraces;
 			} else if (command.equals("Speed Up\t = or +")) {
 				Global.simulator.changeSpeed(+10);
@@ -131,19 +131,19 @@ public class AppWindow implements ActionListener {
 				// myPanel.centerMap();
 			} else if (command.equals("Center Map")) {
 				appPanel.centerMap();
-			} else if (command.equals("Toggle Infrastructure Map")) {
+			} else if (command.equals("Toggle Infrastructure Map\t m")) {
 				appPanel.showMap = !appPanel.showMap;
 			} else if (command.equals("Use Black Background")) {
 				appPanel.backgroundColor = Color.black;
 			} else if (command.equals("Use White Background")) {
 				appPanel.backgroundColor = Color.white;
-			} else if (command.equals("Toggle Nodes")) {
+			} else if (command.equals("Toggle Nodes\t n")) {
 				appPanel.showAllNodes = !appPanel.showAllNodes;
 			} else if (command.equals("Toggle Place Names")) {
 				appPanel.showPlaceNames = !appPanel.showPlaceNames;
-			} else if (command.equals("Toggle Vehicle Info")) {
+			} else if (command.equals("Toggle Vehicle Info\t v")) {
 				appPanel.showVehicleInfo = !appPanel.showVehicleInfo;
-			} else if (command.equals("Toggle Distances")) {
+			} else if (command.equals("Toggle Distances\t d")) {
 				appPanel.showDistances = !appPanel.showDistances;
 			}
 		} catch (Exception ex) {
