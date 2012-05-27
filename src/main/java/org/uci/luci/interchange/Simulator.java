@@ -86,13 +86,13 @@ public class Simulator extends Thread {
 	}
 
 	public void initPhase() {
-		for (int i = 0; i < 100; i++) {
+	  int numVehiclesToGenerate = 100;
+		for (int i = 0; i < numVehiclesToGenerate; i++) {
 			log("\t// generating vehicle");
 			Vehicle v = null;
 			VehicleDriver d = null;
 			try {
-				// v =
-				// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
+				// v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
 				v = VehicleFactory.createVehicleAtRandomPoint();
 				d = VehicleDriverFactory.createVehicleDriver(v);
 				d.pickRandomDestinationAndGo();
@@ -103,7 +103,7 @@ public class Simulator extends Thread {
 				if (v != null)
 					VehicleFactory.destroyVehicle(v);
 			}
-			System.out.println(i);
+			System.out.println("Generated vehicle " + i + " of " + numVehiclesToGenerate);
 		}
 	}
 

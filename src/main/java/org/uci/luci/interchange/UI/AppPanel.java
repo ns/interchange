@@ -169,9 +169,6 @@ public class AppPanel extends JPanel {
 				case (int)'N':
 				  showAllNodes = !showAllNodes;
 				  break;
-				default:
-					System.out.println(e.getKeyCode());
-					break;
 				}
 			}
 

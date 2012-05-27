@@ -123,7 +123,6 @@ public class Vehicle {
 					setOnLaneNumber(getWay().lanes - 1);
 			} else {
 			  setDestinationNodeId(null);
-				System.out.println("vehicle.tick() " + vin + " reached destination");
 				this.flagForRemoval = true;
 				arrivedAtDestination = true;
 			}

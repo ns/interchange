@@ -234,9 +234,6 @@ public class OpenStreetMap {
 				&& !w.hasTag("highway", "living_street")
 				&& !w.hasTag("highway", "residential")
 				&& !w.hasTag("highway", "living_street")) {
-			// for (int i = 0; i < w.nd.size(); i++) {
-			// removeNode(w.nd.get(i));
-			// }
 			return;
 		}
 
@@ -247,21 +244,8 @@ public class OpenStreetMap {
 				return;
 			}
 		}
-
-		// if (w.hasTag("building", "yes")) {
-		// for (int i = 0; i < w.nd.size(); i++) {
-		// removeNode(w.nd.get(i));
-		// }
-		// return;
-		// }
-
-		// System.out.println("\toneway=" + _way.getTag("oneway"));
-		// System.out.println("\tmaxspeed=" + _way.getTag("maxspeed"));
-		// System.out.println("\tlanes=" + _way.getTag("lanes"));
-		// System.out.println("\thighway=" + _way.getTag("highway"));
-
+		
 		if (w.hasTag("lanes")) {
-			System.out.println("\thighway=" + w.getTag("highway"));
 			w.lanes = Integer.parseInt(w.getTag("lanes"));
 		} else {
 			String highway = w.getTag("highway");
@@ -278,7 +262,7 @@ public class OpenStreetMap {
 				w.lanes = 1;
 			} else {
 				w.lanes = 1;
-				System.out.println("\thighway=" + w.getTag("highway"));
+        // System.out.println("\thighway=" + w.getTag("highway"));
 			}
 		}
 

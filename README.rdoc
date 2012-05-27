@@ -1,0 +1,38 @@
+== Interchange
+
+Interchange is a macro-scale traffic simulator. You can use any OSM file as the infrastructure, Interchange will attempt to auto-detect roads, intersections, etc.
+
+* Interchange is still a work in progress and there are serious bugs and lots of undocumented code.
+
+== Quickstart
+
+1. Cleaning
+
+    mvn clean
+
+2. Building
+
+    mvn package
+
+3. Running
+
+    On OS X / Linux
+      ./interchange
+
+    On Windows & Other
+      java -jar target/interchange-1.0-SNAPSHOT.jar
+
+== Features
+* Import OSM files to simulate any area of the world
+* Vehicles accelerate and decelerate at real-world rates.
+* Vehicles/Drivers know and follow speed limits.
+* Vehicles/Drivers have a few behaviors they switch between including following other vehicles, crossing intersections, and general.
+* Vehicles/Drivers switch between lanes and follow most laws including being in the left-most lane for left turns.
+
+== Limitations
+* Only one vehicle type/spec is supported.
+* Only three-way and four-way intersections are supported.
+* Drivers strictly follow all implemented laws, there is no chance for vehicles to collide or run red lines. (and it shouldn't happen).
+* Only relatively small OSM files work well. (~5mi x 5mi).
+* Interface does not render lanes although they are simulated.
+* Edge case: there is a snapping effect where fast-moving vehicles may not move at the appropriate delta per tick
