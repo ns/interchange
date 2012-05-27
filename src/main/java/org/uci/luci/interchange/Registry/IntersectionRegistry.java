@@ -4,6 +4,7 @@ import org.uci.luci.interchange.Intersections.*;
 import org.uci.luci.interchange.Factory.*;
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Exception.*;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -31,12 +32,11 @@ public class IntersectionRegistry {
 		return new ArrayList<Intersection>(intersectionHash.values());
 	}
 
-	public static void generateTraditionalIntersections() {
+	public static void generateTraditionalIntersections() throws UnknownIntersectionTypeException {
 		List<Node> nodes = Global.openStreetMap.nodes();
 
 		for (Node n : nodes) {
 			if (n.connectedNodes.size() > 2) {
-
 				if (n.isHighwayNode()) {
 					IntersectionFactory.createHighwayRampForNode(n);
 					continue;
@@ -49,12 +49,13 @@ public class IntersectionRegistry {
 				} else {
 					System.out.println("Node " + n.id + " has "
 							+ n.connectedNodes.size() + " connections!");
+    			throw new UnknownIntersectionTypeException();
 				}
 			}
 		}
 	}
 
-	public static void generateBiddingIntersections() {
+	public static void generateBiddingIntersections() throws UnknownIntersectionTypeException {
 		List<Node> nodes = Global.openStreetMap.nodes();
 
 		for (Node n : nodes) {
@@ -74,6 +75,7 @@ public class IntersectionRegistry {
 				} else {
 					System.out.println("Node " + n.id + " has "
 							+ n.connectedNodes.size() + " connections!");
+      			throw new UnknownIntersectionTypeException();
 				}
 			}
 		}

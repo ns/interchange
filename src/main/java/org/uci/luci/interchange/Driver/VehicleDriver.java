@@ -76,6 +76,9 @@ public class VehicleDriver {
 	}
 
 	private void handleLaneSwitching() {
+	  if (vehicle.hasArrivedAtDestination())
+  	  return;
+  	
 		Intersection ii = vehicle.getNextIntersection();
 		if (ii != null) {
 			Node nextNode = vehicle.navigation.nextNodeOnPath(vehicle
@@ -149,19 +152,11 @@ public class VehicleDriver {
 		} else if (isNearIntersection) {
 			setState("crossing_intersection");
 		}
-
+		
 		// check if we're at the destination
-		if (vehicle.getDestinationNode().id.equals(vehicle.navigation
-				.getDestination())) {
-			if (vehicle.isAtDestinationNode()) {
-				setState("reached_destination");
-			}
-		} else if (vehicle.getOriginNode().id.equals(vehicle.navigation
-				.getDestination())) {
-			if (vehicle.isAtOriginNode()) {
-				setState("reached_destination");
-			}
-		}
+    if (vehicle.hasArrivedAtDestination()) {
+      setState("reached_destination");
+    }
 	}
 
 	// this is called per-simulator tick which currently represents 1sec

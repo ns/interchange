@@ -29,16 +29,13 @@ public class IntersectionCrossingBehavior implements VehicleDriverBehavior {
 		double d2I = vehicle.getDistanceToNextIntersection();
 
 		if (i == null) {
-			System.out
-					.println("we're near an intersection but we don't know which yet @_@.");
+			System.out.println("we're near an intersection but we don't know which yet. d="+d2I);
 			vehicle.setAcceleration(0);
 			state = "maintaining speed";
 		} else {
 			// we're at the intersection
 			int light = i.getLightForWayOnLane(null,
 					vehicle.getOriginNode().id, vehicle.getOnLaneNumber());
-			// System.out.println("i = " + i.id + " getLightForWayOnLane() = " +
-			// light);
 
 			// green
 			if (light == 0) {

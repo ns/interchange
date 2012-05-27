@@ -46,13 +46,11 @@ public class FourWayIntersection extends Intersection {
 	public int getLightForWayOnLane(Way w, String originNodeId, int lane) {
 		if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
 			return ewGreen ? 0 : 2;
-		} else if (originNodeId.equals(northNodeId)
-				|| originNodeId.equals(southNodeId)) {
+		} else if (originNodeId.equals(northNodeId) || originNodeId.equals(southNodeId)) {
 			return nsGreen ? 0 : 2;
 		} else {
-			System.out.println("no equals");
+			System.out.println("no equals, called with originNodeId = " + originNodeId);
 		}
-
 		return 2;
 	}
 

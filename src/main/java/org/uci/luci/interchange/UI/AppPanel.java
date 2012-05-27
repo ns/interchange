@@ -404,20 +404,33 @@ public class AppPanel extends JPanel {
 				p = scaledXY(Global.projection.convertLongToX(v.lon),
 						Global.projection.convertLatToY(v.lat));
 			}
-
+			
 			int size = 5;
-
-			g2d.setColor(Color.BLUE);
-			g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size, size);
+			
+			if (v.paused()) {
+				size = 10;
+				g2d.setColor(Color.MAGENTA);
+				g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size, size);
+			}
+			else {
+				g2d.setColor(Color.BLUE);
+				g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size, size);
+			}
 
 			if (showVehicleInfo) {
 				g2d.setColor(Color.BLACK);
 				g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
 				g2d.drawString("vin " + v.vin, (int) p.x + 5, (int) p.y);
-				g2d.drawString("origin " + v.navigation.getOrigin(),
-						(int) p.x + 5, (int) p.y + 10);
-				g2d.drawString("dest " + v.navigation.getDestination(),
-						(int) p.x + 5, (int) p.y + 20);
+				if (v.navigation != null) {
+          g2d.drawString("origin " + (v.navigation.getOrigin() == null ? "(none)" : v.navigation.getOrigin()),
+             (int) p.x + 5, (int) p.y + 10);
+          g2d.drawString("dest " + (v.navigation.getDestination() == null ? "(none)" : v.navigation.getDestination()),
+             (int) p.x + 5, (int) p.y + 20);
+         }
+         else {
+           g2d.drawString("origin (none)", (int) p.x + 5, (int) p.y + 10);
+           g2d.drawString("dest (none)", (int) p.x + 5, (int) p.y + 20);
+         }
 				g2d.drawString("km/h " + v.speed(), (int) p.x + 5,
 						(int) p.y + 30);
 				g2d.drawString("km/s^2 " + v.acceleration, (int) p.x + 5,
@@ -441,7 +454,7 @@ public class AppPanel extends JPanel {
 			}
 
 			if (showVehicleDebugTraces) {
-				Vehicle vehicleInFront = v.vehicleInFront;
+				Vehicle vehicleInFront = v.getVehicleInFront();
 				if (vehicleInFront != null) {
 					NodePoint pp = scaledXY(
 							Global.projection

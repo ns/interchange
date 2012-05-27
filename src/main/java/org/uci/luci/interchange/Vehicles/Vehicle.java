@@ -30,11 +30,18 @@ public class Vehicle {
 	public String state = "";
 	boolean paused;
 	public boolean flagForRemoval = false;
-	public Vehicle vehicleBehind, vehicleInFront;
+
 	// this is how the car will traverse terrain - by default randomly but you
 	// can set this to something that actually routes the car to a destination.
 	public Navigation navigation;
 	public double vehicleTotalWaitTime = 0;
+	
+	// cached
+	private Intersection nextIntersection;
+	private double distanceToNextIntersection;
+	private Vehicle vehicleInFront;
+	private double distanceToVehicleInFront;
+	private boolean arrivedAtDestination;
 
 	public Vehicle(double lat, double lon, String anOriginNodeId, int laneNumber)
 			throws NoPathToDestinationException {
@@ -43,6 +50,7 @@ public class Vehicle {
 		this.paused = false;
 		this.lat = lat;
 		this.lon = lon;
+		this.arrivedAtDestination = false;
 
 		// x = Global.projection.convertLongToX(lon);
 		// y = Global.projection.convertLatToY(lat);
@@ -99,9 +107,13 @@ public class Vehicle {
 	// must figure out where he wants to take the car
 	// *this should only be called by the driver*
 	public void tick(double simTime, double tickLength, int tick) {
+	  if (hasArrivedAtDestination())
+  	  return;
+  	
 		if (isAtDestinationNode()) {
-			setOriginNodeId(getDestinationNode().id);
 			Node nextNode = getNextNode();
+			
+			setOriginNodeId(getDestinationNode().id);
 
 			if (nextNode != null) {
 				setDestinationNodeId(nextNode.id);
@@ -109,13 +121,29 @@ public class Vehicle {
 				if (getOnLaneNumber() > getWay().lanes - 1)
 					setOnLaneNumber(getWay().lanes - 1);
 			} else {
-				System.out.println(vin + " reached destination");
+			  setDestinationNodeId(null);
+				System.out.println("vehicle.tick() " + vin + " reached destination");
 				this.flagForRemoval = true;
+				arrivedAtDestination = true;
 			}
 		}
+		
+		if (hasArrivedAtDestination())
+  	  return;
+	  
+		_getNextIntersection();
+		_getVehicleInFront();
+	}
+	
+	public boolean hasArrivedAtDestination() {
+	  return arrivedAtDestination;
 	}
 
 	private double angleOfTravel() {
+	  if (hasArrivedAtDestination()) {
+	    return 0;
+    }
+    
 		Node lastNode = getOriginNode();
 		Node nextNode = getDestinationNode();
 		double angle = -Math.atan2((nextNode.lat - lastNode.lat),
@@ -227,59 +255,55 @@ public class Vehicle {
 	public Node getDestinationNode() {
 		return nodeTraversingMehanism.getDestinationNode();
 	}
-
+	
 	public Intersection getNextIntersection() {
-		Node destNode = Global.openStreetMap.getNode(nodeTraversingMehanism
-				.getDestinationNode().id);
-		// this is an intersection
-		if (destNode.connectedNodes.size() > 2) {
-			return IntersectionRegistry.getIntersectionAtNode(destNode);
-		}
-		// this is a simple node
-		else if (destNode.connectedNodes.size() == 2) {
-			return null;
-		}
-		// this is the end of the road
-		else if (destNode.connectedNodes.size() == 1) {
-			return null;
-		}
-		System.out.println("this also shouldn't happen...");
-		return null;
+		return nextIntersection;
 	}
-
+	
 	public double getDistanceToNextIntersection() {
+		return distanceToNextIntersection;
+	}
+	
+	private void _getNextIntersection() {
 		Node destNode = Global.openStreetMap.getNode(nodeTraversingMehanism
 				.getDestinationNode().id);
 		// this is an intersection
 		if (destNode.connectedNodes.size() > 2) {
-			return nodeTraversingMehanism.distanceToDestinationNode(lat, lon);
+			nextIntersection = IntersectionRegistry.getIntersectionAtNode(destNode);
+			distanceToNextIntersection = nodeTraversingMehanism.distanceToDestinationNode(lat, lon);
+			
+			if (nextIntersection == null) {
+				pause();
+				System.out.println("nextIntersection = " + nextIntersection);
+				System.out.println("d = " + distanceToNextIntersection);
+			}
 		}
 		// this is a simple node
 		else if (destNode.connectedNodes.size() == 2) {
-			return Integer.MAX_VALUE;
+			nextIntersection = null;
+			distanceToNextIntersection = Double.MAX_VALUE;
 		}
 		// this is the end of the road
 		else if (destNode.connectedNodes.size() == 1) {
-			return -1;
+			nextIntersection = null;
+			distanceToNextIntersection = -1;
 		}
-		// what??
-		// else if (destNode.connectedNodes.size() == 0) {
-		System.out.println("this also shouldn't happen");
-		// return -1;
-		// }
-		return -1;
+		else {
+			System.out.println("this also shouldn't happen...");
+			nextIntersection = null;
+			distanceToNextIntersection = -1;
+		}
 	}
 
 	public double getDistanceToVehicleInFront() {
-		calculateVehicleInFront();
-		if (vehicleInFront == null)
-			return -1;
-		else
-			return Utils.distance(lat, lon, vehicleInFront.lat,
-					vehicleInFront.lon, 'K');
+	  return distanceToVehicleInFront;
 	}
-
-	private void calculateVehicleInFront() {
+	
+	public Vehicle getVehicleInFront() {
+	  return vehicleInFront;
+	}
+	
+	private void _getVehicleInFront() {
 		Vehicle vehicle = null;
 
 		List<String> vehicles = Oracle
@@ -296,6 +320,7 @@ public class Vehicle {
 			}
 
 			if (v == this
+			    || v.getDestinationNode() == null
 					|| !v.getDestinationNode().equals(getDestinationNode())
 					|| v.getOnLaneNumber() != getOnLaneNumber())
 				continue;
@@ -318,8 +343,15 @@ public class Vehicle {
 			vehicle = closestVehicleToNode(
 					nodeTraversingMehanism.getOriginNode(),
 					nodeTraversingMehanism.getDestinationNode());
-
+		
 		vehicleInFront = vehicle;
+		
+		if (vehicleInFront == null) {
+		  distanceToVehicleInFront = -1;
+		}
+		else {
+		  distanceToVehicleInFront = Utils.distance(lat, lon, vehicleInFront.lat, vehicleInFront.lon, 'K');
+		}
 	}
 
 	private Vehicle closestVehicleToNode(Node from, Node n) {
@@ -336,8 +368,9 @@ public class Vehicle {
 		if (vehicles != null) {
 			for (String vin : vehicles) {
 				Vehicle v = VehicleRegistry.getVehicle(vin);
-
+				
 				if (v == null
+				    || v.nodeTraversingMehanism.getDestinationNode() == null
 						|| v == this
 						|| v.getOnLaneNumber() != getOnLaneNumber()
 						|| !v.nodeTraversingMehanism.getDestinationNode()
@@ -369,12 +402,19 @@ public class Vehicle {
 			System.out.println("skipping " + vin + " p = " + paused());
 			return;
 		}
-
+		
 		determineCurrentVelocity(tickLength);
 		Vector2d curVelocity = velocity;
-
-		double distToDestination = nodeTraversingMehanism
-				.distanceToDestinationNode(lat, lon);
+		
+		double distToDestination;
+		
+		if (hasArrivedAtDestination()) {
+		  distToDestination = 0;
+		}
+		else {
+		  distToDestination = nodeTraversingMehanism
+  				.distanceToDestinationNode(lat, lon);
+		}
 
 		if (velocity.mag() > distToDestination) {
 			if (distToDestination > DISTANCE_TO_CONSIDER_AS_SAME) {

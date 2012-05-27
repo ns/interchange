@@ -47,9 +47,8 @@ public class ThreeWayIntersection extends Intersection {
 		} else if (originNodeId.equals(northNodeId)) {
 			return nsGreen ? 0 : 2;
 		} else {
-			System.out.println("no equals");
+			System.out.println("no equals, called with originNodeId = " + originNodeId);
 		}
-
 		return 2;
 	}
 

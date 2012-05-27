@@ -21,7 +21,7 @@ public class FollowingBehavior implements VehicleDriverBehavior {
 
 	public void tick(double simTime, double tickLength) {
 		double d = vehicle.getDistanceToVehicleInFront();
-		Vehicle vehicleInFront = vehicle.vehicleInFront;
+		Vehicle vehicleInFront = vehicle.getVehicleInFront();
 		try {
 			if (d == -1 || d > 0.2) { // 0.2 km
 				double speedLimit = vehicle.getWay().getSpeedLimit();
