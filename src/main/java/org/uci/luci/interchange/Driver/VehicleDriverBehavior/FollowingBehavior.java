@@ -23,11 +23,11 @@ public class FollowingBehavior implements VehicleDriverBehavior {
 		double d = vehicle.getDistanceToVehicleInFront();
 		Vehicle vehicleInFront = vehicle.getVehicleInFront();
 		try {
-			if (d == -1 || d > 0.2) { // 0.2 km
+			if (d == -1 || d > 0.018288) { // 60 ft in km
 				double speedLimit = vehicle.getWay().getSpeedLimit();
 				vehicle.setAcceleration(VehicleUtils
 						.determineNecessaryAcceleration(vehicle.speed(),
-								speedLimit, 0.024384));
+								speedLimit, d));
 			} else {
 				if (d < 0.009144) // 30 ft to km between cars
 					vehicle.setAcceleration(Vehicle.MAX_NEG_ACCELERATION);

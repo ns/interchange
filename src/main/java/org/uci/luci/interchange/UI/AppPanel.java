@@ -526,13 +526,15 @@ public class AppPanel extends JPanel {
 							size, size);
 				}
 
-				Node destNode = Global.openStreetMap.getNode(v.navigation
-						.getDestination());
-				NodePoint ppd = scaledXY(
-						Global.projection.convertLongToX(destNode.lon),
-						Global.projection.convertLatToY(destNode.lat));
-				g2d.setColor(Color.RED);
-				g2d.drawLine((int) ppd.x, (int) ppd.y, (int) p.x, (int) p.y);
+				if (v.navigation.getDestination() != null) {
+					Node destNode = Global.openStreetMap.getNode(v.navigation
+							.getDestination());
+					NodePoint ppd = scaledXY(
+							Global.projection.convertLongToX(destNode.lon),
+							Global.projection.convertLatToY(destNode.lat));
+					g2d.setColor(Color.RED);
+					g2d.drawLine((int) ppd.x, (int) ppd.y, (int) p.x, (int) p.y);
+				}
 			}
 		}
 	}
