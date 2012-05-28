@@ -46,8 +46,10 @@ public class IntersectionRegistry {
 					IntersectionFactory.createThreeWayIntersectionForNode(n);
 				} else if (n.connectedNodes.size() == 4) {
 					IntersectionFactory.createFourWayIntersectionForNode(n);
+				} else if (n.connectedNodes.size() == 5) {
+					IntersectionFactory.createFiveWayIntersectionForNode(n);
 				} else {
-					System.out.println("Node " + n.id + " has "
+					System.out.println("Node " + n.id + " (" + n.lat + ", " + n.lon + ") has "
 							+ n.connectedNodes.size() + " connections!");
     			throw new UnknownIntersectionTypeException();
 				}
@@ -73,7 +75,7 @@ public class IntersectionRegistry {
 					IntersectionFactory
 							.createFourWayBiddingIntersectionForNode(n);
 				} else {
-					System.out.println("Node " + n.id + " has "
+					System.out.println("Node " + n.id + " (" + n.lat + ", " + n.lon + ") has "
 							+ n.connectedNodes.size() + " connections!");
       			throw new UnknownIntersectionTypeException();
 				}

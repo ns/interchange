@@ -19,8 +19,20 @@ public class VehicleFactory {
 		Node randomNode = nodes.get(generator.nextInt(nodes.size()));
 		Node randomNextNode = randomNode.connectedNodes.get(generator
 				.nextInt(randomNode.connectedNodes.size()));
-
-		Vehicle vehicle = new Vehicle(randomNode.lat, randomNode.lon,
+		
+    // double m = (randomNextNode.lon - randomNode.lon) / (randomNextNode.lat - randomNode.lat);
+    // double p = (double)generator.nextInt(101) / 100.0;
+    // double d_lat = (randomNextNode.lat - randomNode.lat) * p;
+    // double d_lon = d_lat * m;
+    // 
+    // if (randomNextNode.lon - randomNode.lon < 0) {
+    //   d_lat = -d_lat;
+    //   d_lon = -d_lon;
+    // }
+    double d_lat = 0;
+    double d_lon = 0;
+		
+		Vehicle vehicle = new Vehicle(randomNode.lat+d_lat, randomNode.lon+d_lon,
 				randomNode.id,
 				// randomNextNode.id,
 				// this isn't really right because node.way might not refer to

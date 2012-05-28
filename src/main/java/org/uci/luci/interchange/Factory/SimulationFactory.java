@@ -16,6 +16,7 @@ public class SimulationFactory {
 		Global.openStreetMap = openStreetMap;
 		Global.openStreetMap.purgeUnconnectedNodes();
 		Global.openStreetMap.mergeUnwantedNodes();
+		Global.openStreetMap.precomputeNeighborDistances();
 		Global.openStreetMap.projectUsingProjection(new MercatorProjection());
 
 		if (intersectionType.equals("Bidding"))

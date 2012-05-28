@@ -8,6 +8,14 @@ import java.util.Random;
 import java.util.List;
 
 public class IntersectionFactory {
+  public static FiveWayIntersection createFiveWayIntersectionForNode(
+			Node n) {
+		FiveWayIntersection intersection = new FiveWayIntersection(
+				n.id);
+		IntersectionRegistry.registerIntersection(intersection);
+		return intersection;
+	}
+	
 	public static FourWayIntersection createFourWayIntersectionForNode(Node n) {
 		FourWayIntersection intersection = new FourWayIntersection(n.id);
 		IntersectionRegistry.registerIntersection(intersection);
@@ -27,7 +35,7 @@ public class IntersectionFactory {
 		IntersectionRegistry.registerIntersection(intersection);
 		return intersection;
 	}
-
+	
 	public static ThreeWayBiddingIntersection createThreeWayBiddingIntersectionForNode(
 			Node n) {
 		ThreeWayBiddingIntersection intersection = new ThreeWayBiddingIntersection(

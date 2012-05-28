@@ -24,7 +24,6 @@ public class OpenStreetMap {
 	public ArrayList<Way> ways = new ArrayList<Way>();
 
 	/* A star algorithm */
-	public Pathfinder Astar;
 	public boolean AstarStatus = false;
 
 	public static String separator = "__";
@@ -39,6 +38,17 @@ public class OpenStreetMap {
 
 	public void mergeUnwantedNodes() {
 
+	}
+	
+	public void precomputeNeighborDistances() {
+	  System.out.println("precomputeNeighborDistances --");
+	  for (Map.Entry<String, Node> entry : nodeHash.entrySet()) {
+			Node n = entry.getValue();
+			for (Node cn : n.connectedNodes) {
+			  Oracle.getDistanceBetweenNodes(n.id, cn.id);
+			}
+		}
+	  System.out.println("precomputeNeighborDistances DONE");
 	}
 
 	public void projectUsingProjection(Projection p) {
@@ -59,18 +69,9 @@ public class OpenStreetMap {
 				projectedMaxY = n.y;
 		}
 
-		widthInKm = 1;
-
-		heightInKm = 1;
-		// widthInKm = Utils.distance(Double.valueOf(getMinlat()),
-		// Double.valueOf(getMinlon()), Double.valueOf(getMinlat()),
-		// Double.valueOf(getMaxlon()), 'K');
-		//
-		// heightInKm = Utils.distance(Double.valueOf(getMinlat()),
-		// Double.valueOf(getMinlon()), Double.valueOf(getMaxlat()),
-		// Double.valueOf(getMinlon()), 'K');
-		System.out.println("widthInKm = " + widthInKm + " heightInKm = "
-				+ heightInKm);
+    widthInKm = Utils.distance(Double.valueOf(getMinlat()), Double.valueOf(getMinlon()), Double.valueOf(getMinlat()), Double.valueOf(getMaxlon()), 'K');
+    heightInKm = Utils.distance(Double.valueOf(getMinlat()), Double.valueOf(getMinlon()), Double.valueOf(getMaxlat()), Double.valueOf(getMinlon()), 'K');
+		System.out.println("widthInKm = " + widthInKm + " heightInKm = " + heightInKm);
 	}
 
 	public List<Node> nodes() {

@@ -86,7 +86,8 @@ public class Simulator extends Thread {
 	}
 
 	public void initPhase() {
-	  int numVehiclesToGenerate = 100;
+    // int numVehiclesToGenerate = 10000;
+    int numVehiclesToGenerate = 2000;
 		for (int i = 0; i < numVehiclesToGenerate; i++) {
 			log("\t// generating vehicle");
 			Vehicle v = null;

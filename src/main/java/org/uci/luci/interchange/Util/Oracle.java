@@ -10,13 +10,11 @@ import java.util.Map;
 public class Oracle {
 	private static HashMap<String, ArrayList<String>> originNodesToVehicles = new HashMap<String, ArrayList<String>>();
 	private static HashMap<String, Way> twoNodesToWay = new HashMap<String, Way>();
+	private static HashMap<String, Double> cachedDistances = new HashMap<String, Double>();
 
 	public static void resetVehicles() {
 		originNodesToVehicles.clear();
 	}
-
-	// public static void deregisterVehicleEverywhere(Integer vin) {
-	// }
 
 	public static void deregisterVehicleOrigin(Integer vin, String nodeId) {
 		if (originNodesToVehicles.get(nodeId) == null)
@@ -46,5 +44,23 @@ public class Oracle {
 		if (w == null)
 			w = twoNodesToWay.get(node2 + "-" + node1);
 		return w;
+	}
+	
+	public static double getDistanceBetweenNodes(String node1Id, String node2Id) {
+	  String key = node1Id + "-" + node2Id;
+	  
+	  if (node1Id.charAt(0) < node2Id.charAt(0))
+	    key = node2Id + "-" + node1Id;
+	  
+	  if (cachedDistances.containsKey(key)) {
+	    return cachedDistances.get(key);
+	  }
+	  else {
+  		Node node1 = Global.openStreetMap.getNode(node1Id);
+  		Node node2 = Global.openStreetMap.getNode(node2Id);
+	    double d = Utils.distance(node1.lat,node1.lon,node2.lat,node2.lon,'K');
+	    cachedDistances.put(key, d);
+	    return d;
+	  }
 	}
 }

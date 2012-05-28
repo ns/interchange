@@ -5,6 +5,7 @@ import org.uci.luci.interchange.Util.*;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.lang.Math;
 
 public class Node extends AStarNode {
@@ -323,12 +324,20 @@ public class Node extends AStarNode {
 	// return ((x - n.x) * (x - n.x)) + ((y - n.y) * (y - n.y));
 	// }
 	// }
-
-	public float dist2(Node n) {
-		// return (float)Math.sqrt(((x - n.x) * (x - n.x)) + ((y - n.y) * (y -
-		// n.y)));
-		return (float) Math.sqrt(((lat - n.lat) * (lat - n.lat))
-				+ ((lon - n.lon) * (lon - n.lon)));
+	
+  // private HashMap<String, Double> cachedActualDistances = new HashMap<String, Double>();
+	public double dist2(Node n) {
+	  return Oracle.getDistanceBetweenNodes(this.id, n.id);
+    // String key = this.id + "-" + n.id;
+    // 
+    // if (cachedActualDistances.containsKey(key)) {
+    //   return cachedActualDistances.get(key);
+    // }
+    // else {
+    //   double d = Utils.distance(lat,lon,n.lat,n.lon, 'K');
+    //   cachedActualDistances.put(key, d);
+    //   return d;
+    // }
 	}
 
 	/**
@@ -336,7 +345,7 @@ public class Node extends AStarNode {
 	 * "neighbor" or "child") node.
 	 */
 	public float getCost(AStarNode node) {
-		return dist2((Node) node);
+    return (float)dist2((Node) node);
 	}
 
 	/**
@@ -345,8 +354,9 @@ public class Node extends AStarNode {
 	 * estimate, the more effecient the search.
 	 */
 	public float getEstimatedCost(AStarNode node) {
-		// System.out.println("dist = " + dist2((Node)node));
-		return dist2((Node) node);
+    return (float)dist2((Node) node);
+    // Node n = (Node)node;
+    // return (float)Math.sqrt(((n.lat - lat) * (n.lat - lat)) + ((n.lon - lon) * (n.lon - lon)));
 	}
 
 	/**

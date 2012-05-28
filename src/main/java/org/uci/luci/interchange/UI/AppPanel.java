@@ -58,6 +58,7 @@ public class AppPanel extends JPanel {
 	public boolean showVehicleInfo = false;
 	public boolean showVehicleDebugTraces = false;
 	public boolean showDistances = false;
+	public boolean showIntersectionInfo = false;
 
 	public AppPanel() {
 		this.osm = Global.openStreetMap;
@@ -168,6 +169,9 @@ public class AppPanel extends JPanel {
 				  break;
 				case (int)'N':
 				  showAllNodes = !showAllNodes;
+				  break;
+				case (int)'I':
+				  showIntersectionInfo = !showIntersectionInfo;
 				  break;
 				}
 			}
@@ -396,15 +400,31 @@ public class AppPanel extends JPanel {
 					} else if (light == LightFSM.LIGHT.RED) {
 						g2d.setColor(new Color(255, 0, 0, 100));
 					}
+					
+          // if (i instanceof FiveWayIntersection) {
+          //   FiveWayIntersection ii = (FiveWayIntersection)i;
+          //   int size = 10;
+          //   if (connectedNode.id.equals(ii.eastNodeId) || connectedNode.id.equals(ii.westNodeId)) {
+          //              g2d.setColor(Color.MAGENTA);
+          //   }
+          //   else if (connectedNode.id.equals(ii.northNodeId) || connectedNode.id.equals(ii.southNodeId)) {
+          //              g2d.setColor(Color.BLUE);
+          //            }
+          //            else if (connectedNode.id.equals(ii.branchNodeId)) {
+          //              g2d.setColor(Color.RED);
+          //            }
+          //   g2d.fillOval((int) cnP.x - size / 2, (int) cnP.y - size / 2, size, size);
+          //          }
 
 					g2d.drawLine((int) cnP.x, (int) cnP.y, (int) rnP.x,
 							(int) rnP.y);
 				}
 			}
-			
-			g2d.setColor(Color.BLACK);
-			g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
-			g2d.drawString(i.getState(), (int) rnP.x + 5, (int) rnP.y - 5);
+			if (showIntersectionInfo) {
+  			g2d.setColor(Color.BLACK);
+  			g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
+  			g2d.drawString(i.getState(), (int) rnP.x + 5, (int) rnP.y - 5);
+			}
 		}
 
 		g2d.setStroke(new BasicStroke(1f));
