@@ -24,7 +24,7 @@ public class SimulationFactory {
 		else
 			IntersectionRegistry.generateTraditionalIntersections();
 
-		AppWindow appWindow = new AppWindow();
+		new AppWindow();
 
 		Simulator simulator = new Simulator();
 		simulator.setSpeed(simulationSpeed);

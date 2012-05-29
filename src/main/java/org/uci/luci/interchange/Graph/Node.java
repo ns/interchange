@@ -362,7 +362,7 @@ public class Node extends AStarNode {
 	/**
 	 * Gets the children (AKA "neighbors" or "adjacent nodes") of this node.
 	 */
-	@Override
+	@SuppressWarnings("rawtypes")
 	public List getNeighbors() {
 		return connectedNodes;
 	}

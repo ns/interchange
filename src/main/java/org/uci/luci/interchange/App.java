@@ -4,6 +4,6 @@ import org.uci.luci.interchange.UI.*;
 
 public class App {
 	public static void main(String[] args) throws Exception {
-		SimulatorOptionsWindow options = new SimulatorOptionsWindow();
+		new SimulatorOptionsWindow();
 	}
 }

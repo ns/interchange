@@ -3,11 +3,11 @@ package org.uci.luci.interchange.Util;
 import org.uci.luci.interchange.Vehicles.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.List;
 
 public class VehicleCollisionChecker {
-	private static HashMap<String, ArrayList<Integer>> originNodesToVehicles = new HashMap<String, ArrayList<Integer>>();
+	//private static HashMap<String, ArrayList<Integer>> originNodesToVehicles = new HashMap<String, ArrayList<Integer>>();
 
 	public static List<Vehicle> checkCollisions(List<Vehicle> vehicles) {
 		ArrayList<Vehicle> collisions = new ArrayList<Vehicle>();

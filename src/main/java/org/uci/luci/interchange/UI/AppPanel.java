@@ -38,6 +38,7 @@ import org.uci.luci.interchange.Driver.VehicleDriverBehavior.*;
 import org.uci.luci.interchange.Intersections.*;
 
 public class AppPanel extends JPanel {
+	private static final long serialVersionUID = -1301856955753100166L;
 	private WindowProjector windowProjector;
 	OpenStreetMap osm;
 	private BufferedImage map;

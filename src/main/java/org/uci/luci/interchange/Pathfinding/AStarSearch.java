@@ -14,6 +14,7 @@ public class AStarSearch {
 	 * interface. The highest priority item is first in the list.
 	 */
 	public static class PriorityList extends LinkedList {
+		private static final long serialVersionUID = -2311315735648041246L;
 
 		public void add(Comparable object) {
 			for (int i = 0; i < size(); i++) {

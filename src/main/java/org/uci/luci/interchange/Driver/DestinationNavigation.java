@@ -15,14 +15,14 @@ public class DestinationNavigation implements Navigation {
 	private LinkedList<Node> path;
 
 	public DestinationNavigation(String originNodeId, String destinationNodeId)
-			throws NoPathToDestinationException {
+	throws NoPathToDestinationException {
 		this.originNodeId = originNodeId;
 		this.destinationNodeId = destinationNodeId;
 		generatePath();
 	}
 
 	public DestinationNavigation(String originNodeId)
-			throws NoPathToDestinationException {
+	throws NoPathToDestinationException {
 		this.originNodeId = originNodeId;
 		pickRandomDestination();
 		generatePath();
@@ -87,12 +87,12 @@ public class DestinationNavigation implements Navigation {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void generatePath() throws NoPathToDestinationException {
 		Node startNode = Global.openStreetMap.getNode(originNodeId);
 		Node endNode = Global.openStreetMap.getNode(destinationNodeId);
 
-		LinkedList<Node> aStarResult = (LinkedList) Global.openStreetMap.AStar2
-				.findPath(startNode, endNode);
+		LinkedList<Node> aStarResult = (LinkedList<Node>) Global.openStreetMap.AStar2.findPath(startNode, endNode);
 
 		if (aStarResult == null) {
 			System.out.println("Unable to generate a path between "

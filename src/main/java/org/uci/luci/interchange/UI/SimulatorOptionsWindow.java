@@ -32,6 +32,7 @@ public class SimulatorOptionsWindow {
 	}
 
 	private class OptionsWindow extends JPanel implements ActionListener {
+		private static final long serialVersionUID = -1446740538634422876L;
 		JComboBox mapChoice;
 		JTextField simSpeed;
 		ButtonGroup intersectionType;

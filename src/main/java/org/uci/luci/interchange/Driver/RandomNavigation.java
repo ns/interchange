@@ -84,7 +84,8 @@ public class RandomNavigation implements Navigation {
 		Node startNode = Global.openStreetMap.getNode(originNodeId);
 		Node endNode = Global.openStreetMap.getNode(destinationNodeId);
 
-		LinkedList<Node> aStarResult = (LinkedList) Global.openStreetMap.AStar2
+		@SuppressWarnings("unchecked")
+		LinkedList<Node> aStarResult = (LinkedList<Node>) Global.openStreetMap.AStar2
 				.findPath(startNode, endNode);
 
 		if (aStarResult == null) {
