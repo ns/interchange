@@ -3,7 +3,6 @@ package org.uci.luci.interchange.Vehicles;
 import java.util.List;
 
 import org.uci.luci.interchange.Driver.Navigation;
-import org.uci.luci.interchange.Driver.RandomNavigation;
 import org.uci.luci.interchange.Exception.NoPathToDestinationException;
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Intersections.*;

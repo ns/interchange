@@ -1,12 +1,10 @@
 package org.uci.luci.interchange.Registry;
 
-import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Vehicles.*;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 public class VehicleRegistry {
 	private static int nextVinToGenerate = 0;

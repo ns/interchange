@@ -7,8 +7,6 @@ import org.uci.luci.interchange.Driver.VehicleDriverBehavior.*;
 import org.uci.luci.interchange.Registry.*;
 import org.uci.luci.interchange.Exception.*;
 
-import java.util.ArrayList;
-
 public class VehicleDriver {
 	public Vehicle vehicle;
 	public int licence;

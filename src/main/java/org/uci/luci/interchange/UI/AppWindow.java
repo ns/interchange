@@ -1,44 +1,12 @@
 package org.uci.luci.interchange.UI;
 
-import org.uci.luci.interchange.Intersections.*;
-import org.uci.luci.interchange.OSM.*;
-import org.uci.luci.interchange.Driver.*;
-import org.uci.luci.interchange.Vehicles.*;
-import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Util.*;
-import org.uci.luci.interchange.Registry.*;
-import org.uci.luci.interchange.Factory.*;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.BorderFactory;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Color;
-import java.awt.BasicStroke;
-import java.awt.RenderingHints;
-import java.text.DecimalFormat;
-
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Map;
-
 import java.awt.event.*;
-import java.awt.Point;
-import java.awt.Font;
-import java.awt.image.BufferedImage;
-import java.awt.AlphaComposite;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Random;
-import java.awt.*;
-import java.awt.geom.*;
 
 // import javax.swing.*;
 

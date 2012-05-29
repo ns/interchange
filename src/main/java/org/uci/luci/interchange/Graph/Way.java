@@ -1,7 +1,5 @@
 package org.uci.luci.interchange.Graph;
 
-import org.uci.luci.interchange.Vehicles.*;
-
 import java.util.ArrayList;
 
 public class Way {

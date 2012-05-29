@@ -74,6 +74,7 @@ public class AppPanel extends JPanel {
 
 	private void registerListeners() {
 		addComponentListener(new ComponentAdapter() {
+			@Override
 			public void componentResized(ComponentEvent e) {
 				map = null;
 				overlay = null;
@@ -155,22 +156,22 @@ public class AppPanel extends JPanel {
 				case 39: // right
 					windowProjector.offsetX -= 20;
 					break;
-				case (int)'V':
+				case 'V':
 				  showVehicleInfo = !showVehicleInfo;
 				  break;
-				case (int)'M':
+				case 'M':
 				  showMap = !showMap;
 				  break;
-				case (int)'D':
+				case 'D':
 				  showDistances = !showDistances;
 				  break;
-				case (int)'T':
+				case 'T':
 				  showVehicleDebugTraces = !showVehicleDebugTraces;
 				  break;
-				case (int)'N':
+				case 'N':
 				  showAllNodes = !showAllNodes;
 				  break;
-				case (int)'I':
+				case 'I':
 				  showIntersectionInfo = !showIntersectionInfo;
 				  break;
 				}
@@ -221,6 +222,7 @@ public class AppPanel extends JPanel {
 		zoomMap(windowProjector.offsetX, windowProjector.offsetY, steps);
 	}
 
+	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(800, 600);
 	}
@@ -600,6 +602,7 @@ public class AppPanel extends JPanel {
 		return new NodePoint(newLat, newLon);
 	}
 
+	@Override
 	public void paintComponent(Graphics g) {
 		try {
 			// if (offsetX == -1)

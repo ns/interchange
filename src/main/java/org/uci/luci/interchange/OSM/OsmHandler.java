@@ -20,14 +20,17 @@ public class OsmHandler extends DefaultHandler {
 		super();
 	}
 
+	@Override
 	public void startDocument() {
 		openStreetMap = new OpenStreetMap();
 	}
 
+	@Override
 	public void endDocument() {
 		openStreetMap.setPathNodes();
 	}
 
+	@Override
 	public void startElement(String uri, String name_, String name,
 			Attributes atts) throws SAXException {
 		// System.out.println("name = " + name + " qName = " + qName);
@@ -78,6 +81,7 @@ public class OsmHandler extends DefaultHandler {
 		}
 	}
 
+	@Override
 	public void endElement(String uri, String name_, String name) {
 		if (name.equals("way")) {
 
@@ -90,6 +94,7 @@ public class OsmHandler extends DefaultHandler {
 		}
 	}
 
+	@Override
 	public void characters(char ch[], int start, int length) {
 	}
 }

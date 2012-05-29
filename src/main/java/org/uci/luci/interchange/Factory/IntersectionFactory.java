@@ -4,9 +4,6 @@ import org.uci.luci.interchange.Intersections.*;
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Registry.*;
 
-import java.util.Random;
-import java.util.List;
-
 public class IntersectionFactory {
   public static FiveWayIntersection createFiveWayIntersectionForNode(
 			Node n) {

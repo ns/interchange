@@ -1,6 +1,5 @@
 package org.uci.luci.interchange.UI;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -16,8 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import org.uci.luci.interchange.Registry.IntersectionRegistry;
-import org.uci.luci.interchange.Util.Global;
 import org.uci.luci.interchange.Factory.*;
 
 public class SimulatorOptionsWindow {

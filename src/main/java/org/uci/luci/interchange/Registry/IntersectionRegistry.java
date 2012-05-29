@@ -9,7 +9,6 @@ import org.uci.luci.interchange.Exception.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 public class IntersectionRegistry {
 	private static Hashtable<String, Intersection> intersectionHash = new Hashtable<String, Intersection>();

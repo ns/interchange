@@ -23,8 +23,8 @@ public class WindowProjector {
 	public NodePoint scaledXY(double x, double y) {
 		// y = bottom-y;
 
-		x = (((double) x - (double) left) / width);
-		y = (((double) y - (double) top) / height);
+		x = ((x - left) / width);
+		y = ((y - top) / height);
 
 		x = (x * scale) + offsetX;
 		y = (y * scale) - offsetY;
@@ -42,8 +42,8 @@ public class WindowProjector {
 		x = (x - offsetX) / scale;
 		y = (-(y - scale) + offsetY) / scale;
 
-		x = (x * width) + (double) left;
-		y = (y * height) + (double) top;
+		x = (x * width) + left;
+		y = (y * height) + top;
 
 		// y = -(y - bottom);
 

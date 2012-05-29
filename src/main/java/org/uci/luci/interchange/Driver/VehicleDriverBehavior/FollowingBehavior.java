@@ -1,6 +1,5 @@
 package org.uci.luci.interchange.Driver.VehicleDriverBehavior;
 
-import org.uci.luci.interchange.Util.Utils;
 import org.uci.luci.interchange.Vehicles.*;
 import org.uci.luci.interchange.Driver.*;
 

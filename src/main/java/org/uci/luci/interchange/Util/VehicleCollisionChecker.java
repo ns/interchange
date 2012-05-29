@@ -5,7 +5,6 @@ import org.uci.luci.interchange.Vehicles.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class VehicleCollisionChecker {
 	private static HashMap<String, ArrayList<Integer>> originNodesToVehicles = new HashMap<String, ArrayList<Integer>>();

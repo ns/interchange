@@ -1,22 +1,15 @@
 package org.uci.luci.interchange;
 
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Random;
 import javax.swing.Timer;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.text.DecimalFormat;
 
 import org.uci.luci.interchange.Intersections.*;
-import org.uci.luci.interchange.OSM.*;
 import org.uci.luci.interchange.Driver.*;
 import org.uci.luci.interchange.Exception.*;
 import org.uci.luci.interchange.Vehicles.*;
-import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Util.*;
 import org.uci.luci.interchange.Registry.*;
 import org.uci.luci.interchange.Factory.*;
@@ -202,6 +195,7 @@ public class Simulator extends Thread {
 		// v.pause();
 	}
 
+	@Override
 	public void run() {
 		try {
 			int tick = 0;

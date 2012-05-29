@@ -4,10 +4,8 @@ import org.uci.luci.interchange.Util.*;
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Pathfinding.*;
 
-import java.awt.BasicStroke;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 

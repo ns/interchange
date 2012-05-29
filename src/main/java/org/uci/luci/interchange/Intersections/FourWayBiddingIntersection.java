@@ -5,11 +5,7 @@ import org.uci.luci.interchange.Util.*;
 import org.uci.luci.interchange.Vehicles.*;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 import java.util.HashMap;
-import java.util.Map;
 
 public class FourWayBiddingIntersection extends Intersection {
 	String eastNodeId, westNodeId;
@@ -41,12 +37,14 @@ public class FourWayBiddingIntersection extends Intersection {
 		westNodeId = connectedNodes.get(1).id;
 	}
 	
+	@Override
 	public String getState() {
 	  return "?";
 	}
 
 	// 0 = green, 1 = yellow, 2 = red
 	// public int getLightForWayOnLane(Way w, int lane) {
+	@Override
 	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
 	  return LightFSM.LIGHT.RED;
     // if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
@@ -61,6 +59,7 @@ public class FourWayBiddingIntersection extends Intersection {
     // return 2;
 	}
 
+	@Override
 	public void tick(double simTime, double tickLength, int tick) {
 		if (nsBidTotal() > ewBidTotal()) {
 			ewGreen = false;
@@ -91,6 +90,7 @@ public class FourWayBiddingIntersection extends Intersection {
 		// return total;
 	}
 
+	@Override
 	public void vehicleIsApproaching(Vehicle v) {
 		// just count it as a +1 bid for the moment
 		if (v.getOriginNode().id.equals(eastNodeId)
@@ -102,6 +102,7 @@ public class FourWayBiddingIntersection extends Intersection {
 		}
 	}
 
+	@Override
 	public void vehicleIsLeaving(Vehicle v) {
 		// remove the vehicles bid
 		nsBids.remove(v.vin + "");

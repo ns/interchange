@@ -1,17 +1,8 @@
 package org.uci.luci.interchange.Vehicles;
 
-import java.util.List;
-import java.util.Random;
-
 import org.uci.luci.interchange.Graph.Node;
-import org.uci.luci.interchange.Graph.Way;
-import org.uci.luci.interchange.Intersections.Intersection;
-import org.uci.luci.interchange.Registry.IntersectionRegistry;
-import org.uci.luci.interchange.Registry.VehicleRegistry;
 import org.uci.luci.interchange.Util.Global;
-import org.uci.luci.interchange.Util.Oracle;
 import org.uci.luci.interchange.Util.Utils;
-import org.uci.luci.interchange.Util.Vector2d;
 
 // This class makes traversing node-by-node invisible to vehicles and drivers.
 // Simply set the origin and destination node and getNextNodeId() will keep

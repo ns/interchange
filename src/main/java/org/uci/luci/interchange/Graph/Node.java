@@ -5,8 +5,6 @@ import org.uci.luci.interchange.Util.*;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.lang.Math;
 
 public class Node extends AStarNode {
 
@@ -166,7 +164,7 @@ public class Node extends AStarNode {
 
 	public int indexOf(Node n) {
 		for (int i = 0; i < links.size(); i++) {
-			Connector c = (Connector) links.get(i);
+			Connector c = links.get(i);
 			if (c.n == n) {
 				return i;
 			}
@@ -176,7 +174,7 @@ public class Node extends AStarNode {
 
 	public boolean connectedTo(Node n) {
 		for (int i = 0; i < links.size(); i++) {
-			Connector c = (Connector) links.get(i);
+			Connector c = links.get(i);
 			if (c.n == n) {
 				return true;
 			}
@@ -186,10 +184,10 @@ public class Node extends AStarNode {
 
 	public boolean connectedTogether(Node n) {
 		for (int i = 0; i < links.size(); i++) {
-			Connector c = (Connector) links.get(i);
+			Connector c = links.get(i);
 			if (c.n == n) {
 				for (int j = 0; j < n.links.size(); j++) {
-					Connector o = (Connector) n.links.get(j);
+					Connector o = n.links.get(j);
 					if (o.n == this) {
 						return true;
 					}
@@ -201,7 +199,7 @@ public class Node extends AStarNode {
 
 	public void mulDist(float m) {
 		for (int i = 0; i < links.size(); i++) {
-			Connector c = (Connector) links.get(i);
+			Connector c = links.get(i);
 			c.d *= m;
 		}
 	}
@@ -209,7 +207,7 @@ public class Node extends AStarNode {
 	public void setDist(Node n, float d) {
 		int i = indexOf(n);
 		if (i > -1) {
-			Connector temp = (Connector) links.get(i);
+			Connector temp = links.get(i);
 			temp.d = d;
 		}
 	}
@@ -217,11 +215,11 @@ public class Node extends AStarNode {
 	public void setDistBoth(Node n, float d) {
 		int i = indexOf(n);
 		if (i > -1) {
-			Connector temp = (Connector) links.get(i);
+			Connector temp = links.get(i);
 			temp.d = d;
 			int j = n.indexOf(this);
 			if (j > -1) {
-				temp = (Connector) n.links.get(j);
+				temp = n.links.get(j);
 				temp.d = d;
 			}
 		}
@@ -233,7 +231,7 @@ public class Node extends AStarNode {
 
 	public void disconnect() {
 		for (int i = 0; i < links.size(); i++) {
-			Connector c = (Connector) links.get(i);
+			Connector c = links.get(i);
 			int index = c.n.indexOf(this);
 			if (index > -1) {
 				c.n.links.remove(index);
@@ -344,6 +342,7 @@ public class Node extends AStarNode {
 	 * Gets the cost between this node and the specified adjacent (AKA
 	 * "neighbor" or "child") node.
 	 */
+	@Override
 	public float getCost(AStarNode node) {
     return (float)dist2((Node) node);
 	}
@@ -353,6 +352,7 @@ public class Node extends AStarNode {
 	 * estimated cost should never exceed the true cost. The better the
 	 * estimate, the more effecient the search.
 	 */
+	@Override
 	public float getEstimatedCost(AStarNode node) {
     return (float)dist2((Node) node);
     // Node n = (Node)node;
@@ -362,6 +362,7 @@ public class Node extends AStarNode {
 	/**
 	 * Gets the children (AKA "neighbors" or "adjacent nodes") of this node.
 	 */
+	@Override
 	public List getNeighbors() {
 		return connectedNodes;
 	}
@@ -371,6 +372,7 @@ public class Node extends AStarNode {
 			connectedNodes.add(n);
 	}
 
+	@Override
 	public String toString() {
 		return id;
 	}

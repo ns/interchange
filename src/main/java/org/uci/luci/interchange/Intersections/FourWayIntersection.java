@@ -5,8 +5,6 @@ import org.uci.luci.interchange.Util.*;
 import org.uci.luci.interchange.Vehicles.*;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 public class FourWayIntersection extends Intersection {
@@ -55,12 +53,14 @@ public class FourWayIntersection extends Intersection {
   //  return 2;
   // }
 
+	@Override
 	public String getState() {
 	  return lightFSM.getState();
 	}
 
 	// 0 = green, 1 = yellow, 2 = red
 	// public int getLightForWayOnLane(Way w, int lane) {
+	@Override
 	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
 	  if (toNodeId == null) {
       if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
@@ -94,6 +94,7 @@ public class FourWayIntersection extends Intersection {
 	  }
 	}
 
+	@Override
 	public void tick(double simTime, double tickLength, int tick) {
 		if ((simTime - lastFlip) >= switchInterval) {
 			if (nsGreen) {
@@ -109,6 +110,7 @@ public class FourWayIntersection extends Intersection {
 		lightFSM.tick(simTime, tickLength, tick);
 	}
 
+	@Override
 	public void vehicleIsApproaching(Vehicle v) {
 		// info about vehicle
 		// System.out.println("v " + v.vin + " is approaching " + id);
@@ -118,6 +120,7 @@ public class FourWayIntersection extends Intersection {
 		// v.getDestinationNode().id);
 	}
 
+	@Override
 	public void vehicleIsLeaving(Vehicle v) {
 		// System.out.println("v " + v.vin + " is leaving " + id);
 	}

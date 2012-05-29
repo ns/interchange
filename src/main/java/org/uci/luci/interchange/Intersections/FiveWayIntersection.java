@@ -5,9 +5,6 @@ import org.uci.luci.interchange.Util.*;
 import org.uci.luci.interchange.Vehicles.*;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
 public class FiveWayIntersection extends Intersection {
 	String eastNodeId, westNodeId;
@@ -40,10 +37,12 @@ public class FiveWayIntersection extends Intersection {
 		branchIsClosestToEWGroup = false;
 	}
 	
+	@Override
 	public String getState() {
 	  return lightFSM.getState();
 	}
 	
+	@Override
 	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
 	  if (toNodeId == null) {
       if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
@@ -93,10 +92,13 @@ public class FiveWayIntersection extends Intersection {
 	  }
 	}
 
+	@Override
 	public void tick(double simTime, double tickLength, int tick) {
 		lightFSM.tick(simTime, tickLength, tick);
 	}
 
+	@Override
 	public void vehicleIsApproaching(Vehicle v) {}
+	@Override
 	public void vehicleIsLeaving(Vehicle v) {}
 }

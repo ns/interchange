@@ -5,7 +5,6 @@ import org.uci.luci.interchange.Graph.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Oracle {
 	private static HashMap<String, ArrayList<String>> originNodesToVehicles = new HashMap<String, ArrayList<String>>();
