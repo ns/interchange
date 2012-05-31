@@ -32,7 +32,7 @@ public class Simulator extends Thread {
 	int delay;
 	int simulatorTicksSinceCheck;
 	long simulatorTimeSinceCheck;
-	double tickLength = 1.0 / 20.0; // 1/60th of a sec
+	double tickLength = 1.0 / 60.0; // 1/60th of a sec
 	double simulatorTime = 0;
 	int spawnRate = 120;
 	int tick = 0;
@@ -192,7 +192,7 @@ public class Simulator extends Thread {
 			if (d.vehicle.flagForRemoval) {
 				Vehicle vv = d.vehicle;
 
-				StatisticsLogger.addSample(vv.spawnedAtSpawnRate + "",//spawnRate + "",
+				StatisticsLogger.addSample(spawnRate + "",
 						new VehicleSample(vv.vin, simulatorTime,
 								vv.vehicleTotalTraveledDistance,
 								vv.vehicleTotalWaitTime));
@@ -221,11 +221,11 @@ public class Simulator extends Thread {
 		if (ci != null)
 			System.out.println("ci = " + ci + " samples = " + ci.samples
 					+ " range = " + ci.range());
-		if (ci != null && ci.samples > 50 && ci.range() < 30) {
+		if (ci != null && ci.samples > 50 && ci.range() < 100) {
 			StatisticsLogger.purgeAllSampleData();
 			spawnRate -= 10;
 			
-			if (spawnRate < 10) {
+			if (spawnRate < 60) {
 				System.out.println("Done!");
 				System.exit(0);
 			}

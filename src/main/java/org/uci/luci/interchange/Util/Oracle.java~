@@ -103,8 +103,6 @@ public class Oracle {
     		endNode = nodes.get(generator.nextInt(nodes.size()));
     		if (startNode == endNode)
     		  continue;
-    	  	if (Utils.distance(startNode.lat, startNode.lon, endNode.lat, endNode.lon, 'K') < 3)
-    	          continue;
   	    LinkedList<Node> path = generatePathBetweenNodes(startNode, endNode);
   	    ArrayList<String> cachedPath = new ArrayList<String>();
   	    for (Node n : path) {cachedPath.add(n.id);}
