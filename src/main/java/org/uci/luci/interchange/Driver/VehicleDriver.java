@@ -88,12 +88,6 @@ public class VehicleDriver {
 					// car needs to be in left lane
 
 					if (vehicle.getOnLaneNumber() != 0) {
-						System.out.println(vehicle.vin
-								+ ": need to switch lanes to the left, on "
-								+ vehicle.getOnLaneNumber()
-								+ " (total lanes = " + (vehicle.getWay().lanes)
-								+ " total)");
-
 						// here we should check if there's a vehicle on the left
 						if (!vehicle.vehicleOnLeft()) {
 							// move over to the left
@@ -106,12 +100,6 @@ public class VehicleDriver {
 						nextNode.id)) {
 					// car needs to be in right lane
 					if (vehicle.getOnLaneNumber() != vehicle.getWay().lanes - 1) {
-						System.out.println(vehicle.vin
-								+ ": need to switch lanes, on "
-								+ vehicle.getOnLaneNumber()
-								+ " (total lanes = " + (vehicle.getWay().lanes)
-								+ " total)");
-
 						if (vehicle.getOnLaneNumber() > vehicle.getWay().lanes - 1) {
 							System.out
 									.println("this should not have happened.");

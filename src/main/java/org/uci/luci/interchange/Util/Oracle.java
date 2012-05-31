@@ -45,6 +45,8 @@ public class Oracle {
       return true;
     for (String vin : vehicles) {
       Vehicle v = VehicleRegistry.getVehicle(vin);
+      if (v == null)
+        continue;
       if (Utils.distance(n.lat, n.lon, v.lat, v.lon, 'K') < Vehicle.DISTANCE_TO_CONSIDER_AS_SAME)
         return false;
     }
