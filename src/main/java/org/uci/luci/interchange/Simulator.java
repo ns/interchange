@@ -124,10 +124,6 @@ public class Simulator extends Thread {
 				double vps = 1.0 / (nsPerVehicle / 1000000000);
 
 				DecimalFormat df = new DecimalFormat();
-				// DecimalFormatSymbols dfs = new DecimalFormatSymbols();
-				// dfs.setGroupingSeparator('.');
-				// df.setDecimalFormatSymbols(dfs);
-				// log(df.format((int)num));
 				System.out.println("\taround " + df.format(vps)
 						+ " vehicle ticks per sec.");
 			}
@@ -140,29 +136,6 @@ public class Simulator extends Thread {
 	  
 		SpawningThread spawnThread = new SpawningThread();
 		spawnThread.start();
-
-		// int numVehiclesToGenerate = 0;
-		// for (int i = 0; i < numVehiclesToGenerate; i++) {
-		// log("\t// generating vehicle");
-		// Vehicle v = null;
-		// VehicleDriver d = null;
-		// try {
-		// // v =
-		// //
-		// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
-		// v = VehicleFactory.createVehicleAtRandomPoint();
-		// d = VehicleDriverFactory.createVehicleDriver(v);
-		// d.pickRandomDestinationAndGo();
-		// // d.setDestinationAndGo("249586091");
-		// } catch (NoPathToDestinationException e) {
-		// if (d != null)
-		// VehicleDriverFactory.destroyVehicleDriver(d);
-		// if (v != null)
-		// VehicleFactory.destroyVehicle(v);
-		// }
-		// System.out.println("Generated vehicle " + i + " of "
-		// + numVehiclesToGenerate);
-		// }
 	}
 
 	// public void generateVehiclesPhase(int tick) {
@@ -184,7 +157,6 @@ public class Simulator extends Thread {
 	// }
 
 	public void vehicleDriversTickPhase(int tick) {
-		log("\t// drivers.tick()");
 		for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
 			if (d.vehicle.paused() || d.vehicle.isBeingCreated)
 				continue;
@@ -192,12 +164,8 @@ public class Simulator extends Thread {
 			try {
 				d.tick(simulatorTime, tickLength, tick);
 			} catch (Exception e) {
-				log("\tCrash for v = " + d.vehicle.vin + " license = "
-						+ d.licence);
 				for (VehicleDriver dd : VehicleDriverRegistry
 						.allLicensedDrivers()) {
-					log("\t\ttick v = " + dd.vehicle.vin + " license = "
-							+ dd.licence);
 				}
 				e.printStackTrace();
 				System.exit(1);
@@ -206,14 +174,12 @@ public class Simulator extends Thread {
 	}
 
 	public void intersectionTickPhase(int tick) {
-		log("\t// intersections.tick()");
 		for (Intersection i : IntersectionRegistry.allRegisteredIntersections()) {
 			i.tick(simulatorTime, tickLength, tick);
 		}
 	}
 
 	public void commitPhase(int tick) {
-		log("\t// moving vehicles");
 		for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
 			if (v.isBeingCreated)
 				continue;
@@ -222,15 +188,10 @@ public class Simulator extends Thread {
 	}
 
 	public void purgePhase(int tick) {
-		log("\t// removing flagged vehicles");
 		for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
 			if (d.vehicle.flagForRemoval) {
-				log("removing vehicle " + d.vehicle.vin);
 				Vehicle vv = d.vehicle;
 
-				// StatisticsLogger.addSample(vv.spawnedAtSpawnRate+"", new
-				// VehicleSample(vv.vin, -1, simulatorTime, -1, -1,
-				// vv.vehicleTotalWaitTime));
 				StatisticsLogger.addSample(spawnRate + "",
 						new VehicleSample(vv.vin, simulatorTime,
 								vv.vehicleTotalTraveledDistance,
@@ -245,18 +206,6 @@ public class Simulator extends Thread {
 				
 				VehicleDriverFactory.destroyVehicleDriver(d);
 				VehicleFactory.destroyVehicle(d.vehicle);
-
-				// if (VehicleRegistry.allRegisteredVehicles().contains(vv)) {
-				// log("clearly this doesn't work");
-				// }
-				//
-				// for (VehicleDriver dx : VehicleDriverRegistry
-				// .allLicensedDrivers()) {
-				// if (d.licence == dx.licence)
-				// log("clearly this doesn't work (d)");
-				// }
-
-				log("removed vehicle " + vv.vin);
 			}
 		}
 	}
@@ -275,7 +224,7 @@ public class Simulator extends Thread {
 		if (ci != null && ci.samples > 50 && ci.range() < 100) {
 			StatisticsLogger.purgeAllSampleData();
 			spawnRate -= 10;
-
+			
 			if (spawnRate < 60) {
 				System.out.println("Done!");
 				System.exit(0);
