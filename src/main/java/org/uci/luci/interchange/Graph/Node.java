@@ -44,6 +44,23 @@ public class Node extends AStarNode {
 		}
 		return null;
 	}
+	
+	public boolean hasTag(String k, String v) {
+		for (Tag t : tags) {
+			if (t.k.equals(k) && t.v.equals(v))
+				return true;
+		}
+		return false;
+	}
+	
+	public String tagCloud() {
+		String s = "";
+		
+		for (Tag t : tags)
+			s += t.k + "=" + t.v + " ";
+		
+		return s;
+	}
 
 	public void addTag(Tag t) {
 		tags.add(t);

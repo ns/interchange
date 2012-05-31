@@ -22,9 +22,22 @@ public class LightFSM {
     this.leftsGreenDur = leftsGreenDur;
     this.leftsYellowDur = leftsYellowDur;
     
-		Random randomGenerator = Utils.randomNumberGenerator();
-    lastStateChangeAt = -randomGenerator.nextInt((int)throughsGreenDur);
-    state = "all_red";
+    Random randomGenerator = Utils.randomNumberGenerator();
+    lastStateChangeAt = 0;
+    
+    int randInt = randomGenerator.nextInt(9);
+    
+    if (randInt == 0) state = "all_red";
+    else if (randInt == 1) state = "all_red";
+    else if (randInt == 2) state = "lefts_green1";
+    else if (randInt == 3) state = "lefts_yellow1";
+    else if (randInt == 4) state = "throughs_green1";
+    else if (randInt == 5) state = "throughs_yellow1";
+    else if (randInt == 6) state = "lefts_green2";
+    else if (randInt == 7) state = "lefts_yellow2";
+    else if (randInt == 8) state = "throughs_green2";
+    else if (randInt == 9) state = "throughs_yellow2";
+    else state = "all_red";
   }
   
   public String getState() {

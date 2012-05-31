@@ -1,5 +1,6 @@
 package org.uci.luci.interchange.Vehicles;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.uci.luci.interchange.Driver.Navigation;
@@ -35,6 +36,9 @@ public class Vehicle {
 	// can set this to something that actually routes the car to a destination.
 	public Navigation navigation;
 	public double vehicleTotalWaitTime = 0;
+	public double vehicleTotalTraveledDistance = 0;
+	public int spawnedAtSpawnRate = -1;
+	public boolean isBeingCreated = true;
 	
 	// cached
 	private Intersection nextIntersection;
@@ -103,7 +107,7 @@ public class Vehicle {
 	// we're lying, the vehicle does some magic internally
 	// to handle going from node to node. this is only
 	// for node-to-node movements that aren't actual
-	// transporation infrastructure (intersections, stop signs, etc)
+	// transportation infrastructure (intersections, stop signs, etc)
 	// for those situations the vehicle does nothing. the driver
 	// must figure out where he wants to take the car
 	// *this should only be called by the driver*
@@ -317,6 +321,11 @@ public class Vehicle {
 		List<String> vehicles = Oracle
 				.vehiclesWithNodeAsOrigin(nodeTraversingMehanism
 						.getOriginNode().id);
+		
+		if (vehicles == null) {
+			vehicles = new ArrayList<String>();
+		}
+		
 		for (String vin : vehicles) {
 			Vehicle v = VehicleRegistry.getVehicle(vin);
 
@@ -442,5 +451,6 @@ public class Vehicle {
 		Way w = getWay();
 		if (!paused() && w != null && speed < w.getSpeedLimit() * 0.9)
 			vehicleTotalWaitTime += tickLength;
+		vehicleTotalTraveledDistance += (speed * tickLength)/(60*60);
 	}
 }

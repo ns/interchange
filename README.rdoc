@@ -30,6 +30,7 @@ Interchange is a macro-scale traffic simulator. You can use any OSM file as the 
 * Vehicles/Drivers switch between lanes and follow most laws including being in the left-most lane for left turns.
 
 == Limitations
+* Most 3 and 4 node connections are assumed to have traffic lights.
 * One-way streets are not respected.
 * Only one vehicle type/spec is supported.
 * Only three-way and four-way intersections are supported.

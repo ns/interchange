@@ -115,7 +115,9 @@ public class VehicleDriver {
 						if (vehicle.getOnLaneNumber() > vehicle.getWay().lanes - 1) {
 							System.out
 									.println("this should not have happened.");
-							vehicle.pause();
+//							vehicle.pause();
+							// TODO: look into this
+							vehicle.setOnLaneNumber(vehicle.getWay().lanes - 1);
 						}
 
 						// here we should check if there's a vehicle on the left

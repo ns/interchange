@@ -18,6 +18,8 @@ import org.uci.luci.interchange.Exception.*;
 import org.uci.luci.interchange.Vehicles.*;
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Util.*;
+import org.uci.luci.interchange.Util.StatisticsLogger.ConfidenceInterval;
+import org.uci.luci.interchange.Util.StatisticsLogger.VehicleSample;
 import org.uci.luci.interchange.Registry.*;
 import org.uci.luci.interchange.Factory.*;
 
@@ -32,9 +34,51 @@ public class Simulator extends Thread {
 	long simulatorTimeSinceCheck;
 	double tickLength = 1.0 / 60.0; // 1/60th of a sec
 	double simulatorTime = 0;
+	int spawnRate = 120;
+	int tick = 0;
+
+	public void setSpawnRate(int sr) {
+		spawnRate = sr;
+	}
+
+	public int getSpawnRate() {
+		return spawnRate;
+	}
 
 	public double simulatorTime() {
 		return simulatorTime;
+	}
+
+	private class SpawningThread extends Thread {
+		private int lastSpawnAtTick = -1;
+
+		public void run() {
+			try {
+				while (true) {
+					if (tick - lastSpawnAtTick >= spawnRate) {
+						Vehicle v = null;
+						VehicleDriver d = null;
+						try {
+							v = VehicleFactory.createVehicleAtRandomPoint();
+							v.spawnedAtSpawnRate = spawnRate;
+							d = VehicleDriverFactory.createVehicleDriver(v);
+							d.pickRandomDestinationAndGo();
+							v.isBeingCreated = false;
+						} catch (NoPathToDestinationException e) {
+							if (d != null)
+								VehicleDriverFactory.destroyVehicleDriver(d);
+							if (v != null)
+								VehicleFactory.destroyVehicle(v);
+						}
+						lastSpawnAtTick = tick;
+					} else {
+						Thread.sleep(10);
+					}
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public Simulator() throws InterruptedException {
@@ -86,54 +130,55 @@ public class Simulator extends Thread {
 	}
 
 	public void initPhase() {
-    // int numVehiclesToGenerate = 10000;
-    int numVehiclesToGenerate = 2000;
-		for (int i = 0; i < numVehiclesToGenerate; i++) {
-			log("\t// generating vehicle");
-			Vehicle v = null;
-			VehicleDriver d = null;
-			try {
-				// v = VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
-				v = VehicleFactory.createVehicleAtRandomPoint();
-				d = VehicleDriverFactory.createVehicleDriver(v);
-				d.pickRandomDestinationAndGo();
-				// d.setDestinationAndGo("249586091");
-			} catch (NoPathToDestinationException e) {
-				if (d != null)
-					VehicleDriverFactory.destroyVehicleDriver(d);
-				if (v != null)
-					VehicleFactory.destroyVehicle(v);
-			}
-			System.out.println("Generated vehicle " + i + " of " + numVehiclesToGenerate);
-		}
-	}
+		SpawningThread spawnThread = new SpawningThread();
+		spawnThread.start();
 
-	public void generateVehiclesPhase(int tick) {
-		// if (tick % 500 == 1) {
+		// int numVehiclesToGenerate = 0;
+		// for (int i = 0; i < numVehiclesToGenerate; i++) {
 		// log("\t// generating vehicle");
 		// Vehicle v = null;
 		// VehicleDriver d = null;
 		// try {
-		// v =
-		// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("123068182"));
-		// // v = VehicleFactory.createVehicleAtRandomPoint();
-		//
+		// // v =
+		// //
+		// VehicleFactory.createVehicleAtNode(Global.openStreetMap.getNode("122733227"));
+		// v = VehicleFactory.createVehicleAtRandomPoint();
 		// d = VehicleDriverFactory.createVehicleDriver(v);
-		// d.setDestinationAndGo("122959098");
-		// // d.pickRandomDestinationAndGo();
+		// d.pickRandomDestinationAndGo();
+		// // d.setDestinationAndGo("249586091");
 		// } catch (NoPathToDestinationException e) {
 		// if (d != null)
 		// VehicleDriverFactory.destroyVehicleDriver(d);
 		// if (v != null)
 		// VehicleFactory.destroyVehicle(v);
 		// }
+		// System.out.println("Generated vehicle " + i + " of "
+		// + numVehiclesToGenerate);
 		// }
 	}
+
+	// public void generateVehiclesPhase(int tick) {
+	// if (tick % spawnRate == 0) {
+	// Vehicle v = null;
+	// VehicleDriver d = null;
+	// try {
+	// v = VehicleFactory.createVehicleAtRandomPoint();
+	// v.spawnedAtSpawnRate = spawnRate;
+	// d = VehicleDriverFactory.createVehicleDriver(v);
+	// d.pickRandomDestinationAndGo();
+	// } catch (NoPathToDestinationException e) {
+	// if (d != null)
+	// VehicleDriverFactory.destroyVehicleDriver(d);
+	// if (v != null)
+	// VehicleFactory.destroyVehicle(v);
+	// }
+	// }
+	// }
 
 	public void vehicleDriversTickPhase(int tick) {
 		log("\t// drivers.tick()");
 		for (VehicleDriver d : VehicleDriverRegistry.allLicensedDrivers()) {
-			if (d.vehicle.paused())
+			if (d.vehicle.paused() || d.vehicle.isBeingCreated)
 				continue;
 
 			try {
@@ -162,6 +207,8 @@ public class Simulator extends Thread {
 	public void commitPhase(int tick) {
 		log("\t// moving vehicles");
 		for (Vehicle v : VehicleRegistry.allRegisteredVehicles()) {
+			if (v.isBeingCreated)
+				continue;
 			v.commit(simulatorTime, tickLength);
 		}
 	}
@@ -173,23 +220,56 @@ public class Simulator extends Thread {
 				log("removing vehicle " + d.vehicle.vin);
 				Vehicle vv = d.vehicle;
 
+				// StatisticsLogger.addSample(vv.spawnedAtSpawnRate+"", new
+				// VehicleSample(vv.vin, -1, simulatorTime, -1, -1,
+				// vv.vehicleTotalWaitTime));
+				StatisticsLogger.addSample(vv.spawnedAtSpawnRate + "",
+						new VehicleSample(vv.vin, simulatorTime,
+								vv.vehicleTotalTraveledDistance,
+								vv.vehicleTotalWaitTime));
+
+				StatisticsLogger.log("vehicle.distTraveled2DelayTime",
+						simulatorTime + "," + vv.vin + ","
+								+ vv.vehicleTotalTraveledDistance + ","
+								+ vv.vehicleTotalWaitTime + ","
+								+ vv.spawnedAtSpawnRate);
+
 				VehicleDriverFactory.destroyVehicleDriver(d);
 				VehicleFactory.destroyVehicle(d.vehicle);
 
-				if (VehicleRegistry.allRegisteredVehicles().contains(vv)) {
-					log("clearly this doesn't work");
-				}
-
-				for (VehicleDriver dx : VehicleDriverRegistry
-						.allLicensedDrivers()) {
-					// if
-					// (VehicleDriverRegistry.allLicensedDrivers().contains(d))
-					// {
-					if (d.licence == dx.licence)
-						log("clearly this doesn't work (d)");
-				}
+				// if (VehicleRegistry.allRegisteredVehicles().contains(vv)) {
+				// log("clearly this doesn't work");
+				// }
+				//
+				// for (VehicleDriver dx : VehicleDriverRegistry
+				// .allLicensedDrivers()) {
+				// if (d.licence == dx.licence)
+				// log("clearly this doesn't work (d)");
+				// }
 
 				log("removed vehicle " + vv.vin);
+			}
+		}
+	}
+
+	public void statsPhase(int tick) {
+		// if ((tick%(tickLength/60)*60)!=0)
+		if (tick % (60 * 60) != 0)
+			return;
+
+		ConfidenceInterval ci = StatisticsLogger
+				.calculateConfidenceIntervalForSample(spawnRate + "");
+
+		if (ci != null)
+			System.out.println("ci = " + ci + " samples = " + ci.samples
+					+ " range = " + ci.range());
+		if (ci != null && ci.samples > 200 && ci.range() < 100) {
+			StatisticsLogger.purgeAllSampleData();
+			spawnRate -= 10;
+
+			if (spawnRate < 60) {
+				System.out.println("Done!");
+				System.exit(0);
 			}
 		}
 	}
@@ -204,7 +284,7 @@ public class Simulator extends Thread {
 
 	public void run() {
 		try {
-			int tick = 0;
+			tick = 0;
 			simulatorTimeSinceCheck = System.nanoTime();
 
 			initPhase();
@@ -221,12 +301,13 @@ public class Simulator extends Thread {
 				long startTime = System.nanoTime();
 				long endTime;
 
-				generateVehiclesPhase(tick);
+				// generateVehiclesPhase(tick);
 				vehicleDriversTickPhase(tick);
 				intersectionTickPhase(tick);
 				commitPhase(tick);
 				collisionTestPhase(tick);
 				purgePhase(tick);
+				statsPhase(tick);
 
 				endTime = System.nanoTime();
 				long duration = endTime - startTime;

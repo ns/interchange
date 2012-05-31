@@ -311,11 +311,25 @@ public class AppPanel extends JPanel {
 			for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
 				Node n = entry.getValue();
 				NodePoint p = scaledXY(n.x, n.y);
-
+				
+				// TODO: get rid of this flag
 				if (n.flaggedForMerge)
 					g2d.setColor(Color.RED);
 				else
 					g2d.setColor(Color.BLUE);
+				
+				
+				//System.out.println(n.tagCloud());
+				
+				if (n.hasTag("highway", "traffic_signals")) {
+					g2d.setColor(Color.RED);
+					width = 10;
+				}
+				else {
+					width=5;
+					g2d.setColor(Color.BLUE);
+				}
+				
 
 				g2d.fillOval((int) p.x + width / 2, (int) p.y + width / 2,
 						width, width);
@@ -488,9 +502,11 @@ public class AppPanel extends JPanel {
 						(int) p.x + 5, (int) p.y + 60);
 				g2d.drawString("behavior is " + d.activeBehavior.state(),
 						(int) p.x + 5, (int) p.y + 70);
+				g2d.drawString("traveled dist " + v.vehicleTotalTraveledDistance,
+						(int) p.x + 5, (int) p.y + 80);
 				if (v.getNextIntersection() != null && v.getOriginNode() != null && v.getNodeAfterNextIntersection() != null) {
-  				g2d.drawString("angle to intersection " + v.getNextIntersection().angle(v.getOriginNode().id, v.getNodeAfterNextIntersection().id),
-  						(int) p.x + 5, (int) p.y + 80);
+					g2d.drawString("angle to intersection " + v.getNextIntersection().angle(v.getOriginNode().id, v.getNodeAfterNextIntersection().id),
+  						(int) p.x + 5, (int) p.y + 90);
 				}
 			}
 
@@ -568,8 +584,8 @@ public class AppPanel extends JPanel {
 
 		g2d.drawString("Total Vehicles: "
 				+ Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
-		g2d.drawString("Total Vehicles: "
-				+ Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
+		g2d.drawString("Spawn Rate: "
+				+ Global.simulator.getSpawnRate(), 10, 70);
 	}
 
 	private NodePoint distanceFromPointInDirectionOfPoint(double fromLat,
