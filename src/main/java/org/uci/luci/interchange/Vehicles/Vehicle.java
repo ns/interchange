@@ -196,29 +196,31 @@ public class Vehicle {
 	}
 
 	public boolean isGoingForwardOnWay() {
-		if (nodeTraversingMehanism.getOriginNode() == null
-				|| nodeTraversingMehanism.getDestinationNode() == null) {
+		Node originNode = nodeTraversingMehanism.getOriginNode();
+		Node destinationNode = nodeTraversingMehanism.getDestinationNode();
+		
+		if (originNode == null || destinationNode == null) {
 			// this is okay because it just means we haven't been able to
 			// determine it yet.
 			return true;
 		}
 
 		Way w = Oracle.wayBetweenNodes(
-				nodeTraversingMehanism.getOriginNode().id,
-				nodeTraversingMehanism.getDestinationNode().id);
+				originNode.id,
+				destinationNode.id);
 
 		if (w == null) {
 			System.out
 					.println("Could not determine direction of vehicle on way. ("
-							+ nodeTraversingMehanism.getOriginNode().id
+							+ originNode.id
 							+ " - "
-							+ nodeTraversingMehanism.getDestinationNode().id
+							+ destinationNode.id
 							+ " vehicle " + vin + ")");
 			return true;
 		} else {
-			int oI = w.nd.indexOf(nodeTraversingMehanism.getOriginNode().id);
+			int oI = w.nd.indexOf(originNode.id);
 			int dI = w.nd
-					.indexOf(nodeTraversingMehanism.getDestinationNode().id);
+					.indexOf(destinationNode.id);
 			return oI < dI;
 		}
 	}
