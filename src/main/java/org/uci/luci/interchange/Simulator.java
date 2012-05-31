@@ -34,7 +34,7 @@ public class Simulator extends Thread {
 	long simulatorTimeSinceCheck;
 	double tickLength = 1.0 / 60.0; // 1/60th of a sec
 	double simulatorTime = 0;
-	int spawnRate = 120;
+	int spawnRate = 20;
 	int tick = 0;
 
 	public void setSpawnRate(int sr) {
@@ -59,10 +59,16 @@ public class Simulator extends Thread {
 						Vehicle v = null;
 						VehicleDriver d = null;
 						try {
-							v = VehicleFactory.createVehicleAtRandomPoint();
+						  List<String> route = Oracle.randomRoute();
+						  
+						  v = VehicleFactory.createVehicleAt(route.get(0), route.get(1));
+						  if (v == null)
+						    continue;
+              // v = VehicleFactory.createVehicleAtRandomPoint();
 							v.spawnedAtSpawnRate = spawnRate;
 							d = VehicleDriverFactory.createVehicleDriver(v);
-							d.pickRandomDestinationAndGo();
+              // d.pickRandomDestinationAndGo();
+              d.setDestinationAndGo(route.get(route.size()-1));
 							v.isBeingCreated = false;
 						} catch (NoPathToDestinationException e) {
 							if (d != null)
@@ -130,6 +136,8 @@ public class Simulator extends Thread {
 	}
 
 	public void initPhase() {
+	  Oracle.generateRoutes(300);
+	  
 		SpawningThread spawnThread = new SpawningThread();
 		spawnThread.start();
 

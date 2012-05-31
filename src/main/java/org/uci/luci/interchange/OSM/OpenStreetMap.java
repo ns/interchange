@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class OpenStreetMap {
@@ -35,9 +36,52 @@ public class OpenStreetMap {
 	public double projectedMaxX = -1, projectedMaxY = -1;
 
 	public double widthInKm, heightInKm;
-
-	public void mergeUnwantedNodes() {
-
+	
+	private int floodFillWithGroupId(Node n, int gid) {
+	  int count = 1;
+	  
+	  n.groupId = gid;
+	  ArrayList<Node> nodesToFill = (ArrayList<Node>)n.connectedNodes.clone();
+	  while (nodesToFill.size() > 0) {
+	    Node cn = nodesToFill.get(0);
+	    if (cn.groupId == -1) {
+  	    cn.groupId = gid;
+    	  nodesToFill.addAll(cn.connectedNodes);
+	    }
+	    nodesToFill.remove(0);
+	    count++;
+	  }
+	  
+	  return count;
+	}
+	
+	public void removeDisconnectedGraphs() {
+	  int gidWithMostNodes = -1;
+	  int gidWithMostNodesCount = -1;
+	  int gid = 0;
+		
+	  for (Map.Entry<String, Node> entry : nodeHash.entrySet()) {
+			Node n = entry.getValue();
+			if (n.groupId == -1) {
+			  int groupCount = floodFillWithGroupId(n, gid);
+			  if (groupCount > gidWithMostNodesCount) {
+			    gidWithMostNodes = gid;
+			    gidWithMostNodesCount = groupCount;
+			  }
+			  gid++;
+			}
+		}
+		
+		List<Node> nodes = nodes();
+		for (Node n : nodes) {
+		  if (n.groupId != gidWithMostNodes) {
+        removeNode(n.id);
+        for (Way w : (List<Way>)ways.clone()) {
+    		  if (w.includesNode(n.id))
+            removeWay(w);
+    		}
+		  }
+		}
 	}
 	
 	public void precomputeNeighborDistances() {
@@ -99,6 +143,10 @@ public class OpenStreetMap {
 
 	public void removeNode(String _id) {
 		nodeHash.remove(_id);
+	}
+	
+	public void removeWay(Way w) {
+		ways.remove(w);
 	}
 
 	public Way getWayByName(String name) {
@@ -234,7 +282,10 @@ public class OpenStreetMap {
 				&& !w.hasTag("highway", "tertiary_link")
 				&& !w.hasTag("highway", "living_street")
 				&& !w.hasTag("highway", "residential")
-				&& !w.hasTag("highway", "living_street")) {
+				&& !w.hasTag("highway", "living_street")
+				&& !w.hasTag("highway", "unclassified")) {
+      // if (!w.hasTag("highway", "footway") && !w.hasTag("building", "yes") && !w.hasTag("amenity", "parking") && !w.hasTag("highway", "service") && !w.hasTag("highway", "cycleway") && !w.hasTag("highway", "pedestrian") && !w.hasTag("highway", "steps") && !w.hasTag("natural", "coastline") && !w.hasTag("natural", "water") && !w.hasTag("leisure", "park") && !w.hasTag("leisure", "nature_reserve") && !w.hasTag("leisure", "pitch") && !w.hasTag("leisure", "nature_reserve"))
+      //        System.out.println("skipping way with tags = " + w.tags());
 			return;
 		}
 

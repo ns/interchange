@@ -12,13 +12,11 @@ import java.util.List;
 public class VehicleFactory {
 	public static Vehicle createVehicleAtRandomPoint()
 			throws NoPathToDestinationException {
-		Random generator = Utils.randomNumberGenerator();
-
-		List<Node> nodes = Global.openStreetMap.nodes();
-
-		Node randomNode = nodes.get(generator.nextInt(nodes.size()));
-		Node randomNextNode = randomNode.connectedNodes.get(generator
-				.nextInt(randomNode.connectedNodes.size()));
+    Random generator = Utils.randomNumberGenerator();
+    List<Node> nodes = Global.openStreetMap.nodes();
+    Node randomNode = nodes.get(generator.nextInt(nodes.size()));
+    Node randomNextNode = randomNode.connectedNodes.get(generator
+       .nextInt(randomNode.connectedNodes.size()));
 		
     // double m = (randomNextNode.lon - randomNode.lon) / (randomNextNode.lat - randomNode.lat);
     // double p = (double)generator.nextInt(101) / 100.0;
@@ -56,6 +54,29 @@ public class VehicleFactory {
 		Node randomNextNode = randomNode.connectedNodes.get(generator
 				.nextInt(randomNode.connectedNodes.size()));
 
+		Vehicle vehicle = new Vehicle(randomNode.lat, randomNode.lon,
+				randomNode.id,
+				// randomNextNode.id,
+				// this isn't really right because node.way might not refer to
+				// the right way at intersections
+				generator.nextInt(Oracle.wayBetweenNodes(randomNode.id,
+						randomNextNode.id).lanes));
+
+		VehicleRegistry.registerVehicle(vehicle);
+
+		return vehicle;
+	}
+	
+	public static Vehicle createVehicleAt(String n1id, String n2id)
+			throws NoPathToDestinationException {
+		Random generator = Utils.randomNumberGenerator();
+
+		Node randomNode = Global.openStreetMap.getNode(n1id);
+		Node randomNextNode = Global.openStreetMap.getNode(n2id);
+		
+		if (!Oracle.hasRoomForCarAtNode(randomNode))
+		  return null;
+		
 		Vehicle vehicle = new Vehicle(randomNode.lat, randomNode.lon,
 				randomNode.id,
 				// randomNextNode.id,

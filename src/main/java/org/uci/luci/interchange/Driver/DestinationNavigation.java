@@ -6,8 +6,7 @@ import java.util.Random;
 
 import org.uci.luci.interchange.Exception.NoPathToDestinationException;
 import org.uci.luci.interchange.Graph.Node;
-import org.uci.luci.interchange.Util.Global;
-import org.uci.luci.interchange.Util.Utils;
+import org.uci.luci.interchange.Util.*;
 
 public class DestinationNavigation implements Navigation {
 	private String originNodeId;
@@ -90,18 +89,25 @@ public class DestinationNavigation implements Navigation {
 	private void generatePath() throws NoPathToDestinationException {
 		Node startNode = Global.openStreetMap.getNode(originNodeId);
 		Node endNode = Global.openStreetMap.getNode(destinationNodeId);
-
-		LinkedList<Node> aStarResult = (LinkedList) Global.openStreetMap.AStar2
-				.findPath(startNode, endNode);
-
-		if (aStarResult == null) {
-			System.out.println("Unable to generate a path between "
-					+ originNodeId + " and " + destinationNodeId);
-			throw new NoPathToDestinationException();
-		} else {
-			aStarResult.addFirst(startNode);
-			path = aStarResult;
-		}
+		
+		List<String> route = Oracle.routeFromTo(startNode, endNode);
+		LinkedList<Node> actualRoute = new LinkedList<Node>();
+		for (String nid : route)
+		  actualRoute.add(Global.openStreetMap.getNode(nid));
+		path = actualRoute;
+		
+		// actually calculate it
+    // LinkedList<Node> aStarResult = (LinkedList) Global.openStreetMap.AStar2
+    //    .findPath(startNode, endNode);
+    // 
+    // if (aStarResult == null) {
+    //  System.out.println("Unable to generate a path between "
+    //      + originNodeId + " and " + destinationNodeId);
+    //  throw new NoPathToDestinationException();
+    // } else {
+    //  aStarResult.addFirst(startNode);
+    //  path = aStarResult;
+    // }
 	}
 
 }

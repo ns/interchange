@@ -15,7 +15,7 @@ public class SimulationFactory {
 
 		Global.openStreetMap = openStreetMap;
 		Global.openStreetMap.purgeUnconnectedNodes();
-		Global.openStreetMap.mergeUnwantedNodes();
+		Global.openStreetMap.removeDisconnectedGraphs();
 		Global.openStreetMap.precomputeNeighborDistances();
 		Global.openStreetMap.projectUsingProjection(new MercatorProjection());
 

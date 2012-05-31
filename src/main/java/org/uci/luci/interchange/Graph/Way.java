@@ -9,7 +9,15 @@ public class Way {
 	public ArrayList<Tag> tags = new ArrayList<Tag>();
 	public int lanes;
 	public boolean oneway;
-
+	
+	public boolean includesNode(String nodeId) {
+	  for (String nid : nd) {
+	    if (nid.equals(nodeId))
+	      return true;
+	  }
+	  return false;
+	}
+	
 	public void addNode(String nodeId) {
 		nd.add(nodeId);
 	}

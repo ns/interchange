@@ -271,7 +271,7 @@ public class AppPanel extends JPanel {
 			} else {
 				for (int j = 0; j < _w.nd.size(); j++) {
 					_n = osm.getNode(_w.nd.get(j));
-
+					
 					if (j == 0) {
 						_last_n = _n;
 					} else {
@@ -380,7 +380,7 @@ public class AppPanel extends JPanel {
 			if (i instanceof HighwayRamp) {
 				continue;
 			}
-
+			
 			// // || i instanceof ThreeWayBiddingIntersection
 			// if (i instanceof FourWayBiddingIntersection) {
 			// FourWayBiddingIntersection ii = (FourWayBiddingIntersection)i;
@@ -390,7 +390,7 @@ public class AppPanel extends JPanel {
 			// ii.ewBidTotal(), (int)scaledRootNode.x+20,
 			// (int)scaledRootNode.y-20);
 			// }
-
+			
 			NodePoint rnP = scaledXY(rootNode.x, rootNode.y);
 			
 			for (Node connectedNode : rootNode.connectedNodes) {

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.lang.Math;
 
 public class Node extends AStarNode {
-
+  public int groupId = -1;
 	public double x, y;
 	public Node parent = null; // Parent Node setting
 	public float f = 0.0f; // Sum of goal and heuristic calculations
@@ -356,13 +356,24 @@ public class Node extends AStarNode {
     //   return d;
     // }
 	}
+	
+	
+	private HashMap<String, Float> cachedCosts = new HashMap<String, Float>();
 
 	/**
 	 * Gets the cost between this node and the specified adjacent (AKA
 	 * "neighbor" or "child") node.
 	 */
 	public float getCost(AStarNode node) {
-    return (float)dist2((Node) node);
+    Node n = (Node)node;
+    if (cachedCosts.containsKey(n.id))
+      return cachedCosts.get(n.id);
+    else {
+      float c = (float)dist2(n) / (float)Oracle.wayBetweenNodes(id, n.id).getSpeedLimit();
+      cachedCosts.put(n.id, c);
+      return c;
+    }
+    // return (float)dist2((Node) node) / (float)Oracle.wayBetweenNodes(id, ((Node) node).id).getSpeedLimit();
 	}
 
 	/**
@@ -371,9 +382,7 @@ public class Node extends AStarNode {
 	 * estimate, the more effecient the search.
 	 */
 	public float getEstimatedCost(AStarNode node) {
-    return (float)dist2((Node) node);
-    // Node n = (Node)node;
-    // return (float)Math.sqrt(((n.lat - lat) * (n.lat - lat)) + ((n.lon - lon) * (n.lon - lon)));
+    return (float)dist2((Node) node) / 25.0f;
 	}
 
 	/**
