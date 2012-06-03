@@ -51,7 +51,7 @@ public class VehicleDriver {
 				.getOriginNode().id).id);
 	}
 
-	private void processIntersectionEvents() {
+	private void processIntersectionEvents(double tickLength) {
 		// too far away from intersection
 		if (!isNearIntersection()) {
 			if (nearbyIntersectionId != null) {
@@ -66,6 +66,19 @@ public class VehicleDriver {
 			Intersection i = vehicle.getNextIntersection();
 			if (i.id.equals(nearbyIntersectionId)) {
 				// ignore
+				
+				// stats
+				if (!vehicle.paused() && vehicle.speed() == 0 && vehicle.getNodeAfterNextIntersection() != null) {
+					if (i.isLeftTurn(vehicle.getOriginNode().id,
+							vehicle.getNodeAfterNextIntersection().id)) {
+          		vehicle.vehicleTotalStoppedTimeAtLeft += tickLength;
+					} else if (i.isRightTurn(vehicle.getOriginNode().id,
+							vehicle.getNodeAfterNextIntersection().id)) {
+        		vehicle.vehicleTotalStoppedTimeAtRight += tickLength;
+					} else {
+        		vehicle.vehicleTotalStoppedTimeAtThrough += tickLength;
+					}
+				}
 			} else {
 				if (nearbyIntersectionId != null) {
 					Intersection ii = IntersectionRegistry
@@ -205,7 +218,7 @@ public class VehicleDriver {
 		determineBehavior();
 		handleLaneSwitching();
 		behave(simTime, tickLength);
-		processIntersectionEvents();
+		processIntersectionEvents(tickLength);
 	}
 
 	public String getState() {

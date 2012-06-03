@@ -36,11 +36,15 @@ public class Vehicle {
 	// can set this to something that actually routes the car to a destination.
 	public Navigation navigation;
 	public double vehicleTotalWaitTime = 0;
+	public double vehicleTotalStoppedTime = 0;
 	public double vehicleTotalTraveledDistance = 0;
 	public int spawnedAtSpawnRate = -1;
 	public int leftTurnsMade = 0;
+	public double vehicleTotalStoppedTimeAtLeft = 0;
 	public int rightTurnsMade = 0;
+	public double vehicleTotalStoppedTimeAtRight = 0;
 	public int throughsMade = 0;
+	public double vehicleTotalStoppedTimeAtThrough = 0;
 	public boolean isBeingCreated = true;
 
 	// cached
@@ -456,6 +460,8 @@ public class Vehicle {
 		Way w = getWay();
 		if (!paused() && w != null && speed < w.getSpeedLimit() * 0.9)
 			vehicleTotalWaitTime += tickLength;
+		if (!paused() && speed == 0)
+  		vehicleTotalStoppedTime += tickLength;
 		vehicleTotalTraveledDistance += (speed * tickLength) / (60 * 60);
 	}
 }

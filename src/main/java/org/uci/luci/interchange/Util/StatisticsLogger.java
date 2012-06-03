@@ -22,7 +22,7 @@ public class StatisticsLogger {
 
 		try {
 			if (logs.get(log) == null) {
-				logs.put(log, new FileWriter("C:\\Users\\Nitin\\Desktop\\log\\"
+				logs.put(log, new FileWriter("/Users/ns/Desktop/logs/"
 						+ log + ".csv"));
 			}
 
