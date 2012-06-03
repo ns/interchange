@@ -1,5 +1,6 @@
 package org.uci.luci.interchange.Intersections;
 
+import org.uci.luci.interchange.Driver.VehicleDriverBehavior.V2IMessage;
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Util.*;
 import org.uci.luci.interchange.Vehicles.*;
@@ -18,7 +19,7 @@ public class ThreeWayIntersection extends Intersection {
 	int switchInterval;
 	double lastFlip = -1;
 	private LightFSM lightFSM;
-	
+
 	public ThreeWayIntersection(String rootNodeId) {
 		super(rootNodeId);
 		Random randomGenerator = Utils.randomNumberGenerator();
@@ -40,46 +41,48 @@ public class ThreeWayIntersection extends Intersection {
 		connectedNodes.remove(g1.get(1));
 		northNodeId = connectedNodes.get(0).id;
 	}
-	
+
 	public String getState() {
-	  return lightFSM.getState();
+		return lightFSM.getState();
 	}
 
 	// 0 = green, 1 = yellow, 2 = red
 	// public int getLightForWayOnLane(Way w, int lane) {
-	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
-	  if (toNodeId == null) {
-      if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
-  	    return lightFSM.getLightForThrough1();
-      } else if (originNodeId.equals(northNodeId)) {
-  	    return lightFSM.getLightForThrough2();
-      } else {
-        return LightFSM.LIGHT.RED;
-      }
-	  }
-	  else {
-	    if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
-    	  if (isLeftTurn(originNodeId, toNodeId)) {
-    	    return lightFSM.getLightForLefts1();
-    	  } else if (isRightTurn(originNodeId, toNodeId)) {
-    	    return lightFSM.getLightForRights1();
-        } else {
-    	    return lightFSM.getLightForThrough1();
-    	  }
-      } else if (originNodeId.equals(northNodeId)) {
-    	  if (isLeftTurn(originNodeId, toNodeId)) {
-    	    return lightFSM.getLightForLefts2();
-    	  } else if (isRightTurn(originNodeId, toNodeId)) {
-    	    return lightFSM.getLightForRights2();
-        } else {
-    	    return lightFSM.getLightForThrough2();
-    	  }
-      } else {
-        return LightFSM.LIGHT.RED;
-      }
-	  }
+	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId,
+			String toNodeId, int lane) {
+		if (toNodeId == null) {
+			if (originNodeId.equals(eastNodeId)
+					|| originNodeId.equals(westNodeId)) {
+				return lightFSM.getLightForThrough1();
+			} else if (originNodeId.equals(northNodeId)) {
+				return lightFSM.getLightForThrough2();
+			} else {
+				return LightFSM.LIGHT.RED;
+			}
+		} else {
+			if (originNodeId.equals(eastNodeId)
+					|| originNodeId.equals(westNodeId)) {
+				if (isLeftTurn(originNodeId, toNodeId)) {
+					return lightFSM.getLightForLefts1();
+				} else if (isRightTurn(originNodeId, toNodeId)) {
+					return lightFSM.getLightForRights1();
+				} else {
+					return lightFSM.getLightForThrough1();
+				}
+			} else if (originNodeId.equals(northNodeId)) {
+				if (isLeftTurn(originNodeId, toNodeId)) {
+					return lightFSM.getLightForLefts2();
+				} else if (isRightTurn(originNodeId, toNodeId)) {
+					return lightFSM.getLightForRights2();
+				} else {
+					return lightFSM.getLightForThrough2();
+				}
+			} else {
+				return LightFSM.LIGHT.RED;
+			}
+		}
 	}
-	
+
 	public void tick(double simTime, double tickLength, int tick) {
 		if ((simTime - lastFlip) >= switchInterval) {
 			if (nsGreen) {
@@ -91,11 +94,12 @@ public class ThreeWayIntersection extends Intersection {
 			}
 			lastFlip = simTime;
 		}
-		
+
 		lightFSM.tick(simTime, tickLength, tick);
 	}
 
-	public void vehicleIsApproaching(Vehicle v) {
+	public void vehicleIsApproaching(Vehicle v, String originNodeId,
+			String toNodeId, int lane, V2IMessage msg) {
 		// info about vehicle
 		// System.out.println("v " + v.vin + " is approaching " + id);
 		// System.out.println("\tvin = " + v.vin);

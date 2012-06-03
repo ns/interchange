@@ -155,24 +155,24 @@ public class AppPanel extends JPanel {
 				case 39: // right
 					windowProjector.offsetX -= 20;
 					break;
-				case (int)'V':
-				  showVehicleInfo = !showVehicleInfo;
-				  break;
-				case (int)'M':
-				  showMap = !showMap;
-				  break;
-				case (int)'D':
-				  showDistances = !showDistances;
-				  break;
-				case (int)'T':
-				  showVehicleDebugTraces = !showVehicleDebugTraces;
-				  break;
-				case (int)'N':
-				  showAllNodes = !showAllNodes;
-				  break;
-				case (int)'I':
-				  showIntersectionInfo = !showIntersectionInfo;
-				  break;
+				case (int) 'V':
+					showVehicleInfo = !showVehicleInfo;
+					break;
+				case (int) 'M':
+					showMap = !showMap;
+					break;
+				case (int) 'D':
+					showDistances = !showDistances;
+					break;
+				case (int) 'T':
+					showVehicleDebugTraces = !showVehicleDebugTraces;
+					break;
+				case (int) 'N':
+					showAllNodes = !showAllNodes;
+					break;
+				case (int) 'I':
+					showIntersectionInfo = !showIntersectionInfo;
+					break;
 				}
 			}
 
@@ -271,7 +271,7 @@ public class AppPanel extends JPanel {
 			} else {
 				for (int j = 0; j < _w.nd.size(); j++) {
 					_n = osm.getNode(_w.nd.get(j));
-					
+
 					if (j == 0) {
 						_last_n = _n;
 					} else {
@@ -311,25 +311,22 @@ public class AppPanel extends JPanel {
 			for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
 				Node n = entry.getValue();
 				NodePoint p = scaledXY(n.x, n.y);
-				
+
 				// TODO: get rid of this flag
 				if (n.flaggedForMerge)
 					g2d.setColor(Color.RED);
 				else
 					g2d.setColor(Color.BLUE);
-				
-				
-				//System.out.println(n.tagCloud());
-				
+
+				// System.out.println(n.tagCloud());
+
 				if (n.hasTag("highway", "traffic_signals")) {
 					g2d.setColor(Color.RED);
 					width = 10;
-				}
-				else {
-					width=5;
+				} else {
+					width = 5;
 					g2d.setColor(Color.BLUE);
 				}
-				
 
 				g2d.fillOval((int) p.x + width / 2, (int) p.y + width / 2,
 						width, width);
@@ -380,7 +377,7 @@ public class AppPanel extends JPanel {
 			if (i instanceof HighwayRamp) {
 				continue;
 			}
-			
+
 			// // || i instanceof ThreeWayBiddingIntersection
 			// if (i instanceof FourWayBiddingIntersection) {
 			// FourWayBiddingIntersection ii = (FourWayBiddingIntersection)i;
@@ -390,9 +387,9 @@ public class AppPanel extends JPanel {
 			// ii.ewBidTotal(), (int)scaledRootNode.x+20,
 			// (int)scaledRootNode.y-20);
 			// }
-			
+
 			NodePoint rnP = scaledXY(rootNode.x, rootNode.y);
-			
+
 			for (Node connectedNode : rootNode.connectedNodes) {
 				Way w = Oracle.wayBetweenNodes(rootNode.id, connectedNode.id);
 
@@ -400,7 +397,8 @@ public class AppPanel extends JPanel {
 					System.out
 							.println("Warning: not drawing one way traffic lights");
 				} else {
-					LightFSM.LIGHT light = i.getLightForWayOnLane(null, connectedNode.id, null, 0);
+					LightFSM.LIGHT light = i.getLightForWayOnLane(null,
+							connectedNode.id, null, 0);
 
 					NodePoint ccPUS = distanceFromPointInDirectionOfPoint(
 							rootNode.x, rootNode.y, connectedNode.x,
@@ -414,30 +412,33 @@ public class AppPanel extends JPanel {
 					} else if (light == LightFSM.LIGHT.RED) {
 						g2d.setColor(new Color(255, 0, 0, 100));
 					}
-					
-          // if (i instanceof FiveWayIntersection) {
-          //   FiveWayIntersection ii = (FiveWayIntersection)i;
-          //   int size = 10;
-          //   if (connectedNode.id.equals(ii.eastNodeId) || connectedNode.id.equals(ii.westNodeId)) {
-          //              g2d.setColor(Color.MAGENTA);
-          //   }
-          //   else if (connectedNode.id.equals(ii.northNodeId) || connectedNode.id.equals(ii.southNodeId)) {
-          //              g2d.setColor(Color.BLUE);
-          //            }
-          //            else if (connectedNode.id.equals(ii.branchNodeId)) {
-          //              g2d.setColor(Color.RED);
-          //            }
-          //   g2d.fillOval((int) cnP.x - size / 2, (int) cnP.y - size / 2, size, size);
-          //          }
+
+					// if (i instanceof FiveWayIntersection) {
+					// FiveWayIntersection ii = (FiveWayIntersection)i;
+					// int size = 10;
+					// if (connectedNode.id.equals(ii.eastNodeId) ||
+					// connectedNode.id.equals(ii.westNodeId)) {
+					// g2d.setColor(Color.MAGENTA);
+					// }
+					// else if (connectedNode.id.equals(ii.northNodeId) ||
+					// connectedNode.id.equals(ii.southNodeId)) {
+					// g2d.setColor(Color.BLUE);
+					// }
+					// else if (connectedNode.id.equals(ii.branchNodeId)) {
+					// g2d.setColor(Color.RED);
+					// }
+					// g2d.fillOval((int) cnP.x - size / 2, (int) cnP.y - size /
+					// 2, size, size);
+					// }
 
 					g2d.drawLine((int) cnP.x, (int) cnP.y, (int) rnP.x,
 							(int) rnP.y);
 				}
 			}
 			if (showIntersectionInfo) {
-  			g2d.setColor(Color.BLACK);
-  			g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
-  			g2d.drawString(i.getState(), (int) rnP.x + 5, (int) rnP.y - 5);
+				g2d.setColor(Color.BLACK);
+				g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
+				g2d.drawString(i.getState(), (int) rnP.x + 5, (int) rnP.y - 5);
 			}
 		}
 
@@ -455,17 +456,22 @@ public class AppPanel extends JPanel {
 				p = scaledXY(Global.projection.convertLongToX(v.lon),
 						Global.projection.convertLatToY(v.lat));
 			}
-			
+
 			int size = 5;
-			
+
 			if (v.paused()) {
 				size = 10;
 				g2d.setColor(Color.MAGENTA);
-				g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size, size);
-			}
-			else {
+				g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size,
+						size);
+			} else if (d.driverGroup == 1 || d.driverGroup == 2) {
+				g2d.setColor(Color.CYAN);
+				g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size,
+						size);
+			} else {
 				g2d.setColor(Color.BLUE);
-				g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size, size);
+				g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size,
+						size);
 			}
 
 			if (showVehicleInfo) {
@@ -473,15 +479,19 @@ public class AppPanel extends JPanel {
 				g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
 				g2d.drawString("vin " + v.vin, (int) p.x + 5, (int) p.y);
 				if (v.navigation != null) {
-          g2d.drawString("origin " + (v.navigation.getOrigin() == null ? "(none)" : v.navigation.getOrigin()),
-             (int) p.x + 5, (int) p.y + 10);
-          g2d.drawString("dest " + (v.navigation.getDestination() == null ? "(none)" : v.navigation.getDestination()),
-             (int) p.x + 5, (int) p.y + 20);
-         }
-         else {
-           g2d.drawString("origin (none)", (int) p.x + 5, (int) p.y + 10);
-           g2d.drawString("dest (none)", (int) p.x + 5, (int) p.y + 20);
-         }
+					g2d.drawString("origin "
+							+ (v.navigation.getOrigin() == null ? "(none)"
+									: v.navigation.getOrigin()), (int) p.x + 5,
+							(int) p.y + 10);
+					g2d.drawString("dest "
+							+ (v.navigation.getDestination() == null ? "(none)"
+									: v.navigation.getDestination()),
+							(int) p.x + 5, (int) p.y + 20);
+				} else {
+					g2d.drawString("origin (none)", (int) p.x + 5,
+							(int) p.y + 10);
+					g2d.drawString("dest (none)", (int) p.x + 5, (int) p.y + 20);
+				}
 				g2d.drawString("km/h " + v.speed(), (int) p.x + 5,
 						(int) p.y + 30);
 				g2d.drawString("km/s^2 " + v.acceleration, (int) p.x + 5,
@@ -502,11 +512,25 @@ public class AppPanel extends JPanel {
 						(int) p.x + 5, (int) p.y + 60);
 				g2d.drawString("behavior is " + d.activeBehavior.state(),
 						(int) p.x + 5, (int) p.y + 70);
-				g2d.drawString("traveled dist " + v.vehicleTotalTraveledDistance,
-						(int) p.x + 5, (int) p.y + 80);
-				if (v.getNextIntersection() != null && v.getOriginNode() != null && v.getNodeAfterNextIntersection() != null) {
-					g2d.drawString("angle to intersection " + v.getNextIntersection().angle(v.getOriginNode().id, v.getNodeAfterNextIntersection().id),
-  						(int) p.x + 5, (int) p.y + 90);
+				g2d.drawString("traveled dist "
+						+ v.vehicleTotalTraveledDistance, (int) p.x + 5,
+						(int) p.y + 80);
+				g2d.drawString("rushedness " + d.rushedness(), (int) p.x + 5,
+						(int) p.y + 90);
+				// if (v.getWay() != null) {
+				// g2d.drawString("lae " + v.getOnLaneNumber() + " (total "
+				// + v.getWay().lanes + ")", (int) p.x + 5,
+				// (int) p.y + 100);
+				// }
+				if (v.getNextIntersection() != null
+						&& v.getOriginNode() != null
+						&& v.getNodeAfterNextIntersection() != null) {
+					g2d.drawString(
+							"angle to intersection "
+									+ v.getNextIntersection()
+											.angle(v.getOriginNode().id,
+													v.getNodeAfterNextIntersection().id),
+							(int) p.x + 5, (int) p.y + 100);
 				}
 			}
 
@@ -584,8 +608,25 @@ public class AppPanel extends JPanel {
 
 		g2d.drawString("Total Vehicles: "
 				+ Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
-		g2d.drawString("Spawn Rate: "
-				+ Global.simulator.getSpawnRate(), 10, 70);
+		g2d.drawString("Spawn Rate: " + Global.simulator.getSpawnRate(), 10, 70);
+
+		if (highlightPoint != null) {
+			g2d.setColor(Color.RED);
+			int size = 20;
+			NodePoint pp = scaledXY(highlightPoint.x, highlightPoint.y);
+			g2d.fillOval((int) pp.x - size / 2, (int) pp.y - size / 2, size,
+					size);
+
+			for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
+				Node n = entry.getValue();
+				NodePoint p = scaledXY(n.x, n.y);
+
+				if (Math.sqrt(Math.pow(n.x - highlightPoint.x, 2)
+						+ Math.pow(n.y - highlightPoint.y, 2)) < 10) {
+					System.out.println("node = " + n.id);
+				}
+			}
+		}
 	}
 
 	private NodePoint distanceFromPointInDirectionOfPoint(double fromLat,

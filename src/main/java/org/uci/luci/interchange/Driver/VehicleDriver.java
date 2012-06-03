@@ -1,5 +1,6 @@
 package org.uci.luci.interchange.Driver;
 
+import org.uci.luci.interchange.Util.Utils;
 import org.uci.luci.interchange.Vehicles.*;
 import org.uci.luci.interchange.Intersections.*;
 import org.uci.luci.interchange.Graph.*;
@@ -15,10 +16,21 @@ public class VehicleDriver {
 	String nearbyIntersectionId = null;
 	private String state;
 	public VehicleDriverBehavior activeBehavior;
+	private int rushedness = -1;
+	public int spawnedAtPercentRushedness = -1;
+	public int driverGroup = -1;
 
 	public VehicleDriver(Vehicle vehicle) {
 		this.vehicle = vehicle;
 		setState("general_acceleration");
+	}
+
+	public void setRushedness(int r) {
+		rushedness = r;
+	}
+
+	public int rushedness() {
+		return rushedness;
 	}
 
 	public void pickRandomDestinationAndGo()
@@ -40,11 +52,8 @@ public class VehicleDriver {
 	}
 
 	private void processIntersectionEvents() {
-		double d2I = vehicle.getDistanceToNextIntersection();
-		double minDistToIntersection = 0.0002;
-
 		// too far away from intersection
-		if (d2I == -1 || d2I > minDistToIntersection) {
+		if (!isNearIntersection()) {
 			if (nearbyIntersectionId != null) {
 				Intersection i = IntersectionRegistry
 						.getIntersection(nearbyIntersectionId);
@@ -58,9 +67,48 @@ public class VehicleDriver {
 			if (i.id.equals(nearbyIntersectionId)) {
 				// ignore
 			} else {
+				if (nearbyIntersectionId != null) {
+					Intersection ii = IntersectionRegistry
+							.getIntersection(nearbyIntersectionId);
+					nearbyIntersectionId = null;
+					ii.vehicleIsLeaving(vehicle);
+				}
+
 				nearbyIntersectionId = i.id;
-				i.vehicleIsApproaching(vehicle);
+
+				V2IMessage msg = new V2IMessage();
+
+				if (rushedness == -1)
+					msg.bid = Utils.randomNumberGenerator().nextInt(101);
+				else
+					msg.bid = rushedness;
+
+				if (vehicle.getNodeAfterNextIntersection() != null) {
+					i.vehicleIsApproaching(vehicle, vehicle.getOriginNode().id,
+							vehicle.getNodeAfterNextIntersection().id,
+							vehicle.getOnLaneNumber(), msg);
+
+					if (i.isLeftTurn(vehicle.getOriginNode().id,
+							vehicle.getNodeAfterNextIntersection().id)) {
+						vehicle.leftTurnsMade++;
+					} else if (i.isRightTurn(vehicle.getOriginNode().id,
+							vehicle.getNodeAfterNextIntersection().id)) {
+						vehicle.rightTurnsMade++;
+					} else {
+						vehicle.throughsMade++;
+					}
+				} else {
+					i.vehicleIsApproaching(vehicle, vehicle.getOriginNode().id,
+							null, vehicle.getOnLaneNumber(), msg);
+				}
 			}
+		}
+
+		if (vehicle.hasArrivedAtDestination() && nearbyIntersectionId != null) {
+			Intersection i = IntersectionRegistry
+					.getIntersection(nearbyIntersectionId);
+			nearbyIntersectionId = null;
+			i.vehicleIsLeaving(vehicle);
 		}
 	}
 
@@ -76,9 +124,9 @@ public class VehicleDriver {
 	}
 
 	private void handleLaneSwitching() {
-	  if (vehicle.hasArrivedAtDestination())
-  	  return;
-  	
+		if (vehicle.hasArrivedAtDestination())
+			return;
+
 		Intersection ii = vehicle.getNextIntersection();
 		if (ii != null) {
 			Node nextNode = vehicle.navigation.nextNodeOnPath(vehicle
@@ -103,7 +151,7 @@ public class VehicleDriver {
 						if (vehicle.getOnLaneNumber() > vehicle.getWay().lanes - 1) {
 							System.out
 									.println("this should not have happened.");
-//							vehicle.pause();
+							// vehicle.pause();
 							// TODO: look into this
 							vehicle.setOnLaneNumber(vehicle.getWay().lanes - 1);
 						}
@@ -142,11 +190,11 @@ public class VehicleDriver {
 		} else if (isNearIntersection) {
 			setState("crossing_intersection");
 		}
-		
+
 		// check if we're at the destination
-    if (vehicle.hasArrivedAtDestination()) {
-      setState("reached_destination");
-    }
+		if (vehicle.hasArrivedAtDestination()) {
+			setState("reached_destination");
+		}
 	}
 
 	// this is called per-simulator tick which currently represents 1sec

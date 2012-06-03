@@ -65,10 +65,14 @@ public class NodeTraversingMehanism {
 	// }
 
 	public Node getOriginNode() {
+		if (originNodeId == null)
+			return null;
 		return Global.openStreetMap.getNode(originNodeId);
 	}
 
 	public Node getDestinationNode() {
+		if (destinationNodeId == null)
+			return null;
 		return Global.openStreetMap.getNode(destinationNodeId);
 	}
 

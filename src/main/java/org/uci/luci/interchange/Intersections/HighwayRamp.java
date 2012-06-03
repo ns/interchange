@@ -1,5 +1,6 @@
 package org.uci.luci.interchange.Intersections;
 
+import org.uci.luci.interchange.Driver.VehicleDriverBehavior.V2IMessage;
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Util.*;
 import org.uci.luci.interchange.Vehicles.*;
@@ -16,17 +17,22 @@ public class HighwayRamp extends Intersection {
 
 	// 0 = green, 1 = yellow, 2 = red
 	// public int getLightForWayOnLane(Way w, int lane) {
-	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
-	  return LightFSM.LIGHT.GREEN;
+	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId,
+			String toNodeId, int lane) {
+		return LightFSM.LIGHT.GREEN;
 	}
-	
+
 	public String getState() {
-	  return "Green";
+		return "Green";
 	}
 
-	public void tick(double simTime, double tickLength, int tick) {}
+	public void tick(double simTime, double tickLength, int tick) {
+	}
 
-	public void vehicleIsApproaching(Vehicle v) {}
+	public void vehicleIsApproaching(Vehicle v, String originNodeId,
+			String toNodeId, int lane, V2IMessage msg) {
+	}
 
-	public void vehicleIsLeaving(Vehicle v) {}
+	public void vehicleIsLeaving(Vehicle v) {
+	}
 }

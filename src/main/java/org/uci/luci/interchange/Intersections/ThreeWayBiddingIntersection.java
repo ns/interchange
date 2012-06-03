@@ -1,5 +1,6 @@
 package org.uci.luci.interchange.Intersections;
 
+import org.uci.luci.interchange.Driver.VehicleDriverBehavior.V2IMessage;
 import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Util.*;
 import org.uci.luci.interchange.Vehicles.*;
@@ -14,16 +15,13 @@ public class ThreeWayBiddingIntersection extends Intersection {
 	String eastNodeId, westNodeId;
 	String northNodeId;
 
-	boolean ewGreen = false;
-	boolean nsGreen = false;
-
-	HashMap<String, Integer> ewBids, nsBids;
+	private InterchangeLightFSM lightFSM;
 
 	public ThreeWayBiddingIntersection(String rootNodeId) {
 		super(rootNodeId);
 		generateGroups();
-		ewBids = new HashMap<String, Integer>();
-		nsBids = new HashMap<String, Integer>();
+		lightFSM = new InterchangeLightFSM(10, 30, 5, 10, 5);
+
 	}
 
 	private void generateGroups() {
@@ -38,69 +36,76 @@ public class ThreeWayBiddingIntersection extends Intersection {
 		connectedNodes.remove(g1.get(1));
 		northNodeId = connectedNodes.get(0).id;
 	}
-	
+
 	public String getState() {
-	  return "?";
+		return lightFSM.getState();
 	}
 
 	// 0 = green, 1 = yellow, 2 = red
-	// public int getLightForWayOnLane(Way w, int lane) {
-	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId, String toNodeId, int lane) {
-	  return LightFSM.LIGHT.RED;
-    // if (originNodeId.equals(eastNodeId) || originNodeId.equals(westNodeId)) {
-    //  return ewGreen ? 0 : 2;
-    // } else if (originNodeId.equals(northNodeId)) {
-    //  return nsGreen ? 0 : 2;
-    // } else {
-    //  System.out.println("no equals");
-    // }
-    // 
-    // return 2;
-	}
-
-	public void tick(double simTime, double tickLength, int tick) {
-		if (nsBidTotal() > ewBidTotal()) {
-			ewGreen = false;
-			nsGreen = true;
+	public LightFSM.LIGHT getLightForWayOnLane(Way w, String originNodeId,
+			String toNodeId, int lane) {
+		if (toNodeId == null) {
+			if (originNodeId.equals(eastNodeId)
+					|| originNodeId.equals(westNodeId)) {
+				return lightFSM.getLightForThrough1();
+			} else if (originNodeId.equals(northNodeId)) {
+				return lightFSM.getLightForThrough2();
+			} else {
+				return LightFSM.LIGHT.RED;
+			}
 		} else {
-			ewGreen = true;
-			nsGreen = false;
+			if (originNodeId.equals(eastNodeId)
+					|| originNodeId.equals(westNodeId)) {
+				if (isLeftTurn(originNodeId, toNodeId)) {
+					return lightFSM.getLightForLefts1();
+				} else if (isRightTurn(originNodeId, toNodeId)) {
+					return lightFSM.getLightForRights1();
+				} else {
+					return lightFSM.getLightForThrough1();
+				}
+			} else if (originNodeId.equals(northNodeId)) {
+				if (isLeftTurn(originNodeId, toNodeId)) {
+					return lightFSM.getLightForLefts2();
+				} else if (isRightTurn(originNodeId, toNodeId)) {
+					return lightFSM.getLightForRights2();
+				} else {
+					return lightFSM.getLightForThrough2();
+				}
+			} else {
+				return LightFSM.LIGHT.RED;
+			}
 		}
 	}
 
-	public int nsBidTotal() {
-		return nsBids.size();
-		// int total = 0;
-		// for (Map.Entry<String, Integer> entry : nsBids.entrySet()) {
-		// Integer bid = entry.getValue();
-		// total += bid;
-		// }
-		// return total;
+	public void tick(double simTime, double tickLength, int tick) {
+		lightFSM.tick(simTime, tickLength, tick);
 	}
 
-	public int ewBidTotal() {
-		return ewBids.size();
-		// int total = 0;
-		// for (Map.Entry<String, Integer> entry : ewBids.entrySet()) {
-		// Integer bid = entry.getValue();
-		// total += bid;
-		// }
-		// return total;
-	}
-
-	public void vehicleIsApproaching(Vehicle v) {
+	public void vehicleIsApproaching(Vehicle v, String originNodeId,
+			String toNodeId, int lane, V2IMessage msg) {
+		// just count it as a +1 bid for the moment
 		// just count it as a +1 bid for the moment
 		if (v.getOriginNode().id.equals(eastNodeId)
 				|| v.getOriginNode().id.equals(westNodeId)) {
-			ewBids.put(v.vin + "", 1);
+			if (toNodeId != null && isLeftTurn(originNodeId, toNodeId)) {
+				lightFSM.acceptBidGroup1Left(v.vin + "", msg.bid);
+			} else if (toNodeId != null && isRightTurn(originNodeId, toNodeId)) {
+				lightFSM.acceptBidGroup1Right(v.vin + "", msg.bid);
+			} else {
+				lightFSM.acceptBidGroup1Through(v.vin + "", msg.bid);
+			}
 		} else if (v.getOriginNode().id.equals(northNodeId)) {
-			nsBids.put(v.vin + "", 1);
+			if (toNodeId != null && isLeftTurn(originNodeId, toNodeId)) {
+				lightFSM.acceptBidGroup2Left(v.vin + "", msg.bid);
+			} else if (toNodeId != null && isRightTurn(originNodeId, toNodeId)) {
+				lightFSM.acceptBidGroup2Right(v.vin + "", msg.bid);
+			} else {
+				lightFSM.acceptBidGroup2Through(v.vin + "", msg.bid);
+			}
 		}
 	}
 
 	public void vehicleIsLeaving(Vehicle v) {
-		// remove the vehicles bid
-		nsBids.remove(v.vin + "");
-		ewBids.remove(v.vin + "");
+		lightFSM.clearBidForVehicle(v.vin + "");
 	}
 }

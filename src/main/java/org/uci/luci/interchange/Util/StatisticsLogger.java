@@ -41,13 +41,18 @@ public class StatisticsLogger {
 		double vehicleGaugeTime;
 		double vehicleTotalTraveledDistance;
 		double vehicleTotalWaitTime;
+		int driverRushedness;
+		int throughsMade;
 
 		public VehicleSample(int vin, double vehicleGaugeTime,
-				double vehicleTotalTraveledDistance, double vehicleTotalWaitTime) {
+				double vehicleTotalTraveledDistance,
+				double vehicleTotalWaitTime, int driverRushedness, int throughsMade) {
 			this.vin = vin;
 			this.vehicleGaugeTime = vehicleGaugeTime;
 			this.vehicleTotalTraveledDistance = vehicleTotalTraveledDistance;
 			this.vehicleTotalWaitTime = vehicleTotalWaitTime;
+			this.driverRushedness = driverRushedness;
+			this.throughsMade = throughsMade;
 		}
 	}
 
@@ -59,10 +64,11 @@ public class StatisticsLogger {
 		public double confidence;
 		public double lowDelta;
 		public double highDelta;
+		public double sd;
 
 		public ConfidenceInterval(double mean, int samples, double lowDelta,
 				double highDelta, double lowEndpoint, double highEndpoint,
-				double confidence) {
+				double confidence, double sd) {
 			this.mean = mean;
 			this.samples = samples;
 			this.lowDelta = lowDelta;
@@ -70,10 +76,15 @@ public class StatisticsLogger {
 			this.lowEndpoint = lowEndpoint;
 			this.highEndpoint = highEndpoint;
 			this.confidence = confidence;
+			this.sd = sd;
 		}
 
 		public double range() {
 			return highEndpoint - lowEndpoint;
+		}
+
+		public double sd() {
+			return sd;
 		}
 	}
 
@@ -88,7 +99,7 @@ public class StatisticsLogger {
 		double total = 0;
 		for (VehicleSample vs : samples) {
 			total += Math.pow(
-					(vs.vehicleTotalWaitTime / vs.vehicleTotalTraveledDistance)
+					(vs.vehicleTotalWaitTime / (double)vs.throughsMade)
 							- mean, 2);
 		}
 		return Math.sqrt(total / samples.size());
@@ -97,7 +108,7 @@ public class StatisticsLogger {
 	private static double calculateMean(List<VehicleSample> samples) {
 		double total = 0;
 		for (VehicleSample vs : samples) {
-			total += (vs.vehicleTotalWaitTime / vs.vehicleTotalTraveledDistance);
+			total += (vs.vehicleTotalWaitTime / (double)vs.throughsMade);
 		}
 		return total / samples.size();
 	}
@@ -133,7 +144,7 @@ public class StatisticsLogger {
 				+ ")");
 
 		return new ConfidenceInterval(mean, samples.size(), z * sde, z * sde,
-				lowerEndpoint, upperEndpoint, (1 - alpha));
+				lowerEndpoint, upperEndpoint, (1 - alpha), sd);
 	}
 
 	public static void purgeAllSampleData() {

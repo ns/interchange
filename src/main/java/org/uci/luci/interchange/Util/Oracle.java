@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.LinkedList;
 import java.util.Random;
 
-
 public class Oracle {
 	private static HashMap<String, ArrayList<String>> originNodesToVehicles = new HashMap<String, ArrayList<String>>();
 	private static HashMap<String, Way> twoNodesToWay = new HashMap<String, Way>();
@@ -38,26 +37,26 @@ public class Oracle {
 		ArrayList<String> vehicles = originNodesToVehicles.get(nodeId);
 		vehicles.add(vin + "");
 	}
-	
-  public static boolean hasRoomForCarAtNode(Node n) {
-    List<String> vehicles = vehiclesWithNodeAsOrigin(n.id);
-    if (vehicles == null)
-      return true;
-    for (String vin : vehicles) {
-      Vehicle v = VehicleRegistry.getVehicle(vin);
-      if (v == null)
-        continue;
-      if (Utils.distance(n.lat, n.lon, v.lat, v.lon, 'K') < Vehicle.DISTANCE_TO_CONSIDER_AS_SAME)
-        return false;
-    }
-	  return true;
+
+	public static boolean hasRoomForCarAtNode(Node n) {
+		List<String> vehicles = vehiclesWithNodeAsOrigin(n.id);
+		if (vehicles == null)
+			return true;
+		for (String vin : vehicles) {
+			Vehicle v = VehicleRegistry.getVehicle(vin);
+			if (v == null)
+				continue;
+			if (Utils.distance(n.lat, n.lon, v.lat, v.lon, 'K') < Vehicle.DISTANCE_TO_CONSIDER_AS_SAME)
+				return false;
+		}
+		return true;
 	}
-	
+
 	public static List<String> vehiclesWithNodeAsOrigin(String nodeId) {
-	  if (originNodesToVehicles.containsKey(nodeId))
-  		return (List<String>)originNodesToVehicles.get(nodeId).clone();
+		if (originNodesToVehicles.containsKey(nodeId))
+			return (List<String>) originNodesToVehicles.get(nodeId).clone();
 		else
-  		return null;
+			return null;
 	}
 
 	public static void registerWay(String fromNodeId, String toNodeId, Way way) {
@@ -70,75 +69,96 @@ public class Oracle {
 			w = twoNodesToWay.get(node2 + "-" + node1);
 		return w;
 	}
-	
+
 	public static double getDistanceBetweenNodes(String node1Id, String node2Id) {
-	  String key = node1Id + "-" + node2Id;
-	  
-	  if (node1Id.charAt(0) < node2Id.charAt(0))
-	    key = node2Id + "-" + node1Id;
-	  
-	  if (cachedDistances.containsKey(key)) {
-	    return cachedDistances.get(key);
-	  }
-	  else {
-  		Node node1 = Global.openStreetMap.getNode(node1Id);
-  		Node node2 = Global.openStreetMap.getNode(node2Id);
-	    double d = Utils.distance(node1.lat,node1.lon,node2.lat,node2.lon,'K');
-	    cachedDistances.put(key, d);
-	    return d;
-	  }
+		String key = node1Id + "-" + node2Id;
+
+		if (node1Id.charAt(0) < node2Id.charAt(0))
+			key = node2Id + "-" + node1Id;
+
+		if (cachedDistances.containsKey(key)) {
+			return cachedDistances.get(key);
+		} else {
+			Node node1 = Global.openStreetMap.getNode(node1Id);
+			Node node2 = Global.openStreetMap.getNode(node2Id);
+			double d = Utils.distance(node1.lat, node1.lon, node2.lat,
+					node2.lon, 'K');
+			cachedDistances.put(key, d);
+			return d;
+		}
 	}
-	
+
 	public static void generateRoutes(int total) {
-	  cachedRoutes.clear();
-	  
+		cachedRoutes.clear();
+
 		List<Node> nodes = Global.openStreetMap.nodes();
 		Random generator = Utils.randomNumberGenerator();
-				
-	  while (cachedRoutes.size() != total) {
-	    Node startNode = null;
-	    Node endNode = null;
-	    try {
-    		startNode = nodes.get(generator.nextInt(nodes.size()));
-    		endNode = nodes.get(generator.nextInt(nodes.size()));
-    		if (startNode == endNode)
-    		  continue;
-    	  	if (Utils.distance(startNode.lat, startNode.lon, endNode.lat, endNode.lon, 'K') < 3)
-    	          continue;
-  	    LinkedList<Node> path = generatePathBetweenNodes(startNode, endNode);
-  	    ArrayList<String> cachedPath = new ArrayList<String>();
-  	    for (Node n : path) {cachedPath.add(n.id);}
-  	    cachedRoutes.put(startNode.id+"-"+endNode.id, cachedPath);
-  	    System.out.println("generated route " + cachedRoutes.size());
-	    }
-	    catch (NoPathToDestinationException e) {
-  	    System.out.println("no dest..");
-  	    return;
-	    }
-	  }
+
+		while (cachedRoutes.size() != total) {
+			Node startNode = null;
+			Node endNode = null;
+			try {
+				startNode = nodes.get(generator.nextInt(nodes.size()));
+				endNode = nodes.get(generator.nextInt(nodes.size()));
+				if (startNode == endNode)
+					continue;
+				if (Utils.distance(startNode.lat, startNode.lon, endNode.lat,
+						endNode.lon, 'K') < 3)
+					continue;
+				LinkedList<Node> path = generatePathBetweenNodes(startNode,
+						endNode);
+				ArrayList<String> cachedPath = new ArrayList<String>();
+				for (Node n : path) {
+					cachedPath.add(n.id);
+				}
+				cachedRoutes.put(startNode.id + "-" + endNode.id, cachedPath);
+				System.out.println("generated route " + cachedRoutes.size());
+			} catch (NoPathToDestinationException e) {
+				System.out.println("no dest..");
+				return;
+			}
+		}
 	}
-	
+
 	public static List<String> routeFromTo(Node from, Node to) {
-	  if (cachedRoutes.containsKey(from.id+"-"+to.id)) {
-	    return cachedRoutes.get(from.id+"-"+to.id);
-	  }
-	  else {
-	    System.out.println("FATAL");
-	    return null;
-	  }
+		if (cachedRoutes.containsKey(from.id + "-" + to.id)) {
+			return cachedRoutes.get(from.id + "-" + to.id);
+		} else {
+			System.out.println("FATAL");
+			return null;
+		}
 	}
-	
+
 	public static List<String> randomRoute() {
-	  Random generator = Utils.randomNumberGenerator();
-	  ArrayList<ArrayList<String>> allRoutes = new ArrayList<ArrayList<String>>(cachedRoutes.values());
-	  List<String> route = allRoutes.get(generator.nextInt(allRoutes.size()));
-	  return route;
-    // System.out.println("route = " + route);
-    // return new String[] {route.get(0), route.get(route.size()-1)};
+		Random generator = Utils.randomNumberGenerator();
+		ArrayList<ArrayList<String>> allRoutes = new ArrayList<ArrayList<String>>(
+				cachedRoutes.values());
+		List<String> route = allRoutes.get(generator.nextInt(allRoutes.size()));
+		return route;
+		// System.out.println("route = " + route);
+		// return new String[] {route.get(0), route.get(route.size()-1)};
 	}
-	
-	private static LinkedList<Node> generatePathBetweenNodes(Node startNode, Node endNode) throws NoPathToDestinationException {
-		LinkedList<Node> aStarResult = (LinkedList<Node>)Global.openStreetMap.AStar2.findPath(startNode, endNode);
+
+	public static void generatePath(Node startNode, Node endNode)
+			throws NoPathToDestinationException {
+		try {
+			LinkedList<Node> path = generatePathBetweenNodes(startNode, endNode);
+			ArrayList<String> cachedPath = new ArrayList<String>();
+			for (Node n : path) {
+				cachedPath.add(n.id);
+			}
+			cachedRoutes.put(startNode.id + "-" + endNode.id, cachedPath);
+			System.out.println("generated route " + cachedRoutes.size());
+		} catch (NoPathToDestinationException e) {
+			System.out.println("no dest..");
+			return;
+		}
+	}
+
+	private static LinkedList<Node> generatePathBetweenNodes(Node startNode,
+			Node endNode) throws NoPathToDestinationException {
+		LinkedList<Node> aStarResult = (LinkedList<Node>) Global.openStreetMap.AStar2
+				.findPath(startNode, endNode);
 
 		if (aStarResult == null) {
 			throw new NoPathToDestinationException();
