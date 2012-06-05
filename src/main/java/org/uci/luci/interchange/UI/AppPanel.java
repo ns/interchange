@@ -84,6 +84,26 @@ public class AppPanel extends JPanel {
 
 		addMouseListener(new MouseListener() {
 			public void mouseClicked(MouseEvent e) {
+				System.out.println("Clicked"  + Global.follow);
+				if(Global.follow == null)
+				{
+					for(Vehicle  v : VehicleRegistry.allRegisteredVehicles())
+					{
+						NodePoint p = scaledXY(Global.projection.convertLongToX(v.lon),Global.projection.convertLatToY(v.lat));
+						System.out.println(p.x + "," + p.y);
+						System.out.println(e.getX() + "," + e.getY());
+						if((int) p.x - 5 / 2 == e.getX() && (int) p.y - 5 / 2 == e.getY())
+						{
+							System.out.println(v);
+							Global.follow = v;
+							return;
+						}
+					}
+				}
+				else
+				{
+					Global.follow = null;
+				}
 			}
 
 			public void mousePressed(MouseEvent e) {
@@ -457,7 +477,7 @@ public class AppPanel extends JPanel {
 				g2d.fillOval((int) p.x - size / 2, (int) p.y - size / 2, size, size);
 			}
 
-			if (showVehicleInfo) {
+			if (showVehicleInfo || v.equals(Global.follow)) {
 				g2d.setColor(Color.BLACK);
 				g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
 				g2d.drawString("vin " + v.vin, (int) p.x + 5, (int) p.y);
@@ -610,6 +630,12 @@ public class AppPanel extends JPanel {
 			// offsetX = (int) (getSize().getWidth() / 2) - scale / 2;
 			// if (offsetY == -1)
 			// offsetY = (int) (getSize().getHeight() / 2) - scale / 2;
+
+			if(Global.follow != null)
+			{
+				windowProjector.offsetX = (int) Global.follow.velocity.x;
+				windowProjector.offsetY = (int) Global.follow.velocity.y;
+			}
 
 			super.paintComponent(g);
 

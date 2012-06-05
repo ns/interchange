@@ -2,6 +2,7 @@ package org.uci.luci.interchange.Util;
 
 import org.uci.luci.interchange.OSM.*;
 import org.uci.luci.interchange.UI.AppWindow;
+import org.uci.luci.interchange.Vehicles.Vehicle;
 import org.uci.luci.interchange.Simulator;
 
 public class Global {
@@ -14,5 +15,7 @@ public class Global {
 	public static double minLat;
 	public static double maxLon;
 	public static double minLon;
+	
+	public static Vehicle follow;
 	// public static boolean runSim = true;
 }

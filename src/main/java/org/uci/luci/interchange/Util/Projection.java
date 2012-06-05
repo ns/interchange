@@ -7,4 +7,5 @@ public interface Projection {
 	abstract double convertLongToX(double lng);
 
 	abstract double convertLatToY(double lat);
+
 }
