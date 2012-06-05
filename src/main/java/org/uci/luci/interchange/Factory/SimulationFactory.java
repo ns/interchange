@@ -15,6 +15,7 @@ public class SimulationFactory {
 
 		Global.openStreetMap = openStreetMap;
 		Global.openStreetMap.purgeUnconnectedNodes();
+		//Global.openStreetMap.purgeIslands();
 		Global.openStreetMap.mergeUnwantedNodes();
 		Global.openStreetMap.precomputeNeighborDistances();
 		Global.openStreetMap.projectUsingProjection(new MercatorProjection());
@@ -24,7 +25,7 @@ public class SimulationFactory {
 		else
 			IntersectionRegistry.generateTraditionalIntersections();
 
-		new AppWindow();
+		Global.window = new AppWindow();
 
 		Simulator simulator = new Simulator();
 		simulator.setSpeed(simulationSpeed);
