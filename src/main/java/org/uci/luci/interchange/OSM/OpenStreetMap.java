@@ -5,9 +5,12 @@ import org.uci.luci.interchange.Graph.*;
 import org.uci.luci.interchange.Pathfinding.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class OpenStreetMap {
 	/* basic */
@@ -37,16 +40,16 @@ public class OpenStreetMap {
 	public void mergeUnwantedNodes() {
 
 	}
-	
+
 	public void precomputeNeighborDistances() {
-	  System.out.println("precomputeNeighborDistances --");
-	  for (Map.Entry<String, Node> entry : nodeHash.entrySet()) {
+		System.out.println("precomputeNeighborDistances --");
+		for (Map.Entry<String, Node> entry : nodeHash.entrySet()) {
 			Node n = entry.getValue();
 			for (Node cn : n.connectedNodes) {
-			  Oracle.getDistanceBetweenNodes(n.id, cn.id);
+				Oracle.getDistanceBetweenNodes(n.id, cn.id);
 			}
 		}
-	  System.out.println("precomputeNeighborDistances DONE");
+		System.out.println("precomputeNeighborDistances DONE");
 	}
 
 	public void projectUsingProjection(Projection p) {
@@ -67,8 +70,8 @@ public class OpenStreetMap {
 				projectedMaxY = n.y;
 		}
 
-    widthInKm = Utils.distance(Double.valueOf(getMinlat()), Double.valueOf(getMinlon()), Double.valueOf(getMinlat()), Double.valueOf(getMaxlon()), 'K');
-    heightInKm = Utils.distance(Double.valueOf(getMinlat()), Double.valueOf(getMinlon()), Double.valueOf(getMaxlat()), Double.valueOf(getMinlon()), 'K');
+		widthInKm = Utils.distance(Double.valueOf(getMinlat()), Double.valueOf(getMinlon()), Double.valueOf(getMinlat()), Double.valueOf(getMaxlon()), 'K');
+		heightInKm = Utils.distance(Double.valueOf(getMinlat()), Double.valueOf(getMinlon()), Double.valueOf(getMaxlat()), Double.valueOf(getMinlon()), 'K');
 		System.out.println("widthInKm = " + widthInKm + " heightInKm = " + heightInKm);
 	}
 
@@ -208,17 +211,68 @@ public class OpenStreetMap {
 
 	public void purgeUnconnectedNodes() {
 		ArrayList<String> nodesToRemove = new ArrayList<String>();
-		for (Map.Entry<String, Node> entry : nodeHash.entrySet()) {
+		for (Map.Entry<String, Node> entry : nodeHash.entrySet()) 
+		{
 			Node n = entry.getValue();
-			if (n.way == null) {
+			if (n.way == null) 
+			{
 				nodesToRemove.add(n.id);
 			}
 		}
-		for (String nid : nodesToRemove) {
+		for (String nid : nodesToRemove) 
+		{
 			removeNode(nid);
 		}
 	}
+	
+	
+	public void purgeIslands()
+	{
+		Set<Node> toRemove = getLargestConnectedGraph(nodeHash.values());
+		for(Node n : toRemove)
+		{
+			removeNode(n.id);
+		}
+	}
 
+	public Set<Node> getLargestConnectedGraph(Collection<Node> nodes)
+	{
+		ArrayList<Node> notYetConnectedNodes = new ArrayList<Node>();
+		notYetConnectedNodes.addAll(nodes);
+		ArrayList<HashSet<Node>> islands = new ArrayList<HashSet<Node>>();
+		int biggestIsland = 0;
+		while(notYetConnectedNodes.size() > biggestIsland)
+		{
+			HashSet<Node> currentIsland = getAllConnectedNodes(notYetConnectedNodes.get(0));
+			notYetConnectedNodes.removeAll(currentIsland);
+			islands.add(currentIsland);
+		}
+		HashSet<Node> biggest = null;
+		int maxSize = 0;
+		for(HashSet<Node> island : islands)
+		{
+			if(island.size() > maxSize)
+				biggest = island;
+		}
+		return biggest;
+	}
+
+	@SuppressWarnings("unchecked")
+	public HashSet<Node> getAllConnectedNodes(Node n)
+	{
+		ArrayList<String> nodes3 = new ArrayList<String>();
+		ArrayList<Node> nodes = new ArrayList<Node>();
+		HashSet<Node> nodes2 = new HashSet<Node>(nodes);
+		nodes.add(n);
+		for(int i = 0; i < nodes.size(); i++)
+		{
+			nodes2.addAll(nodes.get(i).getNeighbors());
+			nodes.clear();
+			nodes.addAll(nodes2);
+		}
+		return nodes2;
+	}
+	
 	public void addWay(Way w) {
 		if (!w.hasTag("highway", "motorway")
 				&& !w.hasTag("highway", "motorway_link")
@@ -243,7 +297,7 @@ public class OpenStreetMap {
 				return;
 			}
 		}
-		
+
 		if (w.hasTag("lanes")) {
 			w.lanes = Integer.parseInt(w.getTag("lanes"));
 		} else {
@@ -261,7 +315,7 @@ public class OpenStreetMap {
 				w.lanes = 1;
 			} else {
 				w.lanes = 1;
-        // System.out.println("\thighway=" + w.getTag("highway"));
+				// System.out.println("\thighway=" + w.getTag("highway"));
 			}
 		}
 
