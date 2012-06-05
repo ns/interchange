@@ -121,7 +121,7 @@ public class AppPanel extends JPanel {
 		addMouseWheelListener(new MouseWheelListener() {
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				int steps = (int) Math.pow(e.getWheelRotation(), 2)
-						* (e.getWheelRotation() < 0 ? -1 : 1);
+				* (e.getWheelRotation() < 0 ? -1 : 1);
 				zoomMap(e.getX(), e.getY(), steps);
 			}
 		});
@@ -135,7 +135,7 @@ public class AppPanel extends JPanel {
 					}
 					Global.simulator.changeSpeed(+1);
 					break;
-				// = Sign which is same as plus, but without shift
+					// = Sign which is same as plus, but without shift
 				case 61:
 					Global.simulator.changeSpeed(-1);
 					break;
@@ -158,23 +158,23 @@ public class AppPanel extends JPanel {
 					windowProjector.offsetX -= 20;
 					break;
 				case 'V':
-				  showVehicleInfo = !showVehicleInfo;
-				  break;
+					Global.window.clickMenuItem("Show Vehicle Info\t v");
+					break;
 				case 'M':
-				  showMap = !showMap;
-				  break;
+					Global.window.clickMenuItem("Show Infrastructure Map\t m");
+					break;
 				case 'D':
-				  showDistances = !showDistances;
-				  break;
+					Global.window.clickMenuItem("Show Disances\t d");
+					break;
 				case 'T':
-				  showVehicleDebugTraces = !showVehicleDebugTraces;
-				  break;
+					Global.window.clickMenuItem("Show Vehicle Traces\t t");
+					break;
 				case 'N':
-				  showAllNodes = !showAllNodes;
-				  break;
+					Global.window.clickMenuItem("Show Nodes\t n");
+					break;
 				case 'I':
-				  showIntersectionInfo = !showIntersectionInfo;
-				  break;
+					Global.window.clickMenuItem("Show Intersection Info\t ");
+					break;
 				}
 			}
 
@@ -197,9 +197,9 @@ public class AppPanel extends JPanel {
 
 	public void centerMap() {
 		windowProjector.offsetX = (int) (getSize().getWidth() / 2)
-				- windowProjector.scale / 2;
+		- windowProjector.scale / 2;
 		windowProjector.offsetY = (int) (getSize().getHeight() / 2)
-				- windowProjector.scale / 2;
+		- windowProjector.scale / 2;
 		repaint();
 	}
 
@@ -244,7 +244,7 @@ public class AppPanel extends JPanel {
 			mapG2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			AlphaComposite ac = AlphaComposite
-					.getInstance(AlphaComposite.SRC_OVER);
+			.getInstance(AlphaComposite.SRC_OVER);
 			mapG2D.setComposite(ac);
 		}
 
@@ -351,7 +351,7 @@ public class AppPanel extends JPanel {
 			overlayG2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			AlphaComposite ac = AlphaComposite
-					.getInstance(AlphaComposite.SRC_OVER);
+			.getInstance(AlphaComposite.SRC_OVER);
 			overlayG2D.setComposite(ac);
 		}
 		Graphics2D g2d = overlayG2D;
@@ -381,13 +381,13 @@ public class AppPanel extends JPanel {
 			// }
 
 			NodePoint rnP = scaledXY(rootNode.x, rootNode.y);
-			
+
 			for (Node connectedNode : rootNode.connectedNodes) {
 				Way w = Oracle.wayBetweenNodes(rootNode.id, connectedNode.id);
 
 				if (w.oneway) {
 					System.out
-							.println("Warning: not drawing one way traffic lights");
+					.println("Warning: not drawing one way traffic lights");
 				} else {
 					LightFSM.LIGHT light = i.getLightForWayOnLane(null, connectedNode.id, null, 0);
 
@@ -403,30 +403,30 @@ public class AppPanel extends JPanel {
 					} else if (light == LightFSM.LIGHT.RED) {
 						g2d.setColor(new Color(255, 0, 0, 100));
 					}
-					
-          // if (i instanceof FiveWayIntersection) {
-          //   FiveWayIntersection ii = (FiveWayIntersection)i;
-          //   int size = 10;
-          //   if (connectedNode.id.equals(ii.eastNodeId) || connectedNode.id.equals(ii.westNodeId)) {
-          //              g2d.setColor(Color.MAGENTA);
-          //   }
-          //   else if (connectedNode.id.equals(ii.northNodeId) || connectedNode.id.equals(ii.southNodeId)) {
-          //              g2d.setColor(Color.BLUE);
-          //            }
-          //            else if (connectedNode.id.equals(ii.branchNodeId)) {
-          //              g2d.setColor(Color.RED);
-          //            }
-          //   g2d.fillOval((int) cnP.x - size / 2, (int) cnP.y - size / 2, size, size);
-          //          }
+
+					// if (i instanceof FiveWayIntersection) {
+					//   FiveWayIntersection ii = (FiveWayIntersection)i;
+					//   int size = 10;
+					//   if (connectedNode.id.equals(ii.eastNodeId) || connectedNode.id.equals(ii.westNodeId)) {
+					//              g2d.setColor(Color.MAGENTA);
+					//   }
+					//   else if (connectedNode.id.equals(ii.northNodeId) || connectedNode.id.equals(ii.southNodeId)) {
+					//              g2d.setColor(Color.BLUE);
+					//            }
+					//            else if (connectedNode.id.equals(ii.branchNodeId)) {
+					//              g2d.setColor(Color.RED);
+					//            }
+					//   g2d.fillOval((int) cnP.x - size / 2, (int) cnP.y - size / 2, size, size);
+					//          }
 
 					g2d.drawLine((int) cnP.x, (int) cnP.y, (int) rnP.x,
 							(int) rnP.y);
 				}
 			}
 			if (showIntersectionInfo) {
-  			g2d.setColor(Color.BLACK);
-  			g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
-  			g2d.drawString(i.getState(), (int) rnP.x + 5, (int) rnP.y - 5);
+				g2d.setColor(Color.BLACK);
+				g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
+				g2d.drawString(i.getState(), (int) rnP.x + 5, (int) rnP.y - 5);
 			}
 		}
 
@@ -444,9 +444,9 @@ public class AppPanel extends JPanel {
 				p = scaledXY(Global.projection.convertLongToX(v.lon),
 						Global.projection.convertLatToY(v.lat));
 			}
-			
+
 			int size = 5;
-			
+
 			if (v.paused()) {
 				size = 10;
 				g2d.setColor(Color.MAGENTA);
@@ -462,15 +462,15 @@ public class AppPanel extends JPanel {
 				g2d.setFont(new Font("TimesRoman", Font.BOLD, 8));
 				g2d.drawString("vin " + v.vin, (int) p.x + 5, (int) p.y);
 				if (v.navigation != null) {
-          g2d.drawString("origin " + (v.navigation.getOrigin() == null ? "(none)" : v.navigation.getOrigin()),
-             (int) p.x + 5, (int) p.y + 10);
-          g2d.drawString("dest " + (v.navigation.getDestination() == null ? "(none)" : v.navigation.getDestination()),
-             (int) p.x + 5, (int) p.y + 20);
-         }
-         else {
-           g2d.drawString("origin (none)", (int) p.x + 5, (int) p.y + 10);
-           g2d.drawString("dest (none)", (int) p.x + 5, (int) p.y + 20);
-         }
+					g2d.drawString("origin " + (v.navigation.getOrigin() == null ? "(none)" : v.navigation.getOrigin()),
+							(int) p.x + 5, (int) p.y + 10);
+					g2d.drawString("dest " + (v.navigation.getDestination() == null ? "(none)" : v.navigation.getDestination()),
+							(int) p.x + 5, (int) p.y + 20);
+				}
+				else {
+					g2d.drawString("origin (none)", (int) p.x + 5, (int) p.y + 10);
+					g2d.drawString("dest (none)", (int) p.x + 5, (int) p.y + 20);
+				}
 				g2d.drawString("km/h " + v.speed(), (int) p.x + 5,
 						(int) p.y + 30);
 				g2d.drawString("km/s^2 " + v.acceleration, (int) p.x + 5,
@@ -492,8 +492,8 @@ public class AppPanel extends JPanel {
 				g2d.drawString("behavior is " + d.activeBehavior.state(),
 						(int) p.x + 5, (int) p.y + 70);
 				if (v.getNextIntersection() != null && v.getOriginNode() != null && v.getNodeAfterNextIntersection() != null) {
-  				g2d.drawString("angle to intersection " + v.getNextIntersection().angle(v.getOriginNode().id, v.getNodeAfterNextIntersection().id),
-  						(int) p.x + 5, (int) p.y + 80);
+					g2d.drawString("angle to intersection " + v.getNextIntersection().angle(v.getOriginNode().id, v.getNodeAfterNextIntersection().id),
+							(int) p.x + 5, (int) p.y + 80);
 				}
 			}
 
@@ -502,7 +502,7 @@ public class AppPanel extends JPanel {
 				if (vehicleInFront != null) {
 					NodePoint pp = scaledXY(
 							Global.projection
-									.convertLongToX(vehicleInFront.lon),
+							.convertLongToX(vehicleInFront.lon),
 							Global.projection.convertLatToY(vehicleInFront.lat));
 					g2d.setColor(Color.BLUE);
 					g2d.drawLine((int) pp.x, (int) pp.y, (int) p.x, (int) p.y);
@@ -550,7 +550,7 @@ public class AppPanel extends JPanel {
 			hudG2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			AlphaComposite ac = AlphaComposite
-					.getInstance(AlphaComposite.SRC_OVER);
+			.getInstance(AlphaComposite.SRC_OVER);
 			hudG2D.setComposite(ac);
 		}
 		Graphics2D g2d = hudG2D;
@@ -564,7 +564,7 @@ public class AppPanel extends JPanel {
 		if (Global.simulator.simulatorTime() > 0)
 			g2d.drawString(
 					"Simulator Time: "
-							+ df.format(Global.simulator.simulatorTime()), 10,
+					+ df.format(Global.simulator.simulatorTime()), 10,
 					30);
 		else
 			g2d.drawString("Simulator Time: 0", 10, 30);
