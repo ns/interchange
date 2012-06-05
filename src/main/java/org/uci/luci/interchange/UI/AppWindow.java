@@ -1,6 +1,8 @@
 package org.uci.luci.interchange.UI;
 
 import org.uci.luci.interchange.Util.*;
+
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -48,14 +50,14 @@ public class AppWindow implements ActionListener {
 		view.add(makeMenuItem("Use White Background"));
 		view.add(makeMenuItem("Use Black Background"));
 		view.addSeparator();
-		view.add(makeMenuItem("Toggle Place Names"));
-		view.add(makeMenuItem("Toggle Vehicle Info\t v"));
+		view.add(makeCheckBoxMenuItem("Toggle Place Names"));
+		view.add(makeCheckBoxMenuItem("Toggle Vehicle Info\t v"));
 
 		JMenu debug = new JMenu("Debug");
-		debug.add(makeMenuItem("Toggle Vehicle Traces\t t"));
-		debug.add(makeMenuItem("Toggle Infrastructure Map\t m"));
-		debug.add(makeMenuItem("Toggle Nodes\t n"));
-		debug.add(makeMenuItem("Toggle Distances\t d"));
+		debug.add(makeCheckBoxMenuItem("Toggle Vehicle Traces\t t"));
+		debug.add(makeCheckBoxMenuItem("Toggle Infrastructure Map\t m"));
+		debug.add(makeCheckBoxMenuItem("Toggle Nodes\t n"));
+		debug.add(makeCheckBoxMenuItem("Toggle Distances\t d"));
 
 		menubar.add(sim);
 		menubar.add(view);
@@ -68,6 +70,20 @@ public class AppWindow implements ActionListener {
 		return makeMenuItem(action, this);
 	}
 
+	private JCheckBoxMenuItem makeCheckBoxMenuItem(String action) {
+		return makeCheckBoxMenuItem(action, this, false);
+	}
+	
+	private JCheckBoxMenuItem makeCheckBoxMenuItem(String action, Boolean startChecked) {
+		return makeCheckBoxMenuItem(action, this, startChecked);
+	}
+	
+	private JCheckBoxMenuItem makeCheckBoxMenuItem(String action, ActionListener listener, Boolean startChecked) {
+		JCheckBoxMenuItem eMenuItem = new JCheckBoxMenuItem(action, startChecked);
+		eMenuItem.addActionListener(listener);
+		return eMenuItem;
+	}
+	
 	private JMenuItem makeMenuItem(String action, ActionListener listener) {
 		JMenuItem eMenuItem = new JMenuItem(action);
 		eMenuItem.addActionListener(listener);
@@ -75,8 +91,11 @@ public class AppWindow implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		// Menu item actions
-		String command = e.getActionCommand();
+		performAction(e.getActionCommand());
+	}
+	
+	public void performAction(String command)
+	{
 		try {
 			if (command.equals("Start")) {
 				Global.simulator.unpause();
@@ -90,11 +109,11 @@ public class AppWindow implements ActionListener {
 				Global.simulator.changeSpeed(+10);
 			} else if (command.equals("Slow Down\t -")) {
 				Global.simulator.changeSpeed(-10);
-			} else if (command.equals("Zoom In\t\t ]")) {
+			} else if (command.equals("Zoom In\t\t [")) {
 				System.out.println("here");
 				appPanel.zoomMap(+10);
 				// myPanel.centerMap();
-			} else if (command.equals("Zoom Out\t [")) {
+			} else if (command.equals("Zoom Out\t ]")) {
 				appPanel.zoomMap(-10);
 				// myPanel.centerMap();
 			} else if (command.equals("Center Map")) {
@@ -113,6 +132,8 @@ public class AppWindow implements ActionListener {
 				appPanel.showVehicleInfo = !appPanel.showVehicleInfo;
 			} else if (command.equals("Toggle Distances\t d")) {
 				appPanel.showDistances = !appPanel.showDistances;
+			} else {
+				System.out.println("Command Not Found: '" + command + "'");
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
