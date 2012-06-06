@@ -7,7 +7,7 @@ import org.uci.luci.interchange.Intersections.LightFSM.LIGHT;
 import org.uci.luci.interchange.Util.Utils;
 
 public class InterchangeLightFSM {
-	private double deadTimeDur = 5;
+	private double deadTimeDur = 0;
 	private double minThroughsGreenDur;
 	private double throughsGreenDur, throughsYellowDur;
 	private double leftsGreenDur, leftsYellowDur;
@@ -257,15 +257,22 @@ public class InterchangeLightFSM {
 				lastStateChangeAt = simTime;
 			} else if (g1BidsLeft.size() > 0
 					&& sinceLastStateChange > throughsGreenDur) {
-				state = "lefts_green1";
+				state = "throughs_yellow1";
 				lastStateChangeAt = simTime;
 			}
 		} else if (state.equals("throughs_yellow1")
 				&& sinceLastStateChange > throughsYellowDur) {
-			if (g2BidsLeft.size() > 0)
-				state = "lefts_green2";
-			else
-				state = "throughs_green2";
+			if (group1Bids() >= group2Bids()) {
+				if (g1BidsLeft.size() > 0)
+					state = "lefts_green1";
+				else
+					state = "throughs_green1";
+			} else {
+				if (g2BidsLeft.size() > 0)
+					state = "lefts_green2";
+				else
+					state = "throughs_green2";
+			}
 			lastStateChangeAt = simTime;
 		} else if (state.equals("lefts_green2")
 				&& sinceLastStateChange > leftsGreenDur) {
@@ -282,12 +289,23 @@ public class InterchangeLightFSM {
 				lastStateChangeAt = simTime;
 			} else if (g2BidsLeft.size() > 0
 					&& sinceLastStateChange > throughsGreenDur) {
-				state = "lefts_green2";
+				state = "throughs_yellow2";
 				lastStateChangeAt = simTime;
 			}
 		} else if (state.equals("throughs_yellow2")
 				&& sinceLastStateChange > throughsYellowDur) {
-			state = "all_red";
+			if (group1Bids() >= group2Bids()) {
+				if (g1BidsLeft.size() > 0)
+					state = "lefts_green1";
+				else
+					state = "throughs_green1";
+			} else {
+				if (g2BidsLeft.size() > 0)
+					state = "lefts_green2";
+				else
+					state = "throughs_green2";
+			}
+			// state = "all_red";
 			lastStateChangeAt = simTime;
 		}
 	}

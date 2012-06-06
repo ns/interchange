@@ -32,13 +32,13 @@ public class Simulator extends Thread {
 	int delay;
 	int simulatorTicksSinceCheck;
 	long simulatorTimeSinceCheck;
-	double tickLength = 1.0 / 10.0; // 1/60th of a sec
+	double tickLength = 1.0 / 5.0; // 1/60th of a sec
 	double simulatorTime = 0;
 	// 60 for rushed tests, 120 for max
-	int spawnRate = 20; // 120;
+	int spawnRate = 5; // 120;
 	int tick = 0;
-	int percentOfRushedDrivers = 2;
-	int driverRushingLevel = 0;
+	int percentOfRushedDrivers = 0;
+	int driverRushingLevel = 100;
 
 	// "important" paths where drivers will be rushed
 	String impPath1Origin = "122969631";
@@ -57,7 +57,7 @@ public class Simulator extends Thread {
 	public double simulatorTime() {
 		return simulatorTime;
 	}
-	
+
 	public Simulator() throws InterruptedException {
 		delay = 10;
 		lastSimulatorStepTotalVehicles = 0;
@@ -120,55 +120,55 @@ public class Simulator extends Thread {
 	}
 
 	public void generateVehiclesPhase(int tick) {
-    // if (tick % 50 == 0) {
-    //  Vehicle v = null;
-    //  VehicleDriver d = null;
-    //  try {
-    //    v = VehicleFactory.createVehicleAtNode(Global.openStreetMap
-    //        .getNode(impPath1Origin));
-    //    if (v == null)
-    //      return;
-    //    v.spawnedAtSpawnRate = spawnRate;
-    //    d = VehicleDriverFactory.createVehicleDriver(v);
-    //    d.setDestinationAndGo(impPath1Destination);
-    // 
-    //    d.setRushedness(driverRushingLevel);
-    //    d.driverGroup = 1;
-    //    d.spawnedAtPercentRushedness = percentOfRushedDrivers;
-    // 
-    //    v.isBeingCreated = false;
-    //  } catch (NoPathToDestinationException e) {
-    //    if (d != null)
-    //      VehicleDriverFactory.destroyVehicleDriver(d);
-    //    if (v != null)
-    //      VehicleFactory.destroyVehicle(v);
-    //  }
-    // }
-    // 
-    // if (tick % 50 == 25) {
-    //  Vehicle v = null;
-    //  VehicleDriver d = null;
-    //  try {
-    //    v = VehicleFactory.createVehicleAtNode(Global.openStreetMap
-    //        .getNode(impPath2Origin));
-    //    if (v == null)
-    //      return;
-    //    v.spawnedAtSpawnRate = spawnRate;
-    //    d = VehicleDriverFactory.createVehicleDriver(v);
-    //    d.setDestinationAndGo(impPath2Destination);
-    // 
-    //    d.setRushedness(driverRushingLevel);
-    //    d.driverGroup = 2;
-    //    d.spawnedAtPercentRushedness = percentOfRushedDrivers;
-    // 
-    //    v.isBeingCreated = false;
-    //  } catch (NoPathToDestinationException e) {
-    //    if (d != null)
-    //      VehicleDriverFactory.destroyVehicleDriver(d);
-    //    if (v != null)
-    //      VehicleFactory.destroyVehicle(v);
-    //  }
-    // }
+		// if (tick % 50 == 0) {
+		// Vehicle v = null;
+		// VehicleDriver d = null;
+		// try {
+		// v = VehicleFactory.createVehicleAtNode(Global.openStreetMap
+		// .getNode(impPath1Origin));
+		// if (v == null)
+		// return;
+		// v.spawnedAtSpawnRate = spawnRate;
+		// d = VehicleDriverFactory.createVehicleDriver(v);
+		// d.setDestinationAndGo(impPath1Destination);
+		//
+		// d.setRushedness(driverRushingLevel);
+		// d.driverGroup = 1;
+		// d.spawnedAtPercentRushedness = percentOfRushedDrivers;
+		//
+		// v.isBeingCreated = false;
+		// } catch (NoPathToDestinationException e) {
+		// if (d != null)
+		// VehicleDriverFactory.destroyVehicleDriver(d);
+		// if (v != null)
+		// VehicleFactory.destroyVehicle(v);
+		// }
+		// }
+		//
+		// if (tick % 50 == 25) {
+		// Vehicle v = null;
+		// VehicleDriver d = null;
+		// try {
+		// v = VehicleFactory.createVehicleAtNode(Global.openStreetMap
+		// .getNode(impPath2Origin));
+		// if (v == null)
+		// return;
+		// v.spawnedAtSpawnRate = spawnRate;
+		// d = VehicleDriverFactory.createVehicleDriver(v);
+		// d.setDestinationAndGo(impPath2Destination);
+		//
+		// d.setRushedness(driverRushingLevel);
+		// d.driverGroup = 2;
+		// d.spawnedAtPercentRushedness = percentOfRushedDrivers;
+		//
+		// v.isBeingCreated = false;
+		// } catch (NoPathToDestinationException e) {
+		// if (d != null)
+		// VehicleDriverFactory.destroyVehicleDriver(d);
+		// if (v != null)
+		// VehicleFactory.destroyVehicle(v);
+		// }
+		// }
 
 		if (tick % spawnRate == 0) {
 			Vehicle v = null;
@@ -185,12 +185,12 @@ public class Simulator extends Thread {
 				// d.pickRandomDestinationAndGo();
 				d.setDestinationAndGo(route.get(route.size() - 1));
 
-				if (Utils.randomNumberGenerator().nextInt(100) < percentOfRushedDrivers) {
+				if (Utils.randomNumberGenerator().nextInt(100) < percentOfRushedDrivers && false) {
 					d.setRushedness(driverRushingLevel);
 					d.driverGroup = 1;
 
 				} else {
-					d.setRushedness(50);
+					d.setRushedness(1);
 					d.driverGroup = 3;
 				}
 				d.spawnedAtPercentRushedness = percentOfRushedDrivers;
@@ -272,7 +272,8 @@ public class Simulator extends Thread {
 				// if (vv.throughsMade >= 10 && vv.throughsMade <= 15
 				// && vv.leftTurnsMade >= 1 && vv.leftTurnsMade <= 5) {
 				if (d.driverGroup == 1) {
-					StatisticsLogger.addSample("g1-" + driverRushingLevel,// vv.spawnedAtSpawnRate
+					StatisticsLogger.addSample("g1-"
+							+ d.spawnedAtPercentRushedness,// vv.spawnedAtSpawnRate
 							// + "",//
 							// spawnRate
 							new VehicleSample(vv.vin, simulatorTime,
@@ -289,13 +290,14 @@ public class Simulator extends Thread {
 									+ d.spawnedAtPercentRushedness + ","
 									+ vv.leftTurnsMade + ","
 									+ vv.rightTurnsMade + "," + vv.throughsMade
-									+ "," + driverRushingLevel
-									+ "," + vv.vehicleTotalStoppedTimeAtLeft
-									+ "," + vv.vehicleTotalStoppedTimeAtRight
-									+ "," + vv.vehicleTotalStoppedTimeAtThrough);
+									+ "," + driverRushingLevel + ","
+									+ vv.vehicleTotalStoppedTimeAtLeft + ","
+									+ vv.vehicleTotalStoppedTimeAtRight + ","
+									+ vv.vehicleTotalStoppedTimeAtThrough);
 				}
 				if (d.driverGroup == 2) {
-					StatisticsLogger.addSample("g2-" + driverRushingLevel,// vv.spawnedAtSpawnRate
+					StatisticsLogger.addSample("g2-"
+							+ d.spawnedAtPercentRushedness,// vv.spawnedAtSpawnRate
 							// + "",//
 							// spawnRate
 							new VehicleSample(vv.vin, simulatorTime,
@@ -311,19 +313,20 @@ public class Simulator extends Thread {
 									+ d.spawnedAtPercentRushedness + ","
 									+ vv.leftTurnsMade + ","
 									+ vv.rightTurnsMade + "," + vv.throughsMade
-									+ "," + driverRushingLevel
-									+ "," + vv.vehicleTotalStoppedTimeAtLeft
-									+ "," + vv.vehicleTotalStoppedTimeAtRight
-									+ "," + vv.vehicleTotalStoppedTimeAtThrough);
+									+ "," + driverRushingLevel + ","
+									+ vv.vehicleTotalStoppedTimeAtLeft + ","
+									+ vv.vehicleTotalStoppedTimeAtRight + ","
+									+ vv.vehicleTotalStoppedTimeAtThrough);
 				} else if (d.driverGroup == 3) {
-          StatisticsLogger.addSample("g3-" + driverRushingLevel,//
-              // vv.spawnedAtSpawnRate
-              // + "",//
-              // spawnRate
-              new VehicleSample(vv.vin, simulatorTime,
-                  vv.vehicleTotalTraveledDistance,
-                  vv.vehicleTotalWaitTime, d.rushedness(),
-                  vv.throughsMade));
+					StatisticsLogger.addSample("g3-"
+							+ d.spawnedAtPercentRushedness + "",//
+							// vv.spawnedAtSpawnRate
+							// + "",//
+							// spawnRate
+							new VehicleSample(vv.vin, simulatorTime,
+									vv.vehicleTotalTraveledDistance,
+									vv.vehicleTotalWaitTime, d.rushedness(),
+									vv.throughsMade));
 
 					StatisticsLogger.log("vehicle.distTraveled2DelayTime-g3",
 							simulatorTime + "," + vv.vin + ","
@@ -334,10 +337,10 @@ public class Simulator extends Thread {
 									+ d.spawnedAtPercentRushedness + ","
 									+ vv.leftTurnsMade + ","
 									+ vv.rightTurnsMade + "," + vv.throughsMade
-									+ "," + driverRushingLevel
-									+ "," + vv.vehicleTotalStoppedTimeAtLeft
-									+ "," + vv.vehicleTotalStoppedTimeAtRight
-									+ "," + vv.vehicleTotalStoppedTimeAtThrough);
+									+ "," + driverRushingLevel + ","
+									+ vv.vehicleTotalStoppedTimeAtLeft + ","
+									+ vv.vehicleTotalStoppedTimeAtRight + ","
+									+ vv.vehicleTotalStoppedTimeAtThrough);
 				}
 				// }
 
@@ -389,12 +392,12 @@ public class Simulator extends Thread {
 		if (ci != null)
 			System.out.println("ci = " + ci + " samples = " + ci.samples
 					+ " range = " + ci.range());
-		if (ci != null && ci.samples > 100 && ci.range() < 10) {
+		if (ci != null && ci.samples > 200) {
 			StatisticsLogger.purgeAllSampleData();
 
 			// increasing spawn rate
-			spawnRate -= 10;
-			if (spawnRate < 30) {
+			spawnRate -= 1;
+			if (spawnRate < 5) {
 				System.out.println("Done!");
 				System.exit(0);
 			}
@@ -417,9 +420,11 @@ public class Simulator extends Thread {
 
 	private void statsForSpawnRateWithTwoRushingRates(int tick) {
 		ConfidenceInterval ciH = StatisticsLogger
-				.calculateConfidenceIntervalForSample(spawnRate + "-h");
+				.calculateConfidenceIntervalForSample("g1-"
+						+ percentOfRushedDrivers);
 		ConfidenceInterval ciL = StatisticsLogger
-				.calculateConfidenceIntervalForSample(spawnRate + "-l");
+				.calculateConfidenceIntervalForSample("g3-"
+						+ percentOfRushedDrivers);
 		if (ciL != null && ciH != null) {
 			System.out.println("ci = " + ciL + " samples = " + ciL.samples
 					+ " range = " + ciL.range());
@@ -429,12 +434,14 @@ public class Simulator extends Thread {
 			System.out.println("..null");
 		}
 
-		if (ciL != null && ciL.samples > 50 && ciL.sd() < 25 && ciH != null
-				&& ciH.samples > 50 && ciH.sd() < 25) {
+		if (ciL != null && ciL.samples > 200 && ciH != null
+				&& ciH.samples > 200) {
 			StatisticsLogger.purgeAllSampleData();
 
-			spawnRate += 5;
-			if (spawnRate > 95) {
+			percentOfRushedDrivers += 5;
+			// spawnRate -= 1;
+			// if (spawnRate < 5) {
+			if (percentOfRushedDrivers > 95) {
 				System.out.println("Done!");
 				System.exit(0);
 			}
@@ -474,22 +481,23 @@ public class Simulator extends Thread {
 				.calculateConfidenceIntervalForSample("g1-"
 						+ driverRushingLevel);
 		ConfidenceInterval ciL = StatisticsLogger
-				.calculateConfidenceIntervalForSample("g2-"
+				.calculateConfidenceIntervalForSample("g3-"
 						+ driverRushingLevel);
-		// if (ciL != null && ciH != null) {
-		// System.out.println("ci = " + ciL + " samples = " + ciL.samples
-		// + " range = " + ciL.range());
-		// System.out.println("ci = " + ciH + " samples = " + ciH.samples
-		// + " range = " + ciH.range());
-		// } else {
-		// System.out.println("..null");
-		// }
+		if (ciL != null && ciH != null) {
+			System.out.println("ci = " + ciL + " samples = " + ciL.samples
+					+ " range = " + ciL.range());
+			System.out.println("ci = " + ciH + " samples = " + ciH.samples
+					+ " range = " + ciH.range());
+		} else {
+			System.out.println("..null");
+		}
 
 		// if (ciL != null && ciL.samples > 50 && ciL.sd() < 20 && ciH != null
 		// && ciH.samples > 50 && ciH.sd() < 20) {
 		// StatisticsLogger.purgeAllSampleData();
-		if (ciL != null && ciL.samples > 50 && ciH != null && ciH.samples > 50) {
-			driverRushingLevel += 10;
+		if (ciL != null && ciL.samples > 200 && ciH != null
+				&& ciH.samples > 200) {
+			driverRushingLevel += 5;
 			if (driverRushingLevel > 100) {
 				System.out.println("Done!");
 				System.exit(0);
@@ -504,9 +512,9 @@ public class Simulator extends Thread {
 
 		// statsForSpawnRate(tick);
 		// statsForConstantEverything(tick);
-		// statsForSpawnRateWithTwoRushingRates(tick);
+		statsForSpawnRateWithTwoRushingRates(tick);
 		// statsForConstantSpawnRateWithRushingRateIncreasing(tick);
-		statsForConstantSpawnRateWithRushingLevelIncreasing(tick);
+		// statsForConstantSpawnRateWithRushingLevelIncreasing(tick);
 
 		// ConfidenceInterval ciH = StatisticsLogger
 		// .calculateConfidenceIntervalForSample(percentOfRushedDrivers

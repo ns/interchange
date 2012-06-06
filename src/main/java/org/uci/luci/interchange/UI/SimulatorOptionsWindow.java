@@ -72,6 +72,11 @@ public class SimulatorOptionsWindow {
 			this.add(t);
 			t.setSelected(true);
 			intersectionType.add(t);
+			t = new JRadioButton("Loop Sensors");
+			t.setActionCommand("Loop Sensors");
+			this.add(t);
+			t.setSelected(true);
+			intersectionType.add(t);
 
 			JButton subButton = new JButton("Start Simulation");
 			subButton.addActionListener(this);

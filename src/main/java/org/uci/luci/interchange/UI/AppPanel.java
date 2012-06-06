@@ -606,16 +606,16 @@ public class AppPanel extends JPanel {
 		else
 			g2d.drawString("Simulator Time: 0", 10, 30);
 
-		g2d.drawString("Total Vehicles: "
-				+ Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
-		g2d.drawString("Spawn Rate: " + Global.simulator.getSpawnRate(), 10, 70);
+//		g2d.drawString("Total Vehicles: "
+//				+ Global.simulator.lastSimulatorStepTotalVehicles, 10, 50);
+//		g2d.drawString("Spawn Rate: " + Global.simulator.getSpawnRate(), 10, 70);
 
 		if (highlightPoint != null) {
 			g2d.setColor(Color.RED);
 			int size = 20;
 			NodePoint pp = scaledXY(highlightPoint.x, highlightPoint.y);
-			g2d.fillOval((int) pp.x - size / 2, (int) pp.y - size / 2, size,
-					size);
+//			g2d.fillOval((int) pp.x - size / 2, (int) pp.y - size / 2, size,
+//					size);
 
 			for (Map.Entry<String, Node> entry : osm.nodeHash.entrySet()) {
 				Node n = entry.getValue();

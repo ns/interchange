@@ -21,6 +21,8 @@ public class SimulationFactory {
 
 		if (intersectionType.equals("Bidding"))
 			IntersectionRegistry.generateBiddingIntersections();
+		else if (intersectionType.equals("Loop Sensors"))
+			IntersectionRegistry.generateLoopSensorsIntersections();
 		else
 			IntersectionRegistry.generateTraditionalIntersections();
 

@@ -8,7 +8,7 @@ public class LightFSM {
     RED, GREEN, YELLOW
   };
   
-  private double deadTimeDur = 5;
+  private double deadTimeDur = 0;
   private double throughsGreenDur, throughsYellowDur;
   private double leftsGreenDur, leftsYellowDur;
   

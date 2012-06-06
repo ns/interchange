@@ -32,7 +32,8 @@ public class IntersectionRegistry {
 		return new ArrayList<Intersection>(intersectionHash.values());
 	}
 
-	public static void generateTraditionalIntersections() throws UnknownIntersectionTypeException {
+	public static void generateTraditionalIntersections()
+			throws UnknownIntersectionTypeException {
 		List<Node> nodes = Global.openStreetMap.nodes();
 
 		for (Node n : nodes) {
@@ -49,15 +50,17 @@ public class IntersectionRegistry {
 				} else if (n.connectedNodes.size() == 5) {
 					IntersectionFactory.createFiveWayIntersectionForNode(n);
 				} else {
-					System.out.println("Node " + n.id + " (" + n.lat + ", " + n.lon + ") has "
-							+ n.connectedNodes.size() + " connections!");
-    			throw new UnknownIntersectionTypeException();
+					System.out.println("Node " + n.id + " (" + n.lat + ", "
+							+ n.lon + ") has " + n.connectedNodes.size()
+							+ " connections!");
+					throw new UnknownIntersectionTypeException();
 				}
 			}
 		}
 	}
 
-	public static void generateBiddingIntersections() throws UnknownIntersectionTypeException {
+	public static void generateBiddingIntersections()
+			throws UnknownIntersectionTypeException {
 		List<Node> nodes = Global.openStreetMap.nodes();
 
 		for (Node n : nodes) {
@@ -75,9 +78,38 @@ public class IntersectionRegistry {
 					IntersectionFactory
 							.createFourWayBiddingIntersectionForNode(n);
 				} else {
-					System.out.println("Node " + n.id + " (" + n.lat + ", " + n.lon + ") has "
-							+ n.connectedNodes.size() + " connections!");
-      			throw new UnknownIntersectionTypeException();
+					System.out.println("Node " + n.id + " (" + n.lat + ", "
+							+ n.lon + ") has " + n.connectedNodes.size()
+							+ " connections!");
+					throw new UnknownIntersectionTypeException();
+				}
+			}
+		}
+	}
+
+	public static void generateLoopSensorsIntersections()
+			throws UnknownIntersectionTypeException {
+		List<Node> nodes = Global.openStreetMap.nodes();
+
+		for (Node n : nodes) {
+			if (n.connectedNodes.size() > 2) {
+
+				if (n.isHighwayNode()) {
+					IntersectionFactory.createHighwayRampForNode(n);
+					continue;
+				}
+
+				if (n.connectedNodes.size() == 3) {
+					IntersectionFactory
+							.createThreeWayLoopSensorsIntersectionForNode(n);
+				} else if (n.connectedNodes.size() == 4) {
+					IntersectionFactory
+							.createFourWayLoopSensorsIntersectionForNode(n);
+				} else {
+					System.out.println("Node " + n.id + " (" + n.lat + ", "
+							+ n.lon + ") has " + n.connectedNodes.size()
+							+ " connections!");
+					throw new UnknownIntersectionTypeException();
 				}
 			}
 		}
